@@ -7,7 +7,6 @@ const ForgotPassword = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Lógica para recuperar contraseña
     };
 
     return (

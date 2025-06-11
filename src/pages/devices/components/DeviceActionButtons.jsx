@@ -1,4 +1,3 @@
-// src/pages/devices/components/DeviceActionsButtons.jsx
 import React from 'react';
 import { LockClosedIcon, LockOpenIcon, MapPinIcon, DeviceTabletIcon, CreditCardIcon } from '@heroicons/react/24/outline';
 

@@ -1,11 +1,9 @@
-// src/pages/users/UserManagementPage.jsx
 import React, { useState } from 'react';
-import UserTable from './components/UserTable'; // Ajusta la ruta si es necesario
-import UserFormModal from './components/UserFormModal'; // Ajusta la ruta si es necesario
+import UserTable from './components/UserTable'; 
+import UserFormModal from './components/UserFormModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { v4 as uuidv4 } from 'uuid'; // Para generar IDs únicos
+import { v4 as uuidv4 } from 'uuid'; 
 
-// Datos dummy iniciales de usuarios
 const initialUsers = [
     { id: uuidv4(), username: 'superadmin', name: 'Administrador Principal', role: 'Superadmin', email: 'super@smartpay.com', status: 'Activo' },
     { id: uuidv4(), username: 'admin_tienda_a', name: 'Admin Tienda A', role: 'Admin', email: 'admin.a@tienda.com', status: 'Activo' },
@@ -18,7 +16,7 @@ const initialUsers = [
 const UserManagementPage = () => {
     const [users, setUsers] = useState(initialUsers);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState(null); // Objeto de usuario si estamos editando
+    const [editingUser, setEditingUser] = useState(null); 
 
     const handleOpenModal = (user = null) => {
         setEditingUser(user);
@@ -32,12 +30,10 @@ const UserManagementPage = () => {
 
     const handleSaveUser = (userData) => {
         if (editingUser) {
-            // Actualizar usuario existente
             setUsers(users.map(user =>
                 user.id === editingUser.id ? { ...userData, id: editingUser.id } : user
             ));
         } else {
-            // Añadir nuevo usuario
             setUsers([...users, userData]);
         }
     };

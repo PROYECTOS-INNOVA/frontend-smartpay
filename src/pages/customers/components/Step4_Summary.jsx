@@ -1,4 +1,3 @@
-// src/pages/customers/components/Step4_Summary.jsx
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -34,7 +33,6 @@ const Step4_Summary = ({ onFinalize, onBack, registrationData }) => {
                     )}
                 </div>
 
-                {/* Información del Dispositivo (Ahora muestra los datos recibidos del MDM) */}
                 <div className="bg-gray-50 p-4 rounded-md shadow-sm col-span-1 md:col-span-2">
                     <h3 className="text-lg font-medium text-gray-900 mb-2">Datos del Dispositivo</h3>
                     <p><strong>Número de Serie:</strong> {deviceInfo?.deviceSerial || 'Pendiente'}</p>

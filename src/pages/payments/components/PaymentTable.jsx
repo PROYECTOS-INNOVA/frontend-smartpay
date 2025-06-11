@@ -1,7 +1,6 @@
-// src/pages/payments/components/PaymentTable.jsx
 import React from 'react';
-import { DataTable } from '../../../components/ui/DataTable'; // Asegúrate de que esta ruta sea correcta
-import { CurrencyDollarIcon } from '@heroicons/react/24/outline'; // Icono de dólar
+import { DataTable } from '../../../components/ui/DataTable';
+import { CurrencyDollarIcon } from '@heroicons/react/24/outline';
 
 const PaymentTable = ({ payments }) => {
     const getPaymentStatusClass = (status) => {

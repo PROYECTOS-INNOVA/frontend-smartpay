@@ -19,7 +19,6 @@ const Register = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Lógica de registro
     };
 
     return (

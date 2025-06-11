@@ -1,7 +1,6 @@
-// src/pages/vendors/components/VendorFormModal.jsx
 import React, { useState, useEffect } from 'react';
-import Modal from '../../../components/ui/Modal'; // Ajusta la ruta si es necesario
-import { v4 as uuidv4 } from 'uuid'; // Para generar IDs únicos (asegúrate de tenerlo instalado: npm install uuid)
+import Modal from '../../../components/ui/Modal'; 
+import { v4 as uuidv4 } from 'uuid'; 
 
 const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
     const [formData, setFormData] = useState({
@@ -10,17 +9,17 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
         name: '',
         email: '',
         password: '',
-        role: 'Vendedor', // Por defecto, al crear un vendedor, su rol es 'Vendedor'
+        role: 'Vendedor',
         status: 'Activo'
     });
 
-    // Carga los datos del vendedor si estamos editando, o resetea para un nuevo vendedor
+
     useEffect(() => {
         if (vendor) {
-            setFormData({ ...vendor, password: '' }); // No precargar la contraseña
+            setFormData({ ...vendor, password: '' });
         } else {
             setFormData({
-                id: uuidv4(), // Genera un ID para el nuevo vendedor
+                id: uuidv4(),
                 username: '',
                 name: '',
                 email: '',
@@ -29,7 +28,7 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
                 status: 'Activo'
             });
         }
-    }, [vendor, isOpen]); // Dependencia de vendor y isOpen para resetear al abrir modal
+    }, [vendor, isOpen]);
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
@@ -42,19 +41,19 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validación básica
+
         if (!formData.username || !formData.name || !formData.email) {
             alert('Por favor, completa todos los campos requeridos.');
             return;
         }
 
-        if (!vendor && !formData.password) { // Si es un nuevo vendedor y no hay contraseña
+        if (!vendor && !formData.password) { 
             alert('Por favor, introduce una contraseña para el nuevo vendedor.');
             return;
         }
 
-        onSave(formData); // Llama a la función onSave pasada desde VendorManagementPage
-        onClose(); // Cierra el modal
+        onSave(formData);
+        onClose();
     };
 
     return (
@@ -62,10 +61,9 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
             isOpen={isOpen}
             onClose={onClose}
             title={vendor ? 'Editar Vendedor' : 'Añadir Nuevo Vendedor'}
-            hideFooter={true} // Opcional, si quieres que el modal no tenga footer predefinido
+            hideFooter={true} 
         >
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Campos del formulario */}
                 <div>
                     <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                         Usuario
@@ -77,7 +75,7 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
                         value={formData.username}
                         onChange={handleFormChange}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        disabled={!!vendor} // No permitir cambiar el username al editar
+                        disabled={!!vendor}
                         required
                     />
                     {vendor && <p className="mt-1 text-xs text-gray-500">El nombre de usuario no se puede cambiar.</p>}
@@ -113,7 +111,7 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
                     />
                 </div>
 
-                {!vendor && ( // La contraseña solo es requerida al añadir un nuevo vendedor
+                {!vendor && ( 
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                             Contraseña
@@ -135,10 +133,9 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
                     </p>
                 )}
 
-                {/* El rol siempre será 'Vendedor' para este módulo de gestión */}
                 <input type="hidden" name="role" value="Vendedor" />
 
-                {vendor && ( // Solo mostrar status al editar
+                {vendor && ( 
                     <div>
                         <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                             Estado
@@ -156,7 +153,6 @@ const VendorFormModal = ({ isOpen, onClose, vendor, onSave }) => {
                     </div>
                 )}
 
-                {/* Botones de acción del formulario */}
                 <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                     <button
                         type="button"

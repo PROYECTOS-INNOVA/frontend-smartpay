@@ -1,7 +1,6 @@
-// src/pages/customers/components/CustomerFormModal.jsx
 import React, { useState, useEffect } from 'react';
-import Modal from '../../../components/ui/Modal'; // Ajusta la ruta si es necesario
-import { v4 as uuidv4 } from 'uuid'; // Para generar IDs únicos
+import Modal from '../../../components/ui/Modal';
+import { v4 as uuidv4 } from 'uuid';
 
 const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
     const [formData, setFormData] = useState({
@@ -13,13 +12,12 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
         status: 'active'
     });
 
-    // Carga los datos del cliente si estamos editando, o resetea para un nuevo cliente
     useEffect(() => {
         if (customer) {
             setFormData({ ...customer });
         } else {
             setFormData({
-                id: uuidv4(), // Genera un ID para el nuevo cliente
+                id: uuidv4(),
                 name: '',
                 email: '',
                 phone: '',
@@ -27,7 +25,7 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
                 status: 'active'
             });
         }
-    }, [customer, isOpen]); // Dependencia de customer y isOpen para resetear al abrir modal
+    }, [customer, isOpen]);
 
 
     const handleFormChange = (e) => {
@@ -47,8 +45,8 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
             return;
         }
 
-        onSave(formData); // Llama a la función onSave pasada desde CustomerManagementPage
-        onClose(); // Cierra el modal
+        onSave(formData);
+        onClose();
     };
 
     return (
@@ -59,7 +57,6 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
             hideFooter={true}
         >
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Campos del formulario */}
                 <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                         Nombre Completo
@@ -105,7 +102,6 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
                     />
                 </div>
 
-                {/* El campo 'devices' solo es de visualización o se manejaría en otro lugar */}
                 <div>
                     <label htmlFor="devices" className="block text-sm font-medium text-gray-700">
                         Número de Dispositivos
@@ -123,7 +119,7 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
                     <p className="mt-1 text-xs text-gray-500">Este valor se actualiza automáticamente al gestionar dispositivos.</p>
                 </div>
 
-                {customer && ( // El estado solo es editable al editar un cliente
+                {customer && (
                     <div>
                         <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                             Estado
@@ -141,7 +137,6 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
                     </div>
                 )}
 
-                {/* Botones de acción del formulario */}
                 <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                     <button
                         type="button"

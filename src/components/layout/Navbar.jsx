@@ -1,14 +1,13 @@
-// src/components/layout/Navbar.jsx
 import { MagnifyingGlassIcon, BellIcon, Bars3Icon } from '@heroicons/react/24/outline';
 import { UserCircleIcon } from '@heroicons/react/24/solid';
 import { FaHome } from 'react-icons/fa';
+import { User } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthProvider'; // Importa useAuth
+import { useAuth } from '../../context/AuthProvider';
 
 const Navbar = ({ setSidebarOpen }) => {
-    const { user, logout } = useAuth(); // Obtén el usuario y la función logout del contexto
+    const { user, logout } = useAuth();
 
-    // Determina el nombre y rol a mostrar
     const displayName = user ? user.name : 'Invitado';
     const displayRole = user ? user.role : 'N/A';
 
@@ -16,7 +15,6 @@ const Navbar = ({ setSidebarOpen }) => {
         <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm md:shadow-md">
             <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 h-16">
 
-                {/* Mobile menu button y Logo/Título para móvil */}
                 <div className="flex items-center">
                     <button
                         onClick={() => setSidebarOpen(true)}
@@ -26,16 +24,15 @@ const Navbar = ({ setSidebarOpen }) => {
                         <Bars3Icon className="h-6 w-6" />
                     </button>
 
-                    {/* Logo/Título de la app solo visible en móvil */}
                     <Link to="/dashboard" className="md:hidden flex items-center space-x-2 ml-4 text-slate-800 font-bold text-lg">
                         <img src="/assets/logo.png" alt="Logo SmartPay" className="h-8 w-8 object-contain" />
                         <span>SmartPay</span>
                     </Link>
                 </div>
 
-                {/* Título de la App o breadcrumbs (solo en desktop, alternativo al search) */}
+
                 <div className="flex-1 max-w-xl mx-auto hidden sm:block">
-                    {/* Puedes mostrar el buscador o un título/breadcrumbs aquí */}
+
                     <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
@@ -48,40 +45,45 @@ const Navbar = ({ setSidebarOpen }) => {
                     </div>
                 </div>
 
-                {/* Íconos y perfil de usuario */}
+
                 <div className="flex items-center space-x-4">
-                    {/* Botón de Notificaciones (mostrar solo para roles que lo necesiten) */}
+
                     {(user && (user.role === 'Superadmin' || user.role === 'Vendedor')) && (
                         <button
                             className="p-2 text-slate-500 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 rounded-full transition-colors duration-150 ease-in-out relative"
                             aria-label="Notificaciones"
                         >
                             <BellIcon className="h-6 w-6" />
-                            {/* Indicador de nuevas notificaciones (opcional) */}
                             <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                         </button>
                     )}
 
 
-                    {/* Perfil de usuario */}
+
                     <div className="flex items-center space-x-2 cursor-pointer group relative">
-                        <UserCircleIcon className="h-9 w-9 text-blue-500 group-hover:text-blue-600 transition-colors duration-150 ease-in-out" />
+                        <User className="h-9 w-9 text-blue-500 group-hover:text-blue-600 transition-colors duration-150 ease-in-out" />
                         <div className="hidden sm:block text-right">
                             <p className="text-sm font-semibold text-slate-800">{displayName}</p>
                             <p className="text-xs text-slate-500">{displayRole}</p>
                         </div>
-                        {/* Mini-menú de perfil al hacer click (activar con JS) */}
-                        {user && ( // Solo muestra el menú si hay un usuario logueado
-                            <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transform translate-y-2 group-hover:translate-y-0 group-focus-within:translate-y-0 transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto">
-                                <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</Link>
-                                <Link to="/settings" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Configuración</Link>
-                                <div className="border-t border-gray-100 my-1"></div>
-                                <button
-                                    onClick={logout}
-                                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                                >
-                                    Cerrar Sesión
-                                </button>
+                        {user && (
+                            <div
+                                className="absolute right-0 top-full w-48 bg-white border border-gray-200 rounded-md shadow-lg py-1
+                                            opacity-0 group-hover:opacity-100 group-focus-within:opacity-100
+                                            transform translate-y-0 group-hover:translate-y-0 group-focus-within:translate-y-0
+                                            transition-all duration-300 ease-out pointer-events-none group-hover:pointer-events-auto group-focus-within:pointer-events-auto
+                                            z-10"
+                            >
+                                <div className="pt-2">
+                                    <Link to="/profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Mi Perfil</Link>
+                                    <div className="border-t border-gray-100 my-1"></div>
+                                    <button
+                                        onClick={logout}
+                                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                    >
+                                        Cerrar Sesión
+                                    </button>
+                                </div>
                             </div>
                         )}
                     </div>

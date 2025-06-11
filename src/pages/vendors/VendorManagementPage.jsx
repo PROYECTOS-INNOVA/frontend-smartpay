@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import VendorTable from './components/VendorTable';
 import VendorFormModal from './components/VendorFormModal';
 import { PlusIcon, UserGroupIcon, MagnifyingGlassIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
-import { v4 as uuidv4 } from 'uuid'; // Para generar IDs únicos
+import { v4 as uuidv4 } from 'uuid'; 
 
-// Datos dummy iniciales de vendedores
 const initialVendors = [
     { id: uuidv4(), username: 'vendedor1', name: 'Juan Pérez', email: 'juan.perez@example.com', role: 'Vendedor', status: 'Activo' },
     { id: uuidv4(), username: 'vendedor2', name: 'Ana García', email: 'ana.garcia@example.com', role: 'Vendedor', status: 'Activo' },

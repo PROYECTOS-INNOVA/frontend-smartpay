@@ -1,7 +1,6 @@
-// src/pages/users/components/UserTable.jsx
 import React from 'react';
-import { DataTable } from '../../../components/ui/DataTable'; // Ajusta la ruta si es necesario
-import { PencilIcon, TrashIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline'; // Asegura iconos
+import { DataTable } from '../../../components/ui/DataTable';
+import { PencilIcon, TrashIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
 
 const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
     const columns = [

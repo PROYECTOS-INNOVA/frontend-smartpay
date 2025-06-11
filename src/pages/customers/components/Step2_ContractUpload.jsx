@@ -1,13 +1,10 @@
-// src/pages/customers/components/Step2_ContractUpload.jsx
 import React, { useState, useRef, useEffect } from 'react';
 
 const Step2_ContractUpload = ({ onNext, onBack, initialData }) => {
     const [contractFile, setContractFile] = useState(null);
-    const fileInputRef = useRef(null); // Para resetear el input de archivo
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
-        // Si hay datos iniciales de un contrato, puedes cargarlos aquí
-        // Por ejemplo, si initialData.contractUrl es una URL de un contrato ya subido
     }, [initialData]);
 
     const handleDownloadContract = () => {
@@ -37,8 +34,6 @@ const Step2_ContractUpload = ({ onNext, onBack, initialData }) => {
             alert('Por favor, descarga, firma y sube el contrato PDF.');
             return;
         }
-        // En una aplicación real, aquí subirías el archivo a un servicio de almacenamiento
-        // y pasarías la URL del archivo subido. Por ahora, simulamos.
         console.log('Contrato listo para subir:', contractFile.name);
         onNext({ contractInfo: { fileName: contractFile.name, size: contractFile.size, url: 'dummy_contract_url.pdf' } });
     };

@@ -1,21 +1,17 @@
-// src/pages/customers/components/Step3_DeviceProvisioning.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { InformationCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline'; // Iconos para spinner/info
+import { InformationCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const Step3_DeviceProvisioning = ({ onNext, onBack, initialData, customerId }) => {
     const [qrCodeData, setQrCodeData] = useState('');
     const [deviceProvisioned, setDeviceProvisioned] = useState(false);
     const [loadingProvisioning, setLoadingProvisioning] = useState(false);
-    const [deviceDataFromMDM, setDeviceDataFromMDM] = useState(null); // Datos que "llegarían" del MDM
+    const [deviceDataFromMDM, setDeviceDataFromMDM] = useState(null); 
 
     const simulationTimeoutRef = useRef(null);
 
-    // Genera el QR automáticamente al cargar el paso (o si el customerId cambia)
+
     useEffect(() => {
-        // En un escenario real, 'YOUR_MDM_PROVISIONING_URL' sería proporcionada por tu backend
-        // o sería una URL fija de tu MDM con parámetros para identificar la tienda/cliente.
-        // Aquí simulamos que el QR es para la tienda/MDM y la información del cliente se enlaza post-aprovisionamiento
         const generatedQrData = `smartpay://provision?storeId=YOUR_STORE_ID&configToken=YOUR_MDM_CONFIG_TOKEN&customerId=${customerId}`;
         setQrCodeData(generatedQrData);
 
@@ -30,29 +26,25 @@ const Step3_DeviceProvisioning = ({ onNext, onBack, initialData, customerId }) =
     const handleStartProvisioning = () => {
         setLoadingProvisioning(true);
         setDeviceProvisioned(false);
-        setDeviceDataFromMDM(null); // Resetear datos anteriores
+        setDeviceDataFromMDM(null);
 
-        // Simula el proceso de aprovisionamiento y la recepción de datos del MDM
-        // En un caso real, esto sería una llamada API que tu backend escucharía de tu MDM
-        // o un polling para verificar el estado de aprovisionamiento del dispositivo.
         simulationTimeoutRef.current = setTimeout(() => {
             const simulatedDeviceData = {
                 deviceSerial: `SERIAL-${Math.floor(Math.random() * 100000)}`,
                 deviceModel: `MODELO-SMART-${Math.floor(Math.random() * 100)}`,
                 imei1: `IMEI1-${Math.random().toString(36).substring(2, 12).toUpperCase()}`,
                 imei2: `IMEI2-${Math.random().toString(36).substring(2, 12).toUpperCase()}`,
-                batteryPercentage: Math.floor(Math.random() * (100 - 40 + 1)) + 40, // entre 40 y 100
+                batteryPercentage: Math.floor(Math.random() * (100 - 40 + 1)) + 40,
                 lastLocation: {
-                    latitude: 3.824792 + (Math.random() * 0.01 - 0.005), // Cercano a Pitalito, Huila
+                    latitude: 3.824792 + (Math.random() * 0.01 - 0.005), 
                     longitude: -76.018335 + (Math.random() * 0.01 - 0.005)
                 },
-                // Otros datos que el MDM podría enviar (OS, versión, etc.)
             };
             setDeviceDataFromMDM(simulatedDeviceData);
             setDeviceProvisioned(true);
             setLoadingProvisioning(false);
             alert('¡Dispositivo aprovisionado y datos recibidos!');
-        }, 5000); // Simula 5 segundos de espera
+        }, 5000);
     };
 
     const handleSubmit = (e) => {
@@ -61,7 +53,6 @@ const Step3_DeviceProvisioning = ({ onNext, onBack, initialData, customerId }) =
             alert('Por favor, espera a que el dispositivo sea aprovisionado y sus datos sean recibidos.');
             return;
         }
-        // Pasamos los datos del dispositivo que "recibimos del MDM"
         onNext({ deviceInfo: deviceDataFromMDM });
     };
 
@@ -134,7 +125,7 @@ const Step3_DeviceProvisioning = ({ onNext, onBack, initialData, customerId }) =
                     Anterior
                 </button>
                 <button type="submit"
-                    disabled={!deviceProvisioned} // Deshabilitado hasta que el dispositivo se aprovisione
+                    disabled={!deviceProvisioned}
                     className={`inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white
                         ${deviceProvisioned ? 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500' : 'bg-gray-400 cursor-not-allowed'}`}
                 >

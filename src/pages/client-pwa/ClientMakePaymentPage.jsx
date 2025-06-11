@@ -1,4 +1,3 @@
-// src/pages/client-pwa/ClientMakePaymentPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowLeftIcon, CheckCircleIcon } from '@heroicons/react/24/outline';
@@ -13,9 +12,8 @@ const ClientMakePaymentPage = () => {
     const [paymentProcessing, setPaymentProcessing] = useState(false);
     const [paymentSuccess, setPaymentSuccess] = useState(false);
     const [error, setError] = useState(null);
-    const [deviceSerial, setDeviceSerial] = useState(''); // Para mostrar en la UI
+    const [deviceSerial, setDeviceSerial] = useState('');
 
-    // Dummy devices para obtener el serial
     const allDummyDevices = [
         { id: 'dev1', serial: 'SP-DVC-001' },
         { id: 'dev2', serial: 'SP-DVC-002' },
@@ -38,16 +36,15 @@ const ClientMakePaymentPage = () => {
         setPaymentProcessing(true);
         setPaymentSuccess(false);
 
-        // Simular una llamada a la pasarela de pago / API de pago
+
         setTimeout(() => {
             if (parseFloat(amount) > 0) {
                 setPaymentSuccess(true);
-                // En un caso real, aquí se actualizaría el estado del pago en el backend
             } else {
                 setError("El monto del pago debe ser mayor a cero.");
             }
             setPaymentProcessing(false);
-        }, 2000); // Simular 2 segundos de procesamiento
+        }, 2000);
     };
 
     if (paymentSuccess) {

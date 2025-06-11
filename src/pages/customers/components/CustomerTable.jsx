@@ -1,4 +1,3 @@
-// src/pages/customers/components/CustomerTable.jsx
 import React from 'react';
 import { DataTable } from '../../../components/ui/DataTable';
 import { PencilIcon, TrashIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline'; // Asegura iconos

@@ -1,4 +1,3 @@
-// src/pages/client-pwa/ClientDashboardPage.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
@@ -10,12 +9,11 @@ const ClientDashboardPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- Datos Dummy (Simulando datos relevantes para el cliente) ---
     const allDummyDevices = [
         {
             id: 'dev1', serial: 'SP-DVC-001', model: 'SmartTab M1', customerId: 'cust1',
-            mdmStatus: 'Activo', // Activo, Bloqueado, Liberado
-            totalInstallments: 12, currentInstallment: 7, // Cuotas totales y actuales
+            mdmStatus: 'Activo', 
+            totalInstallments: 12, currentInstallment: 7,
             nextPaymentDate: '2025-06-15', amountDue: 50.00,
             lastPaymentDate: '2025-05-15', lastPaymentAmount: 50.00
         },
@@ -36,7 +34,7 @@ const ClientDashboardPage = () => {
         {
             id: 'dev4', serial: 'SP-DVC-004', model: 'SmartPhone X1', customerId: 'cust3',
             mdmStatus: 'Liberado',
-            totalInstallments: 6, currentInstallment: 6, // Dispositivo pagado completamente
+            totalInstallments: 6, currentInstallment: 6,
             nextPaymentDate: null, amountDue: 0.00,
             lastPaymentDate: '2025-04-01', lastPaymentAmount: 100.00
         },

@@ -3,10 +3,8 @@ import React, { useState } from 'react';
 import PaymentTable from './components/PaymentTable';
 import RegisterPaymentModal from './components/RegisterPaymentModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
-import { v4 as uuidv4 } from 'uuid'; // Para generar IDs únicos
+import { v4 as uuidv4 } from 'uuid'; 
 
-// Datos dummy de clientes y dispositivos para el modal de registro
-// Estos deberían ser los mismos que usas en DeviceManagementPage
 const dummyCustomers = [
     { id: 'cust1', name: 'Juan Pérez' },
     { id: 'cust2', name: 'María García' },
@@ -44,7 +42,7 @@ const initialPayments = [
         deviceId: 'dev2',
         deviceSerial: 'SP-DVC-002',
         period: 'Abril 2024',
-        status: 'Atrasado', // Simular un pago atrasado
+        status: 'Atrasado',
         method: 'Transferencia',
         registeredBy: 'Admin Global',
     },

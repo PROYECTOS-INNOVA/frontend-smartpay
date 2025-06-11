@@ -1,6 +1,5 @@
-// src/pages/payments/components/RegisterPaymentModal.jsx
 import React, { useState, useEffect } from 'react';
-import Modal from '../../../components/ui/Modal'; // Asegúrate de que esta ruta sea correcta
+import Modal from '../../../components/ui/Modal';
 
 const RegisterPaymentModal = ({ isOpen, onClose, onRegisterPayment, customers, devices }) => {
     const [formData, setFormData] = useState({
@@ -9,8 +8,8 @@ const RegisterPaymentModal = ({ isOpen, onClose, onRegisterPayment, customers, d
         deviceId: '',
         period: '',
         method: '',
-        status: 'Pagado', // Por defecto, un pago nuevo se registra como "Pagado"
-        registeredBy: 'Usuario Actual (Simulado)', // En un caso real, esto vendría del contexto de autenticación
+        status: 'Pagado',
+        registeredBy: 'Usuario Actual (Simulado)',
     });
     const [filteredDevices, setFilteredDevices] = useState([]);
 
@@ -29,23 +28,21 @@ const RegisterPaymentModal = ({ isOpen, onClose, onRegisterPayment, customers, d
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Validaciones básicas
         if (!formData.amount || !formData.customerId || !formData.deviceId || !formData.period || !formData.method) {
             alert('Por favor, completa todos los campos requeridos.');
             return;
         }
 
         const newPayment = {
-            id: `PAY-${Date.now()}`, // ID único para el pago
-            date: new Date().toISOString().split('T')[0], // Fecha actual
+            id: `PAY-${Date.now()}`,
+            date: new Date().toISOString().split('T')[0],
             ...formData,
-            amount: parseFloat(formData.amount), // Convertir a número
+            amount: parseFloat(formData.amount),
             customerName: customers.find(c => c.id === formData.customerId)?.name || 'Desconocido',
             deviceSerial: devices.find(d => d.id === formData.deviceId)?.serial || 'Desconocido',
         };
         onRegisterPayment(newPayment);
         onClose();
-        // Resetear formulario
         setFormData({
             amount: '',
             customerId: '',

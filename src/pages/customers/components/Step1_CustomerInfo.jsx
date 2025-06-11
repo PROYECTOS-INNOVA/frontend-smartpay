@@ -1,4 +1,3 @@
-// src/pages/customers/components/Step1_CustomerInfo.jsx
 import React, { useState, useEffect } from 'react';
 
 const Step1_CustomerInfo = ({ onNext, initialData }) => {
@@ -6,8 +5,8 @@ const Step1_CustomerInfo = ({ onNext, initialData }) => {
         name: '',
         email: '',
         phone: '',
-        address: '', // Añadir más campos si es necesario
-        dni: '' // Cédula/DNI
+        address: '',
+        dni: '' 
     });
 
     useEffect(() => {
@@ -28,7 +27,7 @@ const Step1_CustomerInfo = ({ onNext, initialData }) => {
             alert('Por favor, completa todos los campos del cliente.');
             return;
         }
-        onNext({ customerInfo: formData }); // Envía los datos del cliente
+        onNext({ customerInfo: formData });
     };
 
     return (

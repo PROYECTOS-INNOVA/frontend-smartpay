@@ -1,7 +1,6 @@
-// src/pages/users/components/UserFormModal.jsx
 import React, { useState, useEffect } from 'react';
-import Modal from '../../../components/ui/Modal'; // Ajusta la ruta si es necesario
-import { v4 as uuidv4 } from 'uuid'; // Para generar IDs únicos
+import Modal from '../../../components/ui/Modal';
+import { v4 as uuidv4 } from 'uuid';
 
 const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
     const [formData, setFormData] = useState({
@@ -14,13 +13,12 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
         status: 'Activo'
     });
 
-    // Carga los datos del usuario si estamos editando, o resetea para un nuevo usuario
     useEffect(() => {
         if (user) {
-            setFormData({ ...user, password: '' }); // No precargar la contraseña
+            setFormData({ ...user, password: '' }); 
         } else {
             setFormData({
-                id: uuidv4(), // Genera un ID para el nuevo usuario
+                id: uuidv4(),
                 username: '',
                 name: '',
                 role: 'Vendedor',
@@ -29,7 +27,7 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
                 status: 'Activo'
             });
         }
-    }, [user, isOpen]); // Dependencia de user y isOpen para resetear al abrir modal
+    }, [user, isOpen]);
 
 
     const handleFormChange = (e) => {
@@ -43,19 +41,18 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validación básica
         if (!formData.username || !formData.name || !formData.role || !formData.email) {
             alert('Por favor, completa todos los campos requeridos.');
             return;
         }
 
-        if (!user && !formData.password) { // Si es un nuevo usuario y no hay contraseña
+        if (!user && !formData.password) { 
             alert('Por favor, introduce una contraseña para el nuevo usuario.');
             return;
         }
 
-        onSave(formData); // Llama a la función onSave pasada desde UserManagementPage
-        onClose(); // Cierra el modal
+        onSave(formData);
+        onClose();
     };
 
     return (
@@ -66,7 +63,6 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
             hideFooter={true}
         >
             <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Campos del formulario */}
                 <div>
                     <label htmlFor="username" className="block text-sm font-medium text-gray-700">
                         Usuario
@@ -78,7 +74,7 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
                         value={formData.username}
                         onChange={handleFormChange}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        disabled={!!user} // No permitir cambiar el username al editar
+                        disabled={!!user}
                         required
                     />
                     {user && <p className="mt-1 text-xs text-gray-500">El nombre de usuario no se puede cambiar.</p>}
@@ -114,7 +110,7 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
                     />
                 </div>
 
-                {!user && ( // La contraseña solo es requerida al añadir un nuevo usuario
+                {!user && (
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                             Contraseña
@@ -155,7 +151,7 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
                     </select>
                 </div>
 
-                {user && ( // Solo mostrar status al editar
+                {user && (
                     <div>
                         <label htmlFor="status" className="block text-sm font-medium text-gray-700">
                             Estado
@@ -173,7 +169,6 @@ const UserFormModal = ({ isOpen, onClose, user, onSave }) => {
                     </div>
                 )}
 
-                {/* Botones de acción del formulario */}
                 <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
                     <button
                         type="button"

@@ -1,22 +1,21 @@
-// src/pages/auth/LoginPage.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
 
 const LoginPage = () => {
     const [username, setUsername] = useState('');
-    const [password, setPassword] = useState(''); // Aunque no se usa en el dummy, es bueno mantenerlo
+    const [password, setPassword] = useState(''); 
     const [error, setError] = useState('');
     const { login } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        setError(''); // Limpiar errores previos
+        setError('');
 
-        const success = login(username.toLowerCase(), password); // Usa lowercase para coincidir con dummyUsers
+        const success = login(username.toLowerCase(), password);
         if (success) {
-            navigate('/dashboard'); // Redirige al dashboard al iniciar sesión
+            navigate('/dashboard');
         } else {
             setError('Usuario o contraseña incorrectos.');
         }

@@ -1,10 +1,8 @@
-// src/pages/devices/DeviceManagementPage.jsx
 import React, { useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import DeviceTable from './components/DeviceTable';
 import DeviceDetailsView from './views/DeviceDetailsView';
 
-// Datos dummy de clientes y vendedores para vincularlos a los dispositivos
 const dummyCustomers = [
     { id: 'cust1', name: 'Juan Pérez' },
     { id: 'cust2', name: 'María García' },
@@ -16,7 +14,6 @@ const dummyVendors = [
     { id: 'vend2', name: 'Vendedor B' },
 ];
 
-// Datos dummy iniciales de dispositivos
 const initialDevices = [
     {
         id: uuidv4(),
@@ -28,10 +25,9 @@ const initialDevices = [
         customerName: 'Juan Pérez',
         vendorId: 'vend1',
         vendorName: 'Vendedor A',
-        mdmStatus: 'Activo', // Activo, Bloqueado, Liberado
+        mdmStatus: 'Activo',
         batteryPercentage: 75,
-        lastLocation: { latitude: 3.824792, longitude: -76.018335 }, // Pitalito, Huila
-        // ... otros datos del dispositivo según tu BD
+        lastLocation: { latitude: 3.824792, longitude: -76.018335 },
     },
     {
         id: uuidv4(),
@@ -45,7 +41,7 @@ const initialDevices = [
         vendorName: 'Vendedor A',
         mdmStatus: 'Bloqueado',
         batteryPercentage: 30,
-        lastLocation: { latitude: 3.829000, longitude: -76.025000 }, // Cerca de Pitalito
+        lastLocation: { latitude: 3.829000, longitude: -76.025000 },
         // ...
     },
     {
@@ -60,7 +56,7 @@ const initialDevices = [
         vendorName: 'Vendedor B',
         mdmStatus: 'Liberado',
         batteryPercentage: 90,
-        lastLocation: { latitude: 3.815000, longitude: -76.010000 }, // Cerca de Pitalito
+        lastLocation: { latitude: 3.815000, longitude: -76.010000 },
         // ...
     },
     {
@@ -75,14 +71,14 @@ const initialDevices = [
         vendorName: 'Vendedor B',
         mdmStatus: 'Activo',
         batteryPercentage: 60,
-        lastLocation: null, // Sin ubicación reportada
+        lastLocation: null,
         // ...
     },
 ];
 
 const DeviceManagementPage = () => {
     const [devices, setDevices] = useState(initialDevices);
-    const [selectedDevice, setSelectedDevice] = useState(null); // Dispositivo seleccionado para detalles
+    const [selectedDevice, setSelectedDevice] = useState(null);
 
     const handleViewDetails = (device) => {
         setSelectedDevice(device);
@@ -92,7 +88,6 @@ const DeviceManagementPage = () => {
         setSelectedDevice(null);
     };
 
-    // Funciones de acciones MDM (simuladas)
     const handleBlockDevice = (deviceId) => {
         setDevices(prevDevices =>
             prevDevices.map(device =>
@@ -112,15 +107,12 @@ const DeviceManagementPage = () => {
     };
 
     const handleLocateDevice = (deviceId) => {
-        // En una aplicación real, esto activaría una petición al MDM
-        // para obtener la ubicación más reciente del dispositivo y actualizarla en el estado.
-        // Aquí simulamos una ubicación nueva
         setDevices(prevDevices =>
             prevDevices.map(device =>
                 device.id === deviceId ? {
                     ...device,
                     lastLocation: {
-                        latitude: 3.824792 + (Math.random() * 0.02 - 0.01), // Pequeña variación
+                        latitude: 3.824792 + (Math.random() * 0.02 - 0.01),
                         longitude: -76.018335 + (Math.random() * 0.02 - 0.01)
                     }
                 } : device
@@ -140,7 +132,6 @@ const DeviceManagementPage = () => {
 
     const handleMakePayment = (deviceId) => {
         alert(`Proceso de pago iniciado para el dispositivo ${deviceId} (simulado).`);
-        // Aquí podrías redirigir a una página de pagos o abrir un modal de pago
     };
 
 

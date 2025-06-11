@@ -1,6 +1,5 @@
-// src/pages/customers/CustomerManagementPage.jsx
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import CustomerTable from './components/CustomerTable';
 import CustomerFormModal from './components/CustomerFormModal';
 import { PlusIcon } from '@heroicons/react/24/outline';
@@ -14,22 +13,21 @@ const initialCustomers = [
 
 const CustomerManagementPage = () => {
     const [customers, setCustomers] = useState(initialCustomers);
-    const [isModalOpen, setIsModalOpen] = useState(false); // Mantener para el modal de edición
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCustomer, setEditingCustomer] = useState(null);
-    const navigate = useNavigate(); // Inicializa useNavigate
+    const navigate = useNavigate();
 
-    const handleOpenEditModal = (customer) => { // Renombrado para claridad
+    const handleOpenEditModal = (customer) => { 
         setEditingCustomer(customer);
         setIsModalOpen(true);
     };
 
-    const handleCloseEditModal = () => { // Renombrado para claridad
+    const handleCloseEditModal = () => { 
         setIsModalOpen(false);
         setEditingCustomer(null);
     };
 
     const handleSaveCustomer = (customerData) => {
-        // Lógica para guardar/actualizar cliente (solo aplica para edición aquí)
         if (editingCustomer) {
             setCustomers(customers.map(customer =>
                 customer.id === editingCustomer.id ? { ...customerData, id: editingCustomer.id } : customer
@@ -51,7 +49,7 @@ const CustomerManagementPage = () => {
     };
 
     const handleNewCustomerClick = () => {
-        navigate('/customer-registration'); // Redirige a la nueva página de registro por fases
+        navigate('/customer-registration');
     };
 
     return (
@@ -70,12 +68,11 @@ const CustomerManagementPage = () => {
 
             <CustomerTable
                 customers={customers}
-                onEdit={handleOpenEditModal} // Ahora se llama handleOpenEditModal
+                onEdit={handleOpenEditModal}
                 onDelete={handleDeleteCustomer}
                 onToggleStatus={handleToggleCustomerStatus}
             />
 
-            {/* Este modal solo será para la edición de clientes existentes */}
             <CustomerFormModal
                 isOpen={isModalOpen}
                 onClose={handleCloseEditModal}

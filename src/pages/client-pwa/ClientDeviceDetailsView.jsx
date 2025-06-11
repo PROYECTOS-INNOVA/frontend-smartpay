@@ -1,4 +1,3 @@
-// src/pages/client-pwa/ClientDeviceDetailsView.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeftIcon, DeviceTabletIcon, InformationCircleIcon, CreditCardIcon } from '@heroicons/react/24/outline';
@@ -9,11 +8,10 @@ const ClientDeviceDetailsView = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // --- Datos Dummy (Simulando datos relevantes para el cliente) ---
     const allDummyDevices = [
         {
             id: 'dev1', serial: 'SP-DVC-001', model: 'SmartTab M1', customerId: 'cust1',
-            mdmStatus: 'Activo', // Activo, Bloqueado, Liberado
+            mdmStatus: 'Activo',
             totalInstallments: 12, currentInstallment: 7,
             nextPaymentDate: '2025-06-15', amountDue: 50.00,
             paymentHistory: [
@@ -121,11 +119,10 @@ const ClientDeviceDetailsView = () => {
                     Volver a Mis Dispositivos
                 </Link>
                 <h1 className="text-3xl font-bold text-gray-900">Detalles de {device.model} ({device.serial})</h1>
-                <div></div> {/* Spacer */}
+                <div></div> 
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Información del Dispositivo */}
                 <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                         <DeviceTabletIcon className="h-6 w-6 mr-2 text-indigo-600" />

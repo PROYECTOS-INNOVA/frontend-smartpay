@@ -1,17 +1,11 @@
-// src/pages/devices/views/DeviceDetailsView.jsx
 import React from 'react';
-// Importamos los iconos necesarios para los botones de acción y la navegación
 import { ArrowLeftIcon, LockClosedIcon, LockOpenIcon, MapPinIcon, DeviceTabletIcon, CreditCardIcon } from '@heroicons/react/24/outline'; // Asegúrate de tener estos iconos
-
-// Comentamos la importación del mapa, ya no lo usaremos directamente aquí
-// import DeviceMapComponent from '../components/DeviceMapComponent';
 
 const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate, onRelease, onMakePayment }) => {
     if (!device) {
         return <div className="text-center text-gray-500">Selecciona un dispositivo para ver los detalles.</div>;
     }
 
-    // Datos dummy para el historial de pagos (los mismos que antes)
     const paymentHistory = [
         { id: 1, date: '2024-05-15', amount: 50.00, status: 'Pagado', period: 'Mayo 2024' },
         { id: 2, date: '2024-04-15', amount: 50.00, status: 'Pagado', period: 'Abril 2024' },
@@ -20,7 +14,6 @@ const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate,
         { id: 5, date: '2024-01-15', amount: 50.00, status: 'Pagado', period: 'Enero 2024' },
     ];
 
-    // Datos dummy para el historial de acciones (NUEVO)
     const actionHistory = [
         { id: 1, date: '2024-06-08 10:30', user: 'Vendedor A', action: 'Dispositivo Vendido y Aprovisionado', details: `Cliente: ${device.customerName}` },
         { id: 2, date: '2024-06-09 14:00', user: 'Admin XYZ', action: 'Dispositivo Bloqueado', details: 'Falta de pago' },
@@ -29,7 +22,7 @@ const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate,
         { id: 5, date: '2024-06-10 11:45', user: 'Vendedor B', action: 'Pago Realizado', details: '$50.00' },
     ];
 
-    const getStatusClass = (status) => { // Renombrado para ser más genérico
+    const getStatusClass = (status) => { 
         switch (status) {
             case 'Activo': return 'bg-green-100 text-green-800';
             case 'Bloqueado': return 'bg-red-100 text-red-800';
@@ -52,10 +45,10 @@ const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate,
                     Volver a la lista
                 </button>
                 <h1 className="text-3xl font-bold text-gray-900">Detalles del Dispositivo: {device.serial}</h1>
-                <div></div> {/* Espaciador para centrar el título */}
+                <div></div> 
             </div>
 
-            {/* Contenedor principal con grid para las secciones superiores */}
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
 
                 {/* Ubicación del Dispositivo (Ahora solo texto) */}
@@ -66,7 +59,7 @@ const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate,
                             <>
                                 <p className="text-lg font-medium text-gray-700">Latitud: <span className="font-normal">{device.lastLocation.latitude.toFixed(6)}</span></p>
                                 <p className="text-lg font-medium text-gray-700">Longitud: <span className="font-normal">{device.lastLocation.longitude.toFixed(6)}</span></p>
-                                {/* Opcionalmente, aquí puedes añadir el mapa si lo descomentas en el futuro */}
+
                                 {/* <DeviceMapComponent
                                     latitude={device.lastLocation.latitude}
                                     longitude={device.lastLocation.longitude}
@@ -82,7 +75,7 @@ const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate,
                     </div>
                 </div>
 
-                {/* Información General */}
+
                 <div className="lg:col-span-1 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">Información General</h2>
                     <div className="space-y-3 text-gray-700">
@@ -99,10 +92,10 @@ const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate,
                     </div>
                 </div>
 
-                {/* Acciones del Dispositivo */}
+
                 <div className="lg:col-span-1 bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">Acciones del Dispositivo</h2>
-                    <div className="grid grid-cols-1 gap-4"> {/* Cambiado a una columna para más espacio vertical */}
+                    <div className="grid grid-cols-1 gap-4"> 
                         <button
                             onClick={() => onBlock(device.id)}
                             disabled={device.mdmStatus === 'Bloqueado'}
@@ -148,7 +141,6 @@ const DeviceDetailsView = ({ device, onBackToList, onBlock, onUnblock, onLocate,
                 </div>
             </div>
 
-            {/* Historial de Acciones y Historial de Pagos (Filas separadas) */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Historial de Acciones */}
                 <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">

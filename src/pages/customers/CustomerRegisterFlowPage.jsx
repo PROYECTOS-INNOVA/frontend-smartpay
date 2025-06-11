@@ -1,4 +1,3 @@
-// src/pages/customers/CustomerRegisterFlowPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Step1_CustomerInfo from './components/Step1_CustomerInfo';
@@ -20,7 +19,7 @@ const CustomerRegisterFlowPage = () => {
     const handleNext = (stepData) => {
         setRegistrationData(prevData => ({
             ...prevData,
-            ...stepData // Fusiona los datos del paso actual
+            ...stepData 
         }));
         setCurrentStep(prevStep => prevStep + 1);
     };
@@ -30,11 +29,9 @@ const CustomerRegisterFlowPage = () => {
     };
 
     const handleFinalizeRegistration = () => {
-        // Aquí es donde enviarías todos los 'registrationData' al backend.
-        // Por ahora, solo lo mostraremos en consola y redirigiremos.
         console.log('Finalizando registro con los siguientes datos:', registrationData);
         alert('Cliente y dispositivo registrados exitosamente (Simulado).');
-        navigate('/customer-management'); // Redirigir a la tabla de clientes
+        navigate('/customer-management');
     };
 
     const renderStep = () => {

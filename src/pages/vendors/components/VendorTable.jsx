@@ -1,14 +1,13 @@
-// src/pages/vendors/components/VendorTable.jsx
 import React from 'react';
-import { DataTable } from '../../../components/ui/DataTable'; // Ajusta la ruta si es necesario
-import { PencilIcon, TrashIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline'; // Asegura iconos
+import { DataTable } from '../../../components/ui/DataTable'; 
+import { PencilIcon, TrashIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
 
 const VendorTable = ({ vendors, onEdit, onDelete, onToggleStatus }) => {
     const columns = [
         { Header: 'Usuario', accessor: 'username' },
         { Header: 'Nombre', accessor: 'name' },
         { Header: 'Email', accessor: 'email' },
-        { Header: 'Rol', accessor: 'role' }, // Aunque siempre será Vendedor aquí, es bueno mantenerlo
+        { Header: 'Rol', accessor: 'role' },
         {
             Header: 'Estado',
             accessor: 'status',
