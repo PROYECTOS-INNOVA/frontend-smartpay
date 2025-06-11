@@ -1,7 +1,8 @@
 import React from 'react';
-import { XMarkIcon } from '@heroicons/react/24/outline'; 
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
-export const Modal = ({
+// Ahora exportamos el componente como una exportación por defecto
+const Modal = ({
     isOpen,
     onClose,
     title,
@@ -83,3 +84,5 @@ export const Modal = ({
         </div>
     );
 };
+
+export default Modal;

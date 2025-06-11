@@ -1,17 +1,19 @@
-import { useState } from 'react';
+// src/components/layout/Layout.jsx
+import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import Sidebar from './Sidebar';
 import Navbar from './Navbar';
+import Sidebar from './Sidebar';
 
 const Layout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <div className="flex h-screen bg-gray-100 text-gray-800">
+        <div className="flex h-screen bg-gray-100">
             <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-            <div className="flex flex-col flex-1 min-h-0">
+
+            <div className="flex-1 flex flex-col overflow-hidden">
                 <Navbar setSidebarOpen={setSidebarOpen} />
-                <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6">
+                <main className="p-4">
                     <Outlet />
                 </main>
             </div>
