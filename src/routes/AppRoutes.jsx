@@ -1,0 +1,111 @@
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
+// Importa el AuthProvider desde su nueva ubicación común
+import { AuthProvider } from '../common/context/AuthProvider';
+// Importa tu PrivateRoute desde el mismo directorio
+import PrivateRoute from './PrivateRoute';
+
+// Importa el Layout desde su nueva ubicación común
+import Layout from '../common/components/layout/Layout';
+
+// =========================================================
+// Lazy Loading de todos tus componentes de página
+// Esto mejora el rendimiento inicial de tu aplicación
+// =========================================================
+
+// Rutas de Autenticación
+const LoginPage = lazy(() => import('../features/auth/LoginPage'));
+const RegisterPage = lazy(() => import('../features/auth/Register'));
+const ForgotPasswordPage = lazy(() => import('../features/auth/ForgotPassword'));
+
+// Rutas Generales / Dashboard
+const LandingPage = lazy(() => import('../common/pages/LandingPage')); // Asumiendo que LandingPage es una página común
+const DashboardPage = lazy(() => import('../features/dashboard/Dashboard'));
+
+// Rutas de Gestión de Usuarios y Clientes
+const UserManagementPage = lazy(() => import('../features/users/UserManagementPage'));
+const UserProfilePage = lazy(() => import('../features/users/UserProfilePage'));
+const CustomerManagementPage = lazy(() => import('../features/customers/CustomerManagementPage'));
+const CustomerRegisterFlowPage = lazy(() => import('../features/customers/CustomerRegisterFlowPage'));
+
+// Rutas de Gestión de Dispositivos y Vendedores
+const DeviceManagementPage = lazy(() => import('../features/devices/DeviceManagementPage'));
+const VendorManagementPage = lazy(() => import('../features/vendors/VendorManagementPage'));
+
+// Rutas de Gestión de Pagos y Reportes
+const PaymentManagementPage = lazy(() => import('../features/payments/PaymentManagementPage'));
+const ReportsPage = lazy(() => import('../features/reports/ReportsPage'));
+
+// Rutas de la PWA del Cliente
+const ClientDashboardPage = lazy(() => import('../features/client-pwa/ClientDashboardPage'));
+const ClientDeviceDetailsView = lazy(() => import('../features/client-pwa/ClientDeviceDetailsView'));
+const ClientMakePaymentPage = lazy(() => import('../features/client-pwa/ClientMakePaymentPage'));
+
+
+const AppRoutes = () => {
+    return (
+        <Router>
+            <AuthProvider> {/* Envuelve toda la aplicación con el AuthProvider */}
+                <Suspense fallback={
+                    <div className="flex justify-center items-center h-screen text-xl text-white">
+                        Cargando contenido...
+                    </div>
+                }>
+                    <Routes>
+                        {/* Rutas Públicas */}
+                        <Route path="/landing" element={<LandingPage />} />
+                        <Route path="/login" element={<LoginPage />} />
+                        <Route path="/register" element={<RegisterPage />} />
+                        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+                        {/* Redirección de la raíz a /login por defecto */}
+                        <Route path="/" element={<Navigate to="/login" replace />} />
+
+                        {/* =========================================================
+                Rutas Protegidas para Superadmin, Admin, Vendedor
+                Usan el Layout principal
+            ========================================================= */}
+                        <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Admin', 'Vendedor']} />}>
+                            <Route path="/" element={<Layout />}>
+                                {/* Ruta index para / que redirige a /dashboard dentro del layout */}
+                                <Route index element={<Navigate to="dashboard" replace />} />
+
+                                {/* Rutas con el Layout */}
+                                <Route path="dashboard" element={<DashboardPage />} />
+                                <Route path="user-management" element={<UserManagementPage />} />
+                                <Route path="customers-management" element={<CustomerManagementPage />} />
+                                <Route path="customer-registration" element={<CustomerRegisterFlowPage />} />
+                                <Route path="vendors-management" element={<VendorManagementPage />} />
+                                <Route path="devices-management" element={<DeviceManagementPage />} />
+                                <Route path="payments-management" element={<PaymentManagementPage />} />
+                                <Route path="reports" element={<ReportsPage />} />
+                                <Route path="profile" element={<UserProfilePage />} />
+
+                                {/* Catch-all para rutas no encontradas dentro del Layout (Admin) */}
+                                <Route path="*" element={<div className="p-8 text-white">404 - Página no encontrada (Dentro del Layout de Admin)</div>} />
+                            </Route>
+                        </Route>
+
+                        {/* =========================================================
+                Rutas Protegidas para Clientes (PWA)
+                No usan el Layout principal del admin
+            ========================================================= */}
+                        <Route element={<PrivateRoute allowedRoles={['Cliente']} />}>
+                            <Route path="/client/dashboard" element={<ClientDashboardPage />} />
+                            <Route path="/client/devices/:deviceId" element={<ClientDeviceDetailsView />} />
+                            <Route path="/client/make-payment" element={<ClientMakePaymentPage />} />
+                            {/* Puedes añadir un catch-all específico para el cliente si lo necesitas */}
+                            {/* <Route path="/client/*" element={<div>404 - Página de Cliente no encontrada</div>} /> */}
+                        </Route>
+
+                        {/* Catch-all para cualquier otra ruta no manejada */}
+                        <Route path="*" element={<div className="flex justify-center items-center h-screen text-xl text-white">404 - Página no encontrada</div>} />
+                    </Routes>
+                </Suspense>
+            </AuthProvider>
+        </Router>
+    );
+};
+
+export default AppRoutes;
