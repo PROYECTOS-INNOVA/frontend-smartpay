@@ -9,5 +9,7 @@ body {
 }
 
 
-/* INPUTS DEL LOGIN */
-
+input::placeholder {
+    font-size: 0.7rem;
+    color: #b3b1b1;
+}

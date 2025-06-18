@@ -5,7 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // URL base de tu API Gateway
-const API_GATEWAY_URL = 'http://localhost:8000'; // ¡Asegúrate de que esta URL sea la correcta para tu API Gateway!
+const API_GATEWAY_URL = 'import.meta.env.VITE_REACT_APP_API_BASE_URL'; // ¡Asegúrate de que esta URL sea la correcta para tu API Gateway!
 
 const UserProfilePage = () => {
     const { user, updateUserProfile, token } = useAuth(); // Ahora obtenemos el token directamente del contexto

@@ -1,61 +1,86 @@
+// components/UserTable.jsx
 import React from 'react';
-import { DataTable } from '../../../common/components/ui/DataTable';
-import { PencilIcon, TrashIcon, LockClosedIcon, UserIcon } from '@heroicons/react/24/outline';
+import { PencilIcon, TrashIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'; // Asegúrate de que ArrowsUpDownIcon esté aquí
 
 const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
-    const columns = [
-        { Header: 'Usuario', accessor: 'username' },
-        { Header: 'Nombre', accessor: 'name' },
-        { Header: 'Rol', accessor: 'role' },
-        { Header: 'Email', accessor: 'email' },
-        {
-            Header: 'Estado',
-            accessor: 'status',
-            Cell: ({ value }) => (
-                <span className={`px-2 py-1 text-xs font-semibold rounded-full ${value === 'Activo' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                    {value === 'Activo' ? 'Activo' : 'Inactivo'}
-                </span>
-            )
-        },
-        {
-            Header: 'Acciones',
-            accessor: 'actions',
-            Cell: ({ row }) => (
-                <div className="flex space-x-2">
-                    <button
-                        onClick={() => onEdit(row.original)}
-                        className="p-1 text-blue-600 hover:text-blue-900"
-                        title="Editar usuario"
-                    >
-                        <PencilIcon className="h-5 w-5" />
-                    </button>
-                    <button
-                        onClick={() => onToggleStatus(row.original.id)}
-                        className={`p-1 ${row.original.status === 'Activo' ? 'text-orange-600' : 'text-green-600'} hover:text-orange-900`}
-                        title={row.original.status === 'Activo' ? 'Desactivar usuario' : 'Activar usuario'}
-                    >
-                        {row.original.status === 'Activo' ? <LockClosedIcon className="h-5 w-5" /> : <UserIcon className="h-5 w-5" />}
-                    </button>
-                    <button
-                        onClick={() => onDelete(row.original.id)}
-                        className="p-1 text-red-600 hover:text-red-900"
-                        title="Eliminar usuario"
-                    >
-                        <TrashIcon className="h-5 w-5" />
-                    </button>
-                </div>
-            ),
-        },
-    ];
-
     return (
-        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-                <div className="overflow-x-auto">
-                    <DataTable columns={columns} data={users} />
-                </div>
-            </div>
+        <div className="overflow-x-auto shadow-lg sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                    <tr>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            DNI
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nombre Completo
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Username
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rol
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ciudad
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Estado
+                        </th>
+                        <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {users.map((user) => (
+                        <tr key={user.user_id}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.dni}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''} ${user.second_last_name || ''}`.trim()}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.role?.name || 'N/A'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.city?.name || 'N/A'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    // CAMBIO AQUÍ: Convertir a minúsculas para la comparación
+                                    user.state?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                    }`}>
+                                    {/* CAMBIO AQUÍ: Convertir a minúsculas para la visualización y luego comparar */}
+                                    {user.state?.toLowerCase() === 'active' ? 'Activo' : 'Inactivo'}
+                                </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <button
+                                    onClick={() => onEdit(user)}
+                                    className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                    title="Editar Usuario"
+                                >
+                                    <PencilIcon className="h-5 w-5" />
+                                </button>
+                                <button
+                                    onClick={() => onToggleStatus(user.user_id, user.state)}
+                                    className="text-yellow-600 hover:text-yellow-900 mr-3"
+                                    title="Cambiar Estado"
+                                >
+                                    <ArrowsUpDownIcon className="h-5 w-5" />
+                                </button>
+                                <button
+                                    onClick={() => onDelete(user.user_id)}
+                                    className="text-red-600 hover:text-red-900"
+                                    title="Eliminar Usuario"
+                                >
+                                    <TrashIcon className="h-5 w-5" />
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
