@@ -1,20 +1,34 @@
-const MOCK_CITIES = [
-    { city_id: 'city_bogota', name: 'Bogotá D.C.' },
-    { city_id: 'city_medellin', name: 'Medellín' },
-    { city_id: 'city_cali', name: 'Cali' },
-    { city_id: 'city_barranquilla', name: 'Barranquilla' },
-    { city_id: 'city_cartagena', name: 'Cartagena' },
-    { city_id: 'city_pitalito', name: 'Pitalito' }, // Agregado Pitalito por tu ubicación
-];
+import axios from 'axios';
 
-export const getCities = async () => {
-    // Simula una llamada a la API con un pequeño retraso
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            console.log("Serving mock cities:", MOCK_CITIES);
-            resolve(MOCK_CITIES);
-        }, 500); // Retraso de 500ms para simular red
-    });
+const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
+
+const axiosInstance = axios.create({
+    baseURL: `${API_GATEWAY_URL}/api/v1`,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// getCities ahora puede recibir un parámetro 'search_term'
+export const getCities = async (params = {}) => {
+    try {
+        const response = await axiosInstance.get('/cities/', { params });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching cities:', error);
+        throw error;
+    }
 };
-
-  // Puedes añadir createCity, updateCity, deleteCity aquí en el futuro si los necesitas

@@ -22,9 +22,10 @@ axiosInstance.interceptors.request.use(
     }
 );
 
+// getUsers ahora acepta un objeto 'params' que puede incluir 'role_name'
 export const getUsers = async (params = {}) => {
     try {
-        const response = await axiosInstance.get('/users', { params });
+        const response = await axiosInstance.get('/users/users', { params });
         return response.data;
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -34,17 +35,19 @@ export const getUsers = async (params = {}) => {
 
 export const createUser = async (userData) => {
     try {
-        const response = await axiosInstance.post('/users', userData);
+        // **¡ESTA ES LA VERDADERA SOLUCIÓN PARA LA CREACIÓN DE USUARIOS!**
+        // Envía el objeto JavaScript directamente. Axios lo serializará a JSON
+        // y establecerá el Content-Type a 'application/json'.
+        const response = await axiosInstance.post('/users/users', userData); // URL SIN slash, y userData como JSON
         return response.data;
     } catch (error) {
         console.error('Error creating user:', error);
         throw error;
     }
 };
-
 export const updateUser = async (userId, userData) => {
     try {
-        const response = await axiosInstance.patch(`/users/${userId}`, userData);
+        const response = await axiosInstance.patch(`/users/users/${userId}`, userData);
         return response.data;
     } catch (error) {
         console.error('Error updating user:', error);
@@ -54,7 +57,7 @@ export const updateUser = async (userId, userData) => {
 
 export const deleteUser = async (userId) => {
     try {
-        const response = await axiosInstance.delete(`/users/${userId}`);
+        const response = await axiosInstance.delete(`/users/users/${userId}`);
         return response.data;
     } catch (error) {
         console.error('Error deleting user:', error);
@@ -62,4 +65,4 @@ export const deleteUser = async (userId) => {
     }
 };
 
-// NOTA: getRoles y getCities han sido movidos a sus propios archivos de servicio.
+// Eliminamos getRoles y getCities de aquí, ya que tendrán sus propios archivos de servicio.

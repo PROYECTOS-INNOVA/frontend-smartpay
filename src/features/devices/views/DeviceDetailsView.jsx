@@ -1,10 +1,12 @@
 // src/features/devices/components/DeviceDetailsView.jsx
 import React, { useState, useEffect } from 'react';
-import { capitalizeFirstLetter, formatDisplayDate } from '../../../common/utils/helpers'; // Importa el nuevo helper para formatear fechas
-import SimManagementModal from '../components/SimManagementModal'; // Importa el modal de SIM
-import { toast } from 'react-toastify'; // Para las notificaciones
+import { formatDisplayDate } from '../../../common/utils/helpers';
+import SimManagementModal from '../components/SimManagementModal';
+import ContractViewModal from '../components/ContractViewModal'; // Import the new ContractViewModal
+import DeviceMapComponent from '../components/DeviceMapComponent';
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
 
-// Importa las funciones de la API para SIMs
 import { approveDeviceSim, removeDeviceSim } from '../../../api/devices';
 
 const DeviceDetailsView = ({
@@ -17,15 +19,18 @@ const DeviceDetailsView = ({
     onMakePayment,
     onUpdateDevice,
     userRole,
-    onDeviceUpdate // Esta prop es clave para recargar los detalles del dispositivo
+    onDeviceUpdate
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
 
-    // Estados para la gestión del modal de SIM
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
-    // Ya no necesitamos deviceForSim aquí, porque el 'device' prop es el que gestionamos.
+    const [isContractModalOpen, setIsContractModalOpen] = useState(false); // New state for contract modal
+
+    // Dummy contract URL for demonstration. In a real app, this would come from `device.contract_url`
+    // or be fetched based on `device.device_id`.
+    const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf'; // Example PDF
 
     // --- Datos quemados para Historial de Acciones y Pagos ---
     const dummyActionHistory = [
@@ -42,7 +47,7 @@ const DeviceDetailsView = ({
     ];
     // --- Fin Datos quemados ---
 
-    const allPaymentsMade = dummyPaymentHistory.length >= 12; // Cambia 12 por el número total de cuotas esperadas
+    const allPaymentsMade = dummyPaymentHistory.length >= 12;
 
     useEffect(() => {
         if (device) {
@@ -84,8 +89,6 @@ const DeviceDetailsView = ({
             };
             await onUpdateDevice(device.device_id, dataToSend);
             setIsEditing(false);
-            // La prop onDeviceUpdate es crucial aquí para que DeviceManagementPage
-            // recargue los detalles del dispositivo después de una actualización.
             if (onDeviceUpdate) {
                 onDeviceUpdate();
             }
@@ -96,54 +99,51 @@ const DeviceDetailsView = ({
         }
     };
 
-    // Funciones para el modal de SIM
     const handleOpenSimModal = () => {
         setIsSimModalOpen(true);
     };
 
     const handleCloseSimModal = () => {
         setIsSimModalOpen(false);
-        // Cuando se cierra el modal, recargar los detalles del dispositivo
-        // para reflejar cualquier cambio en las SIMs.
         if (onDeviceUpdate) {
             onDeviceUpdate();
         }
     };
 
+    const handleOpenContractModal = () => {
+        setIsContractModalOpen(true);
+    };
+
+    const handleCloseContractModal = () => {
+        setIsContractModalOpen(false);
+    };
+
+
     const handleApproveSim = async (imsi) => {
         try {
             await approveDeviceSim(device.device_id, imsi);
             toast.success(`SIM ${imsi} aprobada con éxito.`);
-            if (onDeviceUpdate) {
-                onDeviceUpdate(); // Recargar los detalles del dispositivo para actualizar la lista de SIMs
-            }
-            return true; // Indicar éxito
+            return true;
         } catch (error) {
             const errorMessage = error.response?.data?.detail || error.message || 'Error desconocido al aprobar SIM';
-            toast.error(`Error al aprobar SIM ${imsi}: ${errorMessage}`);
+            Swal.fire('Error', `Error al aprobar SIM ${imsi}: ${errorMessage}`, 'error');
             console.error('Error al aprobar SIM:', error);
-            return false; // Indicar fallo
+            return false;
         }
     };
 
     const handleRemoveSim = async (imsi) => {
-        const confirmRemoval = window.confirm(`¿Estás seguro de que quieres desvincular la SIM ${imsi} de este dispositivo?`);
-        if (!confirmRemoval) return false;
         try {
             await removeDeviceSim(device.device_id, imsi);
             toast.success(`SIM ${imsi} desvinculada con éxito.`);
-            if (onDeviceUpdate) {
-                onDeviceUpdate(); // Recargar los detalles del dispositivo para actualizar la lista de SIMs
-            }
-            return true; // Indicar éxito
+            return true;
         } catch (error) {
             const errorMessage = error.response?.data?.detail || error.message || 'Error desconocido al desvincular SIM';
-            toast.error(`Error al desvincular SIM ${imsi}: ${errorMessage}`);
+            Swal.fire('Error', `Error al desvincular SIM ${imsi}: ${errorMessage}`, 'error');
             console.error('Error al desvincular SIM:', error);
-            return false; // Indicar fallo
+            return false;
         }
     };
-
 
     if (!device) {
         return <div className="text-center py-8">Cargando detalles del dispositivo...</div>;
@@ -151,44 +151,31 @@ const DeviceDetailsView = ({
 
     const getStatusClass = (status) => {
         switch (status) {
-            case 'Active':
-                return 'bg-green-100 text-green-800';
-            case 'Blocked':
-                return 'bg-red-100 text-red-800';
-            case 'Released':
-                return 'bg-blue-100 text-blue-800';
-            case 'Inactive':
-                return 'bg-gray-100 text-gray-800';
-            case 'Pending':
-                return 'bg-yellow-100 text-yellow-700';
-            default:
-                return 'bg-gray-100 text-gray-800';
+            case 'Active': return 'bg-green-100 text-green-800';
+            case 'Blocked': return 'bg-red-100 text-red-800';
+            case 'Released': return 'bg-blue-100 text-blue-800';
+            case 'Inactive': return 'bg-gray-100 text-gray-800';
+            case 'Pending': return 'bg-yellow-100 text-yellow-700';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
     const isSuperAdmin = userRole === 'superadmin';
 
-    // Definir los campos que van en "Información General" y su orden
     const generalInfoFields = [
-        { key: 'name', label: 'Nombre' },
-        { key: 'serial_number', label: 'Serial' },
-        { key: 'model', label: 'Modelo' },
-        { key: 'brand', label: 'Marca' },
-        { key: 'imei', label: 'IMEI 1' },
-        { key: 'imei2', label: 'IMEI 2' },
-        { key: 'state', label: 'Estado' },
-        { key: 'price', label: 'Precio', type: 'number' },
+        { key: 'name', label: 'Nombre' }, { key: 'serial_number', label: 'Serial' },
+        { key: 'model', label: 'Modelo' }, { key: 'brand', label: 'Marca' },
+        { key: 'imei', label: 'IMEI 1' }, { key: 'imei2', label: 'IMEI 2' },
+        { key: 'state', label: 'Estado' }, { key: 'price', label: 'Precio', type: 'number' },
         { key: 'purchase_date', label: 'Fecha de Compra', type: 'date' },
         { key: 'warranty_end_date', label: 'Fin de Garantía', type: 'date' },
         { key: 'assigned_to_user_id', label: 'Asignado a Usuario ID' },
         { key: 'location', label: 'Ubicación' },
         { key: 'description', label: 'Descripción', type: 'textarea' },
         { key: 'notes', label: 'Notas', type: 'textarea' },
-        { key: 'created_at', label: 'Creado el' },
-        { key: 'updated_at', label: 'Última Actualización' },
+        { key: 'created_at', label: 'Creado el' }, { key: 'updated_at', label: 'Última Actualización' },
     ];
 
-    // Campos que queremos excluir del formulario de edición directa (ej. IDs, timestamps)
     const fieldsToExcludeFromDirectEdit = ['device_id', 'created_at', 'updated_at', 'last_location_latitude', 'last_location_longitude'];
 
     return (
@@ -204,20 +191,20 @@ const DeviceDetailsView = ({
                 <h2 className="text-3xl font-extrabold text-gray-900">
                     Detalles del Dispositivo: {device.name}
                 </h2>
-                <div className="w-24"></div> {/* Espaciador para alinear el título */}
+                <div className="w-24"></div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 {/* Columna Izquierda: Información General */}
                 <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
                     <h3 className="text-2xl font-semibold text-gray-800 mb-4">Información General</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-3 gap-x-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {generalInfoFields.map(({ key, label, type }) => {
                             const isEditableField = !fieldsToExcludeFromDirectEdit.includes(key);
 
                             return (
-                                <div key={key}>
-                                    <label className="block text-sm font-medium text-gray-700">
+                                <div key={key} className="bg-white p-3 rounded-lg shadow-sm border border-gray-200">
+                                    <label className="block text-xs font-medium text-gray-700">
                                         {label}
                                     </label>
                                     {isEditing && isEditableField ? (
@@ -226,7 +213,7 @@ const DeviceDetailsView = ({
                                                 name="state"
                                                 value={formData.state}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                                             >
                                                 <option value="Active">Activo</option>
                                                 <option value="Blocked">Bloqueado</option>
@@ -240,7 +227,7 @@ const DeviceDetailsView = ({
                                                 value={formData[key]}
                                                 onChange={handleChange}
                                                 rows="3"
-                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                                             ></textarea>
                                         ) : (
                                             <input
@@ -248,11 +235,11 @@ const DeviceDetailsView = ({
                                                 name={key}
                                                 value={formData[key]}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
                                             />
                                         )
                                     ) : (
-                                        <p className="mt-1 text-gray-900 font-semibold">
+                                        <p className="mt-1 text-sm text-gray-900 font-semibold">
                                             {key === 'state' ? (
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(device.state)}`}>
                                                     {device.state || 'N/A'}
@@ -267,59 +254,76 @@ const DeviceDetailsView = ({
                                 </div>
                             );
                         })}
-                    </div>
-
-                    {/* Botones de edición y SIM */}
-                    <div className="flex flex-wrap gap-4 mt-6 justify-end">
+                        {/* New: Ver Contrato button */}
                         {!isEditing && isSuperAdmin && (
-                            <>
+                            <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
                                 <button
-                                    onClick={() => setIsEditing(true)}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out"
+                                    onClick={handleOpenContractModal}
+                                    className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
                                 >
-                                    Editar
+                                    Ver Contrato
                                 </button>
+                            </div>
+                        )}
+                        {/* SIM button moved next to Ver Contrato */}
+                        {!isEditing && isSuperAdmin && (
+                            <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
                                 <button
-                                    onClick={handleOpenSimModal} // Llama a la función local para abrir el modal
-                                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out"
+                                    onClick={handleOpenSimModal}
+                                    className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
                                 >
                                     SIM
                                 </button>
-                            </>
+                            </div>
                         )}
+                        {/* Edit/Save/Cancel buttons */}
+                        {!isEditing && isSuperAdmin && (
+                            <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
+                                <button
+                                    onClick={() => setIsEditing(true)}
+                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
+                                >
+                                    Editar
+                                </button>
+                            </div>
+                        )}
+
 
                         {isEditing && (
                             <>
-                                <button
-                                    onClick={handleSave}
-                                    disabled={isSaving}
-                                    className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                    {isSaving ? 'Guardando...' : 'Guardar'}
-                                </button>
-                                <button
-                                    onClick={() => {
-                                        setIsEditing(false);
-                                        // Resetear formData a los valores originales del dispositivo
-                                        setFormData({
-                                            name: device.name || '', description: device.description || '',
-                                            imei: device.imei || '', imei2: device.imei2 || '',
-                                            serial_number: device.serial_number || '', model: device.model || '',
-                                            brand: device.brand || '', price: device.price || 0,
-                                            purchase_date: device.purchase_date ? device.purchase_date.split('T')[0] : '',
-                                            warranty_end_date: device.warranty_end_date ? device.warranty_end_date.split('T')[0] : '',
-                                            assigned_to_user_id: device.assigned_to_user_id || '',
-                                            state: device.state || 'Active', location: device.location || '',
-                                            notes: device.notes || '', created_at: device.created_at || '',
-                                            updated_at: device.updated_at || '',
-                                            last_location_latitude: device.last_location_latitude || '',
-                                            last_location_longitude: device.last_location_longitude || '',
-                                        });
-                                    }}
-                                    className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out"
-                                >
-                                    Cancelar
-                                </button>
+                                <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-end items-end">
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={isSaving}
+                                        className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        {isSaving ? 'Guardando...' : 'Guardar'}
+                                    </button>
+                                </div>
+                                <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-end items-end">
+                                    <button
+                                        onClick={() => {
+                                            setIsEditing(false);
+                                            setFormData({
+                                                name: device.name || '', description: device.description || '',
+                                                imei: device.imei || '', imei2: device.imei2 || '',
+                                                serial_number: device.serial_number || '', model: device.model || '',
+                                                brand: device.brand || '', price: device.price || 0,
+                                                purchase_date: device.purchase_date ? device.purchase_date.split('T')[0] : '',
+                                                warranty_end_date: device.warranty_end_date ? device.warranty_end_date.split('T')[0] : '',
+                                                assigned_to_user_id: device.assigned_to_user_id || '',
+                                                state: device.state || 'Active', location: device.location || '',
+                                                notes: device.notes || '', created_at: device.created_at || '',
+                                                updated_at: device.updated_at || '',
+                                                last_location_latitude: device.last_location_latitude || '',
+                                                last_location_longitude: device.last_location_longitude || '',
+                                            });
+                                        }}
+                                        className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
                             </>
                         )}
                     </div>
@@ -330,13 +334,12 @@ const DeviceDetailsView = ({
                     {/* Ubicación del Dispositivo */}
                     <div className="bg-gray-50 p-6 rounded-lg shadow-inner flex-grow">
                         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ubicación del Dispositivo</h3>
-                        <div className="bg-gray-200 h-48 flex items-center justify-center rounded-md text-gray-500">
-                            {device.last_location_latitude && device.last_location_longitude ? (
-                                `Lat: ${device.last_location_latitude}, Lon: ${device.last_location_longitude}`
-                            ) : (
-                                'Mapa o Coordenadas de Ubicación (Pendiente)'
-                            )}
-                        </div>
+                        {/* Aquí integramos el DeviceMapComponent */}
+                        <DeviceMapComponent
+                            latitude={device.last_location_latitude}
+                            longitude={device.last_location_longitude}
+                            deviceSerial={device.serial_number || device.name} // Usar serial o nombre para el popup
+                        />
                         {/* Botón Localizar: siempre habilitado */}
                         {isSuperAdmin && (
                             <button
@@ -352,7 +355,6 @@ const DeviceDetailsView = ({
                     <div className="bg-gray-50 p-6 rounded-lg shadow-inner flex-grow">
                         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Acciones del Dispositivo</h3>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {/* Botón Bloquear: siempre habilitado (su estado es gestionado por la condición de device.state) */}
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onBlock(device.device_id)}
@@ -362,7 +364,6 @@ const DeviceDetailsView = ({
                                     Bloquear
                                 </button>
                             )}
-                            {/* Botón Desbloquear: siempre habilitado (su estado es gestionado por la condición de device.state) */}
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onUnblock(device.device_id)}
@@ -372,7 +373,6 @@ const DeviceDetailsView = ({
                                     Desbloquear
                                 </button>
                             )}
-                            {/* Botón Registrar Pago: siempre habilitado */}
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onMakePayment(device.device_id)}
@@ -381,7 +381,6 @@ const DeviceDetailsView = ({
                                     Registrar Pago
                                 </button>
                             )}
-                            {/* Botón Liberar: deshabilitado hasta que allPaymentsMade sea true */}
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onRelease(device.device_id)}
@@ -459,9 +458,18 @@ const DeviceDetailsView = ({
                 <SimManagementModal
                     isOpen={isSimModalOpen}
                     onClose={handleCloseSimModal}
-                    device={device} // Pasamos el objeto device completo
+                    device={device}
                     onApproveSim={handleApproveSim}
                     onRemoveSim={handleRemoveSim}
+                />
+            )}
+
+            {/* Modal para Ver Contrato */}
+            {isContractModalOpen && (
+                <ContractViewModal
+                    isOpen={isContractModalOpen}
+                    onClose={handleCloseContractModal}
+                    contractUrl={dummyContractUrl} // Pass the contract URL here
                 />
             )}
         </div>

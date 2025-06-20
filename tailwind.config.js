@@ -2,7 +2,8 @@
 import forms from '@tailwindcss/forms';
 
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}'],
+  content: ['./index.html', './src/**/*.{js,jsx,ts,tsx}', './node_modules/leaflet/dist/*.js', // Add this
+    './node_modules/leaflet/dist/*.css',],
   theme: {
     extend: {
       fontFamily: {

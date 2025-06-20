@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthProvider';
+import { useAuth } from '../../common/context/AuthProvider';
 import { DeviceTabletIcon, CreditCardIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
 
 const ClientDashboardPage = () => {

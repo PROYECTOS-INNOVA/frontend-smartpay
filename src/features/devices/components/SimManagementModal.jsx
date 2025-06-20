@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
+import React, { useState } from 'react';
+import Swal from 'sweetalert2'; // ¡Importa SweetAlert2!
 
 const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim }) => {
-    // TODOS LOS HOOKS DEBEN IR AL PRINCIPIO Y SER LLAMADOS INCONDICIONALMENTE
     const [loadingAction, setLoadingAction] = useState(false);
 
     // --- DATOS QUEMADOS PARA SIMS (PARA PRUEBAS) ---
@@ -25,16 +24,30 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
 
     const handleApprove = async (sim) => {
         if (loadingAction) return;
-        if (!window.confirm(`¿Estás seguro de que quieres APROBAR la SIM con IMSI: ${sim.imsi}?`)) {
+
+        // Reemplaza window.confirm con SweetAlert2
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: `¿Quieres APROBAR la SIM con IMSI: ${sim.imsi}?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#28a745',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Sí, Aprobar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!result.isConfirmed) {
             return;
         }
+
         setLoadingAction(true);
         try {
-            await onApproveSim(device.device_id, sim.imsi); // Llama a la función prop real
-            // toast.success(`SIM ${sim.imsi} aprobada con éxito.`); // El toast ya se maneja en el padre
+            // Llama a la función prop real. Los toasts de éxito/error se manejan en el padre (DeviceDetailsView).
+            await onApproveSim(sim.imsi); // onApproveSim en DeviceDetailsView ya recibe solo el imsi
         } catch (error) {
             console.error('Error al aprobar SIM:', error);
-            // El toast de error también se maneja en el padre
+            // El error ya se maneja con Swal.fire en DeviceDetailsView, no lo duplicamos aquí.
         } finally {
             setLoadingAction(false);
         }
@@ -42,23 +55,37 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
 
     const handleRemove = async (sim) => {
         if (loadingAction) return;
-        if (!window.confirm(`¿Estás seguro de que quieres ELIMINAR la SIM con IMSI: ${sim.imsi}? Esto la desasignará del dispositivo.`)) {
+
+        // Reemplaza window.confirm con SweetAlert2
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: `¿Quieres ELIMINAR la SIM con IMSI: ${sim.imsi}? Esto la desasignará del dispositivo.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545', // Un color rojo para eliminar
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, Eliminar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!result.isConfirmed) {
             return;
         }
+
         setLoadingAction(true);
         try {
-            await onRemoveSim(device.device_id, sim.imsi); // Llama a la función prop real
-            // toast.success(`SIM ${sim.imsi} eliminada con éxito.`); // El toast ya se maneja en el padre
+            // Llama a la función prop real. Los toasts de éxito/error se manejan en el padre (DeviceDetailsView).
+            await onRemoveSim(sim.imsi); // onRemoveSim en DeviceDetailsView ya recibe solo el imsi
         } catch (error) {
             console.error('Error al eliminar SIM:', error);
-            // El toast de error también se maneja en el padre
+            // El error ya se maneja con Swal.fire en DeviceDetailsView, no lo duplicamos aquí.
         } finally {
             setLoadingAction(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-[9999] bg-gray-600 bg-opacity-50 flex items-center justify-center">
             <div className="bg-white p-6 rounded-lg shadow-xl max-w-2xl w-full">
                 <h2 className="text-2xl font-bold mb-4 text-gray-800">
                     Gestión de Tarjetas SIM para {device?.name || 'Dispositivo'}
@@ -85,7 +112,7 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
                                         <p className="text-gray-600">Phone No: <span className="font-normal">{sim.phone_no || 'N/A'}</span></p>
                                         <button
                                             onClick={() => handleApprove(sim)}
-                                            className="mt-2 px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
+                                            className="mt-2 px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
                                             disabled={loadingAction}
                                         >
                                             {loadingAction ? 'Aprobando...' : 'Aprobar'}

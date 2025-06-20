@@ -1,53 +1,63 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import UserTable from './components/UserTable'; // Este componente necesitará adaptarse
-import UserFormModal from './components/UserFormModal';
+import UserTable from './components/UserTable';
+import UserFormModal from './components/UserFormModal'; 
 import { PlusIcon, UserGroupIcon, MagnifyingGlassIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../../common/context/AuthProvider';
+import { useAuth } from '../../common/context/AuthProvider'; 
 import { toast } from 'react-toastify';
-// Importa las funciones del servicio que acabas de crear
-import { getUsers, createUser, updateUser, deleteUser } from '../../api/users'; // Ajusta la ruta si es diferente
-
-// No necesitamos API_GATEWAY_URL aquí si lo manejamos en el archivo de servicio
+import { getUsers, createUser, updateUser, deleteUser } from '../../api/users'; 
+import { getRoles } from '../../api/roles'; 
+import { getCities } from '../../api/cities'; 
+import Swal from 'sweetalert2';
 
 const UserManagementPage = () => {
     const { token } = useAuth();
     const [users, setUsers] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingUser, setEditingUser] = useState(null); // Contiene el objeto UserOut
+    const [editingUser, setEditingUser] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [roles, setRoles] = useState([]);
 
     const fetchUsers = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            // Envía el término de búsqueda al backend si tu API lo soporta
             const data = await getUsers({ search: searchTerm });
             setUsers(data);
         } catch (err) {
-            console.error("Error fetching users:", err);
-            // Asumiendo que el error del servicio ya es un objeto de error adecuado o tiene un message
             const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al cargar usuarios.";
             setError(errorMessage);
             toast.error(`Error al cargar usuarios: ${errorMessage}`, { autoClose: 5000 });
         } finally {
             setLoading(false);
         }
-    }, [searchTerm]); // Agrega searchTerm como dependencia para re-fetch al buscar
+    }, [searchTerm]);
+
+    const fetchRoles = useCallback(async () => {
+        try {
+            const fetchedRoles = await getRoles();
+            const predefinedRoleNames = ['Superadmin', 'Admin', 'Vendedor', 'Cliente'];
+            const filteredRoles = fetchedRoles.filter(role => predefinedRoleNames.includes(role.name));
+            setRoles(filteredRoles);
+        } catch (err) {
+            toast.error('Error al cargar opciones de roles.');
+        }
+    }, []);
 
     useEffect(() => {
         if (token) {
             fetchUsers();
+            fetchRoles();
         } else {
             setLoading(false);
             setError('No autenticado. Por favor, inicia sesión.');
             toast.warn('No estás autenticado. Por favor, inicia sesión.', { autoClose: 5000 });
         }
-    }, [token, fetchUsers]);
+    }, [token, fetchUsers, fetchRoles]);
 
     const handleOpenModal = (user = null) => {
-        setEditingUser(user); // Será null para "añadir nuevo", o el objeto UserOut para editar
+        setEditingUser(user); 
         setIsModalOpen(true);
     };
 
@@ -56,72 +66,157 @@ const UserManagementPage = () => {
         setEditingUser(null);
     };
 
-    const handleSaveUser = async (userData) => { // userData será un objeto UserUpdate
-        setLoading(true);
+    const handleSaveUser = useCallback(async (userData) => {
         try {
             if (editingUser) {
-                // Llama a la función de actualización del servicio
                 await updateUser(editingUser.user_id, userData);
-                toast.success(`Usuario actualizado exitosamente!`, { autoClose: 3000 });
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Actualizado!',
+                    text: 'Usuario actualizado exitosamente.',
+                    timer: 2500,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
             } else {
-                // Llama a la función de creación del servicio
                 await createUser(userData);
-                toast.success(`Usuario creado exitosamente!`, { autoClose: 3000 });
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Creado!',
+                    text: 'Usuario creado exitosamente.',
+                    timer: 2500,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
             }
             handleCloseModal();
-            fetchUsers(); // Recargar la lista de usuarios
-        } catch (err) {
-            console.error("Error saving user:", err);
-            const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al guardar el usuario.";
-            toast.error(`Error al guardar usuario: ${errorMessage}`, { autoClose: 5000 });
-        } finally {
-            setLoading(false);
+            fetchUsers();
+        } catch (error) {
+
+            let errorMessage = 'Error desconocido al guardar el usuario.';
+            let errorDetails = '';
+
+            if (error.response) {
+                const status = error.response.status;
+                const data = error.response.data;
+
+                if (status === 422 && data && data.detail) {
+                    errorMessage = 'Error de validación:';
+                    errorDetails = data.detail.map((err) => {
+                        const loc = Array.isArray(err.loc) && err.loc.length > 1 ? err.loc[1] : 'Desconocido';
+                        return `Campo '${loc}': ${err.msg}`;
+                    }).join('\n');
+                } else if (data.detail && typeof data.detail === 'string') {
+                    errorMessage = data.detail;
+                } else if (data.message) {
+                    errorMessage = data.message;
+                } else if (typeof data === 'string') {
+                    errorMessage = data;
+                } else {
+                    errorMessage = `Error ${status}: ${error.response.statusText || 'Error del servidor'}`;
+                    if (data) {
+                        errorDetails = JSON.stringify(data, null, 2); 
+                    }
+                }
+            } else if (error.request) {
+                errorMessage = 'No se recibió respuesta del servidor. Verifica tu conexión o la configuración de CORS.';
+            } else {
+                errorMessage = error.message;
+            }
+
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al guardar',
+                text: errorMessage + (errorDetails ? '\n\nDetalles:\n' + errorDetails : ''),
+                customClass: {
+                    popup: 'max-w-xl',
+                    content: 'whitespace-pre-wrap' 
+                },
+            });
         }
-    };
+    }, [editingUser, fetchUsers]);
 
     const handleDeleteUser = async (userId) => {
-        if (!window.confirm('¿Estás seguro de que quieres eliminar este usuario? Esta acción no se puede deshacer.')) {
-            return;
-        }
-        setLoading(true);
-        try {
-            await deleteUser(userId); // Llama a la función de eliminación del servicio
-            toast.success('Usuario eliminado exitosamente!', { autoClose: 3000 });
-            fetchUsers();
-        } catch (err) {
-            console.error("Error deleting user:", err);
-            const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al eliminar el usuario.";
-            toast.error(`Error al eliminar usuario: ${errorMessage}`, { autoClose: 5000 });
-        } finally {
-            setLoading(false);
-        }
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: '¡No podrás revertir esta acción!',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminarlo!',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                try {
+                    await deleteUser(userId);
+                    Swal.fire(
+                        '¡Eliminado!',
+                        'El usuario ha sido eliminado.',
+                        'success'
+                    );
+                    fetchUsers();
+                } catch (err) {
+                    const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al eliminar el usuario.";
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al eliminar usuario',
+                        text: `Detalles: ${errorMessage}`,
+                    });
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
     };
 
     const handleToggleUserStatus = async (userId, currentStatus) => {
-        setLoading(true);
-        const newStatus = currentStatus === 'active' ? 'inactive' : 'active'; // Usar 'active'/'inactive' del backend
-        try {
-            // Asumiendo que PATCH para estado solo necesita el campo 'state'
-            await updateUser(userId, { state: newStatus }); // El backend espera 'state', no 'status'
-            toast.success(`Estado del usuario cambiado a ${newStatus}!`, { autoClose: 3000 });
-            fetchUsers();
-        } catch (err) {
-            console.error("Error toggling user status:", err);
-            const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al cambiar el estado.";
-            toast.error(`Error al cambiar estado: ${errorMessage}`, { autoClose: 5000 });
-        } finally {
-            setLoading(false);
-        }
+        const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+        const actionText = newStatus === 'Active' ? 'activar' : 'desactivar';
+
+        Swal.fire({
+            title: `¿Estás seguro de ${actionText} este usuario?`,
+            text: `El estado del usuario cambiará a "${newStatus}".`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: `Sí, ${actionText}!`,
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                setLoading(true);
+                try {
+                    await updateUser(userId, { state: newStatus });
+                    Swal.fire(
+                        '¡Cambiado!',
+                        `El estado del usuario ha cambiado a ${newStatus}.`,
+                        'success'
+                    );
+                    fetchUsers();
+                } catch (err) {
+                    const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al cambiar el estado.";
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al cambiar estado',
+                        text: `Detalles: ${errorMessage}`,
+                    });
+                } finally {
+                    setLoading(false);
+                }
+            }
+        });
     };
 
     const filteredUsers = users.filter(user =>
-        user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) || // name no existe, es first_name
-        user.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) || // También buscar por apellido
-        user.dni?.toLowerCase().includes(searchTerm.toLowerCase()) || // Buscar por DNI
+        user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.dni?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        user.role?.name?.toLowerCase().includes(searchTerm.toLowerCase()) || // role.name
-        user.state?.toLowerCase().includes(searchTerm.toLowerCase()) // state, no status
+        user.role?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.state?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -150,7 +245,7 @@ const UserManagementPage = () => {
                         name="search"
                         id="search"
                         className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500"
-                        placeholder="Buscar usuario..."
+                        placeholder="Buscar usuario por nombre, DNI, email, rol..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
@@ -205,8 +300,10 @@ const UserManagementPage = () => {
             <UserFormModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                initialData={editingUser} // Cambiado a initialData para mayor claridad
+                initialData={editingUser}
                 onSubmit={handleSaveUser}
+                roles={roles}
+                getCitiesApi={getCities}
             />
         </div>
     );

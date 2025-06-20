@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
             // *** SEGUNDA LLAMADA A LA API ***
             // Hacemos una petición GET a /users/me usando el token recién obtenido.
             // Esta llamada es la que trae el resto de los detalles del usuario (first_name, last_name, email, dni, etc.).
-            const userResponse = await axios.get(`${API_BASE_URL}/users/me`, {
+            const userResponse = await axios.get(`${API_BASE_URL}/users/users/me`, {
                 headers: {
                     Authorization: `Bearer ${accessToken}` // ¡Muy importante! Enviar el token para autenticación
                 }
