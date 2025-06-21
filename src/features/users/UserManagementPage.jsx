@@ -151,11 +151,14 @@ const UserManagementPage = () => {
                 setLoading(true);
                 try {
                     await deleteUser(userId);
-                    Swal.fire(
-                        '¡Eliminado!',
-                        'El usuario ha sido eliminado.',
-                        'success'
-                    );
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Eliminado!',
+                        text: 'El usuario ha sido eliminado.',
+                        timer: 2500,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                    });
                     fetchUsers();
                 } catch (err) {
                     const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al eliminar el usuario.";
@@ -189,11 +192,14 @@ const UserManagementPage = () => {
                 setLoading(true);
                 try {
                     await updateUser(userId, { state: newStatus });
-                    Swal.fire(
-                        '¡Cambiado!',
-                        `El estado del usuario ha cambiado a ${newStatus}.`,
-                        'success'
-                    );
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Estado Cambiado!',
+                        text: `El estado del usuario ha cambiado a ${newStatus}.`,
+                        timer: 2500,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                    });
                     fetchUsers();
                 } catch (err) {
                     const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al cambiar el estado.";

@@ -16,7 +16,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
         phone: '',
         address: '',
         city_id: '',
-        city_name_input: '', 
+        city_name_input: '',
         role_id: '',
         state: 'Active',
         password: '',
@@ -77,9 +77,12 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
             if (searchTerm.length >= 2) {
                 try {
                     const fetchedCities = await getCitiesApi({ search_term: searchTerm });
-                    setCitySuggestions(fetchedCities);
+                    // Filtrar ciudades por nombre único
+                    const uniqueCities = Array.from(new Map(fetchedCities.map(city => [city.name, city])).values());
+                    setCitySuggestions(uniqueCities);
                     setShowSuggestions(true);
                 } catch (error) {
+                    console.error("Error fetching cities:", error); // Añadido para depuración
                     setCitySuggestions([]);
                     setShowSuggestions(false);
                 }
@@ -165,7 +168,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-10" onClose={onClose}>
+            <Dialog as="div" className="relative z-20" onClose={onClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
@@ -189,7 +192,8 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                            {/* MODIFICACIÓN CLAVE AQUÍ: Asegurar que el Dialog.Panel permita que el contenido se desborde */}
+                            <Dialog.Panel className="w-full max-w-4xl transform overflow-visible rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <Dialog.Title
                                     as="h3"
                                     className="text-lg font-medium leading-6 text-gray-900"
@@ -197,8 +201,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                     {isNewUser ? 'Añadir Nuevo Usuario' : 'Editar Usuario'}
                                 </Dialog.Title>
                                 <div className="mt-4">
-                                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {/* ... Otros campos de texto (first_name, last_name, etc.) ... */}
+                                    <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">Nombres *</label>
                                             <input type="text" name="first_name" id="first_name" value={formData.first_name} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
@@ -235,7 +238,8 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Teléfono</label>
                                             <input type="text" name="phone" id="phone" value={formData.phone} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                         </div>
-                                        <div className="col-span-2">
+
+                                        <div className="col-span-3">
                                             <label htmlFor="address" className="block text-sm font-medium text-gray-700">Dirección</label>
                                             <input type="text" name="address" id="address" value={formData.address} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                         </div>
@@ -259,7 +263,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />
                                             {showSuggestions && citySuggestions.length > 0 && (
-                                                <ul className="absolute z-20 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                < ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
                                                     {citySuggestions.map((city) => (
                                                         <li
                                                             key={city.city_id}
@@ -271,17 +275,13 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                                     ))}
                                                 </ul>
                                             )}
-                                            {formData.city_id && !showSuggestions && (
-                                                <p className="mt-1 text-xs text-gray-500">
-                                                    Ciudad seleccionada: {formData.city_name_input} (ID: {formData.city_id})
-                                                </p>
-                                            )}
                                             {!formData.city_id && formData.city_name_input && !showSuggestions && (
                                                 <p className="mt-1 text-xs text-red-500">
                                                     Por favor, selecciona una ciudad de las sugerencias.
                                                 </p>
                                             )}
                                         </div>
+
 
                                         <div>
                                             <label htmlFor="role_id" className="block text-sm font-medium text-gray-700">Rol *</label>
@@ -356,9 +356,9 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                             </Dialog.Panel>
                         </Transition.Child>
                     </div>
-                </div>
-            </Dialog>
-        </Transition>
+                </div >
+            </Dialog >
+        </Transition >
     );
 };
 

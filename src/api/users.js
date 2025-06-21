@@ -45,6 +45,7 @@ export const createUser = async (userData) => {
         throw error;
     }
 };
+
 export const updateUser = async (userId, userData) => {
     try {
         const response = await axiosInstance.patch(`/users/users/${userId}`, userData);

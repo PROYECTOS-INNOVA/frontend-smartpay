@@ -1,32 +1,38 @@
-import React, { useState, useEffect, useCallback } from 'react'; // Agregamos useEffect, useCallback
+// CustomerManagementPage.jsx
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import CustomerTable from './components/CustomerTable'; // Asumiendo que CustomerTable está en un subdirectorio components
-import CustomerFormModal from './components/CustomerFormModal'; // Asumiendo que CustomerFormModal está en un subdirectorio components
+import CustomerTable from './components/CustomerTable';
 import { PlusIcon } from '@heroicons/react/24/outline';
-// NO necesitamos uuidv4 si estamos obteniendo IDs de la API
+import { toast } from 'react-toastify';
+import Swal from 'sweetalert2';
+import { LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
 
-// Importar las funciones del servicio de usuarios
-import { getUsers, createUser, updateUser, deleteUser } from '../../api/users'; // <--- Importamos el servicio
-import { toast } from 'react-toastify'; // Para notificaciones al usuario, asegúrate de tener react-toastify instalado
+// Importar las funciones del servicio de usuarios.
+import { getUsers, deleteUser, updateUser } from '../../api/users';
 
 const CustomerManagementPage = () => {
     const [customers, setCustomers] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingCustomer, setEditingCustomer] = useState(null);
-    const [loading, setLoading] = useState(true); // Nuevo estado de carga
-    const [error, setError] = useState(null);     // Nuevo estado de error
+    const [loading, setLoading] = useState(true); // Estado de carga para la tabla principal
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
 
-    // Función para cargar los clientes desde la API
-    // Usamos useCallback para memoizar la función y evitar re-creaciones innecesarias
+    const [columnFilters, setColumnFilters] = useState({
+        dni: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        phone: '',
+        city__name: '',
+        state: '',
+    });
+
     const fetchCustomers = useCallback(async () => {
         setLoading(true);
         setError(null);
         try {
-            const allUsers = await getUsers(); // Obtener todos los usuarios
-            // Filtrar solo los usuarios con rol "Client"
-            const clientUsers = allUsers.filter(user => user.role && user.role.name === 'Client');
-            setCustomers(clientUsers);
+            const data = await getUsers({ role_name: 'Cliente' });
+            setCustomers(data);
+            console.log("Clientes cargados (filtrados por backend):", data);
         } catch (err) {
             console.error('Error al cargar clientes:', err);
             setError('No se pudieron cargar los clientes. Inténtalo de nuevo más tarde.');
@@ -34,95 +40,145 @@ const CustomerManagementPage = () => {
         } finally {
             setLoading(false);
         }
-    }, []); // Dependencias vacías, solo se crea una vez
+    }, []);
 
-    // Cargar los clientes cuando el componente se monta
     useEffect(() => {
         fetchCustomers();
-    }, [fetchCustomers]); // Ejecutar cuando fetchCustomers cambie (solo al inicio)
+    }, [fetchCustomers]);
 
-
-    const handleOpenEditModal = (customer) => {
-        setEditingCustomer(customer);
-        setIsModalOpen(true);
-    };
-
-    const handleCloseEditModal = () => {
-        setIsModalOpen(false);
-        setEditingCustomer(null);
-    };
-
-    const handleSaveCustomer = async (customerData) => {
-        try {
-            if (editingCustomer) {
-                // Actualizar cliente existente
-                await updateUser(editingCustomer.user_id, customerData); // Usar user_id
-                toast.success('Cliente actualizado correctamente.');
-            } else {
-                // Crear nuevo cliente
-                // NOTA: Para crear un cliente, necesitarás incluir el role_id del rol 'Client'
-                // y posiblemente otros campos requeridos por tu API.
-                // Esto podría requerir obtener los roles primero para encontrar el ID del rol 'Client'.
-                // Por ahora, asumimos que 'role_id' se incluye en customerData o se maneja en el backend.
-                // O, si hay un endpoint específico para crear clientes, usarlo.
-                // Si necesitas obtener los roles, podrías hacer algo como:
-                // const roles = await getRoles();
-                // const clientRole = roles.find(role => role.name === 'Client');
-                // if (clientRole) {
-                //     customerData.role_id = clientRole.role_id;
-                // } else {
-                //     throw new Error('Rol "Client" no encontrado.');
-                // }
-
-                await createUser(customerData); // Si la API requiere un rol específico, deberás agregarlo aquí
-                toast.success('Cliente creado correctamente.');
-            }
-            fetchCustomers(); // Volver a cargar la lista para ver los cambios
-        } catch (err) {
-            console.error('Error al guardar cliente:', err);
-            toast.error(`Error al guardar cliente: ${err.response?.data?.detail || err.message}`);
-        } finally {
-            handleCloseEditModal();
-        }
+    const handleNewCustomerClick = () => {
+        navigate('/customer-registration');
     };
 
     const handleDeleteCustomer = async (customerId) => {
-        if (window.confirm('¿Estás seguro de que quieres eliminar este cliente? Esta acción es irreversible.')) {
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, eliminarlo!',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            // Muestra el loading de SweetAlert2
+            Swal.fire({
+                title: 'Eliminando cliente...',
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
             try {
-                await deleteUser(customerId); // Usar customerId (que será user_id)
-                toast.success('Cliente eliminado correctamente.');
-                fetchCustomers(); // Volver a cargar la lista para ver los cambios
+                await deleteUser(customerId);
+                Swal.close(); // Cierra el loading
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Eliminado!',
+                    text: 'El cliente ha sido eliminado correctamente.',
+                    timer: 2500,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+                fetchCustomers(); // Volver a cargar la lista después de eliminar
             } catch (err) {
+                Swal.close(); // Cierra el loading en caso de error
                 console.error('Error al eliminar cliente:', err);
-                toast.error(`Error al eliminar cliente: ${err.response?.data?.detail || err.message}`);
+                const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido al eliminar el cliente.';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                });
+                toast.error(`Error al eliminar cliente: ${errorMessage}`);
             }
         }
     };
 
     const handleToggleCustomerStatus = async (customerId, currentStatus) => {
-        try {
-            // Asumiendo que la API permite cambiar el estado con un PATCH
-            const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
-            await updateUser(customerId, { state: newStatus }); // El campo es 'state' no 'status'
-            toast.success(`Estado del cliente cambiado a ${newStatus}.`);
-            fetchCustomers(); // Volver a cargar la lista
-        } catch (err) {
-            console.error('Error al cambiar estado del cliente:', err);
-            toast.error(`Error al cambiar estado: ${err.response?.data?.detail || err.message}`);
+        const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+        const actionText = newStatus === 'Active' ? 'activar' : 'desactivar';
+
+        const result = await Swal.fire({
+            title: `¿Estás seguro de ${actionText} este cliente?`,
+            text: `El estado del cliente cambiará a "${newStatus}".`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: `Sí, ${actionText}`,
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (result.isConfirmed) {
+            // Muestra el loading de SweetAlert2
+            Swal.fire({
+                title: `Cambiando estado a ${newStatus}...`,
+                text: 'Por favor espera',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            try {
+                await updateUser(customerId, { state: newStatus });
+                Swal.close(); // Cierra el loading
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Actualizado!',
+                    text: `Estado del cliente cambiado a ${newStatus}.`,
+                    timer: 2500,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                });
+                fetchCustomers(); // Volver a cargar la lista después de actualizar el estado
+            } catch (err) {
+                Swal.close(); // Cierra el loading en caso de error
+                console.error('Error al cambiar estado del cliente:', err);
+                const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido al cambiar el estado.';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: errorMessage,
+                });
+                toast.error(`Error al cambiar estado: ${errorMessage}`);
+            }
         }
     };
 
-    const handleNewCustomerClick = () => {
-        // Redirige a una página de registro de usuario/cliente separada
-        // o abre el modal en modo creación (si CustomerFormModal lo soporta)
-        // Por ahora, tu código ya redirige:
-        navigate('/customer-registration');
-        // Si quisieras abrir el modal para un nuevo cliente:
-        // setEditingCustomer(null);
-        // setIsModalOpen(true);
+    const filteredCustomers = customers.filter(customer => {
+        for (const key in columnFilters) {
+            const filterValue = columnFilters[key];
+            if (filterValue) {
+                let customerValue = '';
+                if (key.includes('__')) {
+                    const [mainKey, subKey] = key.split('__');
+                    customerValue = String(customer[mainKey]?.[subKey] || '').toLowerCase();
+                } else {
+                    customerValue = String(customer[key] || '').toLowerCase();
+                }
+
+                if (!customerValue.includes(filterValue.toLowerCase())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    });
+
+    const handleColumnFilterChange = (columnKey, value) => {
+        setColumnFilters(prevFilters => ({
+            ...prevFilters,
+            [columnKey]: value,
+        }));
     };
 
-
+    // Este es el loading para la carga inicial de la tabla, no para las acciones
     if (loading) {
         return (
             <div className="container mx-auto p-4 sm:p-6 lg:p-8 text-center text-gray-600">
@@ -154,17 +210,11 @@ const CustomerManagementPage = () => {
             </div>
 
             <CustomerTable
-                customers={customers}
-                onEdit={handleOpenEditModal}
+                customers={filteredCustomers}
                 onDelete={handleDeleteCustomer}
                 onToggleStatus={handleToggleCustomerStatus}
-            />
-
-            <CustomerFormModal
-                isOpen={isModalOpen}
-                onClose={handleCloseEditModal}
-                customer={editingCustomer}
-                onSave={handleSaveCustomer}
+                columnFilters={columnFilters}
+                onColumnFilterChange={handleColumnFilterChange}
             />
         </div>
     );

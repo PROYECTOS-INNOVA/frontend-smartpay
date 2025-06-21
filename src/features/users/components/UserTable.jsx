@@ -1,6 +1,6 @@
 // components/UserTable.jsx
 import React from 'react';
-import { PencilIcon, TrashIcon, ArrowsUpDownIcon } from '@heroicons/react/24/outline'; // Asegúrate de que ArrowsUpDownIcon esté aquí
+import { PencilIcon, TrashIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline'; // Asegúrate de importar los nuevos iconos
 
 const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
     return (
@@ -35,50 +35,63 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {users.map((user) => (
-                        <tr key={user.user_id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.dni}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''} ${user.second_last_name || ''}`.trim()}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.role?.name || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.city?.name || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                    // CAMBIO AQUÍ: Convertir a minúsculas para la comparación
-                                    user.state?.toLowerCase() === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                                    }`}>
-                                    {/* CAMBIO AQUÍ: Convertir a minúsculas para la visualización y luego comparar */}
-                                    {user.state?.toLowerCase() === 'active' ? 'Activo' : 'Inactivo'}
-                                </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button
-                                    onClick={() => onEdit(user)}
-                                    className="text-indigo-600 hover:text-indigo-900 mr-3"
-                                    title="Editar Usuario"
-                                >
-                                    <PencilIcon className="h-5 w-5" />
-                                </button>
-                                <button
-                                    onClick={() => onToggleStatus(user.user_id, user.state)}
-                                    className="text-yellow-600 hover:text-yellow-900 mr-3"
-                                    title="Cambiar Estado"
-                                >
-                                    <ArrowsUpDownIcon className="h-5 w-5" />
-                                </button>
-                                <button
-                                    onClick={() => onDelete(user.user_id)}
-                                    className="text-red-600 hover:text-red-900"
-                                    title="Eliminar Usuario"
-                                >
-                                    <TrashIcon className="h-5 w-5" />
-                                </button>
-                            </td>
-                        </tr>
-                    ))}
+                    {users.map((user) => {
+                        const isActive = user.state?.toLowerCase() === 'active';
+                        const statusClasses = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
+                        const statusText = isActive ? 'Activo' : 'Inactivo';
+
+                        return (
+                            <tr key={user.user_id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.dni}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''} ${user.second_last_name || ''}`.trim()}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.role?.name || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.city?.name || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    {/* Botón/Span clickeable para cambiar el estado */}
+                                    <button
+                                        onClick={() => onToggleStatus(user.user_id, user.state)}
+                                        className={`inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors duration-200 ${statusClasses}`}
+                                        title={`Cambiar a ${isActive ? 'Inactivo' : 'Activo'}`}
+                                    >
+                                        {statusText}
+                                        {isActive ? (
+                                            <LockOpenIcon className="h-4 w-4 ml-1" />
+                                        ) : (
+                                            <LockClosedIcon className="h-4 w-4 ml-1" />
+                                        )}
+                                    </button>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button
+                                        onClick={() => onEdit(user)}
+                                        className="text-indigo-600 hover:text-indigo-900 mr-3"
+                                        title="Editar Usuario"
+                                    >
+                                        <PencilIcon className="h-5 w-5" />
+                                    </button>
+                                    {/* El botón de ArrowsUpDownIcon que tenías para el estado ahora se elimina */}
+                                    {/* <button
+                                        onClick={() => onToggleStatus(user.user_id, user.state)}
+                                        className="text-yellow-600 hover:text-yellow-900 mr-3"
+                                        title="Cambiar Estado"
+                                    >
+                                        <ArrowsUpDownIcon className="h-5 w-5" />
+                                    </button> */}
+                                    <button
+                                        onClick={() => onDelete(user.user_id)}
+                                        className="text-red-600 hover:text-red-900"
+                                        title="Eliminar Usuario"
+                                    >
+                                        <TrashIcon className="h-5 w-5" />
+                                    </button>
+                                </td>
+                            </tr>
+                        );
+                    })}
                 </tbody>
             </table>
         </div>
