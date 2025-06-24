@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../common/context/AuthProvider'; // Asegúrate de que esta ruta sea correcta
+import { useAuth } from '../../common/context/AuthProvider';
 import { User, IdCard, Mail, Key, Bell, Monitor, Save, Smartphone } from 'lucide-react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // URL base de tu API Gateway
-const API_GATEWAY_URL = 'import.meta.env.VITE_REACT_APP_API_BASE_URL'; // ¡Asegúrate de que esta URL sea la correcta para tu API Gateway!
+const API_GATEWAY_URL = 'import.meta.env.VITE_REACT_APP_API_BASE_URL';
 
 const UserProfilePage = () => {
-    const { user, updateUserProfile, token } = useAuth(); // Ahora obtenemos el token directamente del contexto
+    const { user, updateUserProfile, token } = useAuth();
 
     // Estados para la información del perfil
     const [firstName, setFirstName] = useState('');
@@ -18,9 +18,9 @@ const UserProfilePage = () => {
     const [dni, setDni] = useState('');
     const [phone, setPhone] = useState('');
     const [address, setAddress] = useState('');
-    const [roleName, setRoleName] = useState(''); // Estado para el nombre del rol
+    const [roleName, setRoleName] = useState(''); 
 
-    // Estados para el cambio de contraseña
+
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -31,7 +31,6 @@ const UserProfilePage = () => {
 
     useEffect(() => {
         if (user) {
-            // Asumiendo que user ahora tiene first_name, last_name, etc., como viene del backend
             setFirstName(user.first_name || '');
             setLastName(user.last_name || '');
             setUsername(user.username || '');
@@ -39,33 +38,29 @@ const UserProfilePage = () => {
             setDni(user.dni || '');
             setPhone(user.phone || '');
             setAddress(user.address || '');
-            // Accedemos a user.role.name ahora que esperamos que venga bien del backend
             setRoleName(user.role?.name || '');
         }
     }, [user]);
 
     const handleProfileUpdate = async (e) => {
         e.preventDefault();
-        setIsProfileUpdating(true); // Iniciar estado de carga
+        setIsProfileUpdating(true);
 
         try {
-            // Construir los datos a enviar. Solo envía los campos que pueden ser actualizados.
-            // Los campos como DNI, rol, user_id, etc. NO deben ser actualizables desde aquí.
             const dataToUpdate = {
                 first_name: firstName,
                 last_name: lastName,
                 username: username,
                 email: email,
-                phone: phone, // Agregado para permitir actualización
-                address: address, // Agregado para permitir actualización
-                // No se envía el password ni role_id, DNI, etc.
+                phone: phone,
+                address: address,
             };
 
-            const response = await fetch(`${API_GATEWAY_URL}/users/${user.user_id}`, { // Usa el user_id para PATCH
-                method: 'PATCH', // Usamos PATCH para actualizar parcialmente el recurso
+            const response = await fetch(`${API_GATEWAY_URL}/users/${user.user_id}`, { 
+                method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Usa el token del AuthProvider
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify(dataToUpdate)
             });
@@ -74,15 +69,6 @@ const UserProfilePage = () => {
                 const errorData = await response.json();
                 throw new Error(errorData.detail || 'Error al actualizar el perfil.');
             }
-
-            // Si la actualización es exitosa, se espera que el backend devuelva un 204 (No Content)
-            // o el objeto actualizado. Asumiendo 204 o un mensaje.
-            // Para mantener el contexto de usuario actualizado, podemos hacer una nueva petición
-            // o construir el objeto localmente. Lo ideal es una nueva petición para tener la fuente de verdad.
-
-            // Optar por refetch del usuario para tener los datos más actualizados
-            // Esto asume que AuthProvider tiene un mecanismo para refetchear el usuario actual.
-            // Si updateUserProfile solo actualiza localmente, deberías hacer un fetch completo del usuario.
             const updatedUserResponse = await fetch(`${API_GATEWAY_URL}/users/me`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -93,7 +79,7 @@ const UserProfilePage = () => {
                 throw new Error('Error al recargar el perfil después de la actualización.');
             }
             const updatedUserFromApi = await updatedUserResponse.json();
-            updateUserProfile(updatedUserFromApi); // Actualiza el contexto con los datos frescos de la API
+            updateUserProfile(updatedUserFromApi);
 
             toast.success('Perfil actualizado exitosamente!', {
                 position: "top-right", autoClose: 3000, hideProgressBar: false,
@@ -107,13 +93,13 @@ const UserProfilePage = () => {
                 closeOnClick: true, pauseOnHover: true, draggable: true, progress: undefined,
             });
         } finally {
-            setIsProfileUpdating(false); // Finalizar estado de carga
+            setIsProfileUpdating(false);
         }
     };
 
     const handleChangePassword = async (e) => {
         e.preventDefault();
-        setIsPasswordChanging(true); // Iniciar estado de carga
+        setIsPasswordChanging(true);
 
         if (newPassword !== confirmNewPassword) {
             toast.error('Las nuevas contraseñas no coinciden.', { position: "top-right" });
@@ -121,7 +107,7 @@ const UserProfilePage = () => {
             return;
         }
 
-        if (newPassword.length < 6) { // Ejemplo, ajusta según tu política de seguridad
+        if (newPassword.length < 6) {
             toast.error('La nueva contraseña debe tener al menos 6 caracteres.', { position: "top-right" });
             setIsPasswordChanging(false);
             return;
@@ -135,21 +121,20 @@ const UserProfilePage = () => {
 
         try {
             const response = await fetch(`${API_GATEWAY_URL}/users/change-password`, {
-                method: 'POST', // O PUT, dependiendo de tu diseño de API
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    user_id: user.user_id, // Puede que necesites enviar el user_id para el cambio de contraseña
-                    current_password: currentPassword, // Asegúrate que el nombre del campo coincida con tu backend
-                    new_password: newPassword // Asegúrate que el nombre del campo coincida con tu backend
+                    user_id: user.user_id,
+                    current_password: currentPassword,
+                    new_password: newPassword
                 })
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                // El backend debe enviar un mensaje de error claro si la contraseña actual es incorrecta.
                 throw new Error(errorData.detail || 'Error al cambiar la contraseña. Verifica la contraseña actual.');
             }
 
@@ -158,7 +143,6 @@ const UserProfilePage = () => {
                 closeOnClick: true, pauseOnHover: true, draggable: true, progress: undefined,
             });
 
-            // Limpiar campos después de un cambio exitoso
             setCurrentPassword('');
             setNewPassword('');
             setConfirmNewPassword('');
@@ -170,7 +154,7 @@ const UserProfilePage = () => {
                 closeOnClick: true, pauseOnHover: true, draggable: true, progress: undefined,
             });
         } finally {
-            setIsPasswordChanging(false); // Finalizar estado de carga
+            setIsPasswordChanging(false);
         }
     };
 

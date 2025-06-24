@@ -12,9 +12,8 @@ const DeviceManagementPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedDevice, setSelectedDevice] = useState(null);
-    // REMOVED: isSimModalOpen, deviceForSim states are no longer here
 
-    // Estado para los filtros por columna
+
     const [columnFilters, setColumnFilters] = useState({
         name: '',
         serial_number: '',
@@ -61,14 +60,14 @@ const DeviceManagementPage = () => {
 
     const handleBackToList = () => {
         setSelectedDevice(null);
-        fetchDevices(); // Refrescar la lista al volver
+        fetchDevices(); 
     };
 
     const handleUpdateDevice = async (deviceId, updatedData) => {
         try {
             const updatedDeviceResponse = await updateDevice(deviceId, updatedData);
-            setSelectedDevice(updatedDeviceResponse); // Actualizar el dispositivo seleccionado si estamos en detalles
-            fetchDevices(); // Refrescar la lista
+            setSelectedDevice(updatedDeviceResponse);
+            fetchDevices(); 
             toast.success('Dispositivo actualizado correctamente.');
         } catch (err) {
             console.error('Error al actualizar dispositivo:', err);
@@ -86,8 +85,6 @@ const DeviceManagementPage = () => {
             toast.success('Dispositivo bloqueado con éxito.');
             fetchDevices();
             if (selectedDevice && selectedDevice.device_id === deviceId) {
-                // Si el dispositivo bloqueado es el que estamos viendo, recargar sus detalles.
-                // Esto podría hacerse también recargando `selectedDevice` desde el `updateDevice` si la API devuelve el objeto actualizado.
                 handleViewDetails(deviceId);
             }
         } catch (err) {
@@ -151,9 +148,6 @@ const DeviceManagementPage = () => {
         console.log(`Registrar pago para dispositivo ID: ${deviceId}`);
     };
 
-    // REMOVED: handleOpenSimModal, handleCloseSimModal, handleApproveSim, handleRemoveSim
-
-    // Lógica de filtrado dinámico
     const filteredDevices = devices.filter(device => {
         for (const key in columnFilters) {
             const filterValue = columnFilters[key];
@@ -167,7 +161,6 @@ const DeviceManagementPage = () => {
         return true;
     });
 
-    // Función para manejar el cambio en los filtros de columna
     const handleColumnFilterChange = (columnKey, value) => {
         setColumnFilters(prevFilters => ({
             ...prevFilters,
@@ -207,9 +200,8 @@ const DeviceManagementPage = () => {
                     onMakePayment={handleMakePayment}
                     onUpdateDevice={handleUpdateDevice}
                     userRole={userRole}
-                    // No pasamos onOpenSimModal directamente, ya que DeviceDetailsView la gestionará internamente.
-                    // Pero sí necesitamos pasar una forma de recargar el dispositivo si sus SIMs cambian.
-                    onDeviceUpdate={() => handleViewDetails(selectedDevice.device_id)} // <-- Nueva prop para recargar detalles
+
+                    onDeviceUpdate={() => handleViewDetails(selectedDevice.device_id)}
                 />
             ) : (
                 <>
@@ -229,7 +221,6 @@ const DeviceManagementPage = () => {
                 </>
             )}
 
-            {/* REMOVED: SimManagementModal rendering */}
         </div>
     );
 };

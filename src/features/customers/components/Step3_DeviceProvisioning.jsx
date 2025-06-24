@@ -15,7 +15,6 @@ const Step3_DeviceProvisioning = ({ onNext, onBack, initialData, customerId }) =
         const generatedQrData = `smartpay://provision?storeId=YOUR_STORE_ID&configToken=YOUR_MDM_CONFIG_TOKEN&customerId=${customerId}`;
         setQrCodeData(generatedQrData);
 
-        // Limpiar el timeout si el componente se desmonta o el paso cambia
         return () => {
             if (simulationTimeoutRef.current) {
                 clearTimeout(simulationTimeoutRef.current);

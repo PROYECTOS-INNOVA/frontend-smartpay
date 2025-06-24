@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import Swal from 'sweetalert2'; // ¡Importa SweetAlert2!
+import Swal from 'sweetalert2';
 
 const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim }) => {
     const [loadingAction, setLoadingAction] = useState(false);
 
-    // --- DATOS QUEMADOS PARA SIMS (PARA PRUEBAS) ---
-    // En un escenario real, usarías device.sim_cards
     const dummySims = [
         { imsi: '716152566200284', iccid: '89511500025662002841', phone_no: '+51920035322', status: 'approved' },
         { imsi: '716060900620465', iccid: '8951065012344121051', phone_no: '+51920035322', status: 'approved' },
@@ -13,19 +11,16 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
         { imsi: '89511016941754009', iccid: '89511016941754009', phone_no: 'N/A', status: 'unapproved' },
         { imsi: '123456789012345', iccid: '98765432109876543210', phone_no: 'N/A', status: 'unapproved' },
     ];
-    // Usa los datos del dispositivo real si están disponibles, de lo contrario, los datos quemados.
     const allSims = device?.sim_cards && device.sim_cards.length > 0 ? device.sim_cards : dummySims;
 
     const approvedSims = allSims.filter(sim => sim.status === 'approved');
     const unapprovedSims = allSims.filter(sim => sim.status === 'unapproved');
 
-    // Mover la condición de renderizado aquí, después de que todos los hooks han sido llamados.
     if (!isOpen) return null;
 
     const handleApprove = async (sim) => {
         if (loadingAction) return;
 
-        // Reemplaza window.confirm con SweetAlert2
         const result = await Swal.fire({
             title: '¿Estás seguro?',
             text: `¿Quieres APROBAR la SIM con IMSI: ${sim.imsi}?`,
@@ -43,11 +38,9 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
 
         setLoadingAction(true);
         try {
-            // Llama a la función prop real. Los toasts de éxito/error se manejan en el padre (DeviceDetailsView).
-            await onApproveSim(sim.imsi); // onApproveSim en DeviceDetailsView ya recibe solo el imsi
+            await onApproveSim(sim.imsi);
         } catch (error) {
             console.error('Error al aprobar SIM:', error);
-            // El error ya se maneja con Swal.fire en DeviceDetailsView, no lo duplicamos aquí.
         } finally {
             setLoadingAction(false);
         }
@@ -56,13 +49,12 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
     const handleRemove = async (sim) => {
         if (loadingAction) return;
 
-        // Reemplaza window.confirm con SweetAlert2
         const result = await Swal.fire({
             title: '¿Estás seguro?',
             text: `¿Quieres ELIMINAR la SIM con IMSI: ${sim.imsi}? Esto la desasignará del dispositivo.`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#dc3545', // Un color rojo para eliminar
+            confirmButtonColor: '#dc3545', 
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'Sí, Eliminar',
             cancelButtonText: 'Cancelar'
@@ -74,11 +66,9 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
 
         setLoadingAction(true);
         try {
-            // Llama a la función prop real. Los toasts de éxito/error se manejan en el padre (DeviceDetailsView).
-            await onRemoveSim(sim.imsi); // onRemoveSim en DeviceDetailsView ya recibe solo el imsi
+            await onRemoveSim(sim.imsi);
         } catch (error) {
             console.error('Error al eliminar SIM:', error);
-            // El error ya se maneja con Swal.fire en DeviceDetailsView, no lo duplicamos aquí.
         } finally {
             setLoadingAction(false);
         }

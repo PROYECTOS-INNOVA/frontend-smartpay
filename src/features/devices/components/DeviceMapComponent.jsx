@@ -1,14 +1,10 @@
-// src/components/DeviceMapComponent.jsx
 import React, { useEffect, useState } from 'react';
-// ELIMINAR BaseLayer de aquí
-import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl } from 'react-leaflet'; // <--- CAMBIADO
+import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl } from 'react-leaflet'; 
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Importa tu icono personalizado de teléfono móvil
-import phoneIcon from '../../../assets/icons/phone-icon.png'; // <--- ASUNCIÓN: Ajusta esta ruta a tu archivo de icono real
 
-// Componente auxiliar para cambiar la vista del mapa cuando las props 'center' cambian
+import phoneIcon from '../../../assets/icons/phone-icon.png';
 const SetViewOnChange = ({ center }) => {
     const map = useMap();
     useEffect(() => {
@@ -19,7 +15,7 @@ const SetViewOnChange = ({ center }) => {
     return null;
 };
 
-// Función para crear un icono div personalizado con solo la imagen
+
 const createCustomDeviceIcon = (iconUrl, size = 32) => {
     const iconHtml = `<img src="${iconUrl}" style="width: ${size}px; height: ${size}px;">`;
 

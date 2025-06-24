@@ -1,18 +1,10 @@
 import React, { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-// Importa el AuthProvider desde su nueva ubicación común
 import { AuthProvider } from '../common/context/AuthProvider';
-// Importa tu PrivateRoute desde el mismo directorio
 import PrivateRoute from './PrivateRoute';
 
-// Importa el Layout desde su nueva ubicación común
 import Layout from '../common/components/layout/Layout';
-
-// =========================================================
-// Lazy Loading de todos tus componentes de página
-// Esto mejora el rendimiento inicial de tu aplicación
-// =========================================================
 
 // Rutas de Autenticación
 const LoginPage = lazy(() => import('../features/auth/LoginPage'));
@@ -20,7 +12,7 @@ const RegisterPage = lazy(() => import('../features/auth/Register'));
 const ForgotPasswordPage = lazy(() => import('../features/auth/ForgotPassword'));
 
 // Rutas Generales / Dashboard
-const LandingPage = lazy(() => import('../common/pages/LandingPage')); // Asumiendo que LandingPage es una página común
+const LandingPage = lazy(() => import('../common/pages/LandingPage'));
 const DashboardPage = lazy(() => import('../features/dashboard/Dashboard'));
 
 // Rutas de Gestión de Usuarios y Clientes
@@ -46,7 +38,7 @@ const ClientMakePaymentPage = lazy(() => import('../features/client-pwa/ClientMa
 const AppRoutes = () => {
     return (
         <Router>
-            <AuthProvider> {/* Envuelve toda la aplicación con el AuthProvider */}
+            <AuthProvider>
                 <Suspense fallback={
                     <div className="flex justify-center items-center h-screen text-xl text-white">
                         Cargando contenido...
@@ -95,8 +87,6 @@ const AppRoutes = () => {
                             <Route path="/client/dashboard" element={<ClientDashboardPage />} />
                             <Route path="/client/devices/:deviceId" element={<ClientDeviceDetailsView />} />
                             <Route path="/client/make-payment" element={<ClientMakePaymentPage />} />
-                            {/* Puedes añadir un catch-all específico para el cliente si lo necesitas */}
-                            {/* <Route path="/client/*" element={<div>404 - Página de Cliente no encontrada</div>} /> */}
                         </Route>
 
                         {/* Catch-all para cualquier otra ruta no manejada */}

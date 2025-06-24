@@ -192,7 +192,6 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                             leaveFrom="opacity-100 scale-100"
                             leaveTo="opacity-0 scale-95"
                         >
-                            {/* MODIFICACIÓN CLAVE AQUÍ: Asegurar que el Dialog.Panel permita que el contenido se desborde */}
                             <Dialog.Panel className="w-full max-w-4xl transform overflow-visible rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                 <Dialog.Title
                                     as="h3"

@@ -22,7 +22,6 @@ axiosInstance.interceptors.request.use(
     }
 );
 
-// getUsers ahora acepta un objeto 'params' que puede incluir 'role_name'
 export const getUsers = async (params = {}) => {
     try {
         const response = await axiosInstance.get('/users/users', { params });
@@ -35,10 +34,7 @@ export const getUsers = async (params = {}) => {
 
 export const createUser = async (userData) => {
     try {
-        // **¡ESTA ES LA VERDADERA SOLUCIÓN PARA LA CREACIÓN DE USUARIOS!**
-        // Envía el objeto JavaScript directamente. Axios lo serializará a JSON
-        // y establecerá el Content-Type a 'application/json'.
-        const response = await axiosInstance.post('/users/users', userData); // URL SIN slash, y userData como JSON
+        const response = await axiosInstance.post('/users/users', userData);
         return response.data;
     } catch (error) {
         console.error('Error creating user:', error);
@@ -65,5 +61,3 @@ export const deleteUser = async (userId) => {
         throw error;
     }
 };
-
-// Eliminamos getRoles y getCities de aquí, ya que tendrán sus propios archivos de servicio.

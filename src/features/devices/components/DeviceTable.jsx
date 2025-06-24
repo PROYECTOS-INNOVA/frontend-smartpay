@@ -1,7 +1,5 @@
-// src/features/devices/components/DeviceTable.jsx
 import React from 'react';
 
-// Se añaden props para los filtros y el manejo de cambios
 const DeviceTable = ({ devices, onViewDetails, columnFilters, onColumnFilterChange }) => {
     const getStatusClass = (status) => {
         switch (status) {
@@ -20,7 +18,6 @@ const DeviceTable = ({ devices, onViewDetails, columnFilters, onColumnFilterChan
         }
     };
 
-    // Función para renderizar el encabezado con el input de filtro
     const renderTh = (columnKey, columnName) => (
         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
             <div className="flex flex-col">
@@ -47,7 +44,6 @@ const DeviceTable = ({ devices, onViewDetails, columnFilters, onColumnFilterChan
                     {renderTh('brand', 'Marca')}
                     {renderTh('imei', 'IMEI 1')}
                     {renderTh('state', 'Estado')}
-                    {/* La columna de Acciones no necesita filtro de texto */}
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
             </thead>

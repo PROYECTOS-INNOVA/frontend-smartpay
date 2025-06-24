@@ -8,7 +8,7 @@ const CustomerFormModal = ({ isOpen, onClose, customer, onSave }) => {
         name: '',
         email: '',
         phone: '',
-        devices: 0,
+        devices: 0, 
         status: 'active'
     });
 

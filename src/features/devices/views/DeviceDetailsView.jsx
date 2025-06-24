@@ -1,8 +1,7 @@
-// src/features/devices/components/DeviceDetailsView.jsx
 import React, { useState, useEffect } from 'react';
 import { formatDisplayDate } from '../../../common/utils/helpers';
 import SimManagementModal from '../components/SimManagementModal';
-import ContractViewModal from '../components/ContractViewModal'; // Import the new ContractViewModal
+import ContractViewModal from '../components/ContractViewModal';
 import DeviceMapComponent from '../components/DeviceMapComponent';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
@@ -26,13 +25,11 @@ const DeviceDetailsView = ({
     const [isSaving, setIsSaving] = useState(false);
 
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
-    const [isContractModalOpen, setIsContractModalOpen] = useState(false); // New state for contract modal
+    const [isContractModalOpen, setIsContractModalOpen] = useState(false);
 
-    // Dummy contract URL for demonstration. In a real app, this would come from `device.contract_url`
-    // or be fetched based on `device.device_id`.
-    const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf'; // Example PDF
 
-    // --- Datos quemados para Historial de Acciones y Pagos ---
+    const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf'; 
+
     const dummyActionHistory = [
         { id: 1, type: 'Asignación', description: 'Dispositivo asignado a Juan Pérez', timestamp: '2024-01-15T10:00:00Z' },
         { id: 2, type: 'Bloqueo', description: 'Dispositivo bloqueado por falta de pago', timestamp: '2024-02-01T11:30:00Z' },

@@ -1,5 +1,3 @@
-// src/components/CustomerTable.jsx
-
 import React from 'react';
 import { TrashIcon, LockOpenIcon, LockClosedIcon } from '@heroicons/react/24/outline'; // Asegúrate de importar los iconos
 
@@ -57,7 +55,7 @@ const CustomerTable = ({ customers, onDelete, onToggleStatus, columnFilters, onC
                                 type="text"
                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 text-sm p-1"
                                 placeholder="Filtrar ciudad"
-                                value={columnFilters.city__name} // Asumo que el nombre de la ciudad viene como 'city__name'
+                                value={columnFilters.city__name} 
                                 onChange={(e) => onColumnFilterChange('city__name', e.target.value)}
                             />
                         </th>
@@ -101,7 +99,6 @@ const CustomerTable = ({ customers, onDelete, onToggleStatus, columnFilters, onC
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.prefix}{customer.phone}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{customer.city?.name || 'N/A'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap">
-                                        {/* Botón de estado clickeable con iconos */}
                                         <button
                                             onClick={() => onToggleStatus(customer.user_id, customer.state)}
                                             className={`inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors duration-200 ${statusClasses}`}

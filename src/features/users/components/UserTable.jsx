@@ -1,4 +1,3 @@
-// components/UserTable.jsx
 import React from 'react';
 import { PencilIcon, TrashIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline'; // Asegúrate de importar los nuevos iconos
 
