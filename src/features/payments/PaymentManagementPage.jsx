@@ -1,19 +1,16 @@
-// src/pages/payments/PaymentManagementPage.jsx
-
 import React, { useState, useEffect, useCallback } from 'react';
-import PaymentTable from './components/PaymentTable.jsx'; // Asegúrate que la extensión sea .jsx
-import PaymentsFlow from './PaymentsFlow.jsx'; // Asegúrate que la extensión sea .jsx
+import PaymentTable from './components/PaymentTable.jsx';
+import PaymentsFlow from './PaymentsFlow.jsx';
 
 import { PlusIcon, ChevronLeftIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 
-// ** Importaciones de funciones de API necesarias **
-import { getPayments, createPayment } from '../../api/payments'; // Asegúrate de tener createPayment
+import { getPayments, createPayment } from '../../api/payments';
 import { getUsers } from '../../api/users';
-import { createEnrolment } from '../../api/enrolments'; // Debes crear esta API function (POST /enrolments/)
-import { createDevice } from '../../api/devices';     // Debes crear esta API function (POST /devices/)
-import { createPlan } from '../../api/plans';         // Debes crear esta API function (POST /plans/)
+import { createEnrolment } from '../../api/enrolments';
+import { createDevice } from '../../api/devices';
+import { createPlan } from '../../api/plans';
 
 const PaymentManagementPage = () => {
     const [payments, setPayments] = useState([]);
@@ -76,69 +73,49 @@ const PaymentManagementPage = () => {
         try {
             const { customer, device, authenticatedUser, paymentPlan, initialPayment, contractBlob } = finalData;
 
-            // --- PASO 1: Crear el Enrolamiento (enrolment) ---
-            // Este registro vincula al cliente con el vendedor para esta transacción.
             const enrolmentPayload = {
-                user_id: customer.user_id,         // ID del cliente (comprador)
-                vendor_id: authenticatedUser.user_id // ID del usuario autenticado (vendedor)
+                user_id: customer.user_id,
+                vendor_id: authenticatedUser.user_id
             };
             const enrolmentResponse = await createEnrolment(enrolmentPayload);
             const enrolmentId = enrolmentResponse.enrolment_id;
-            console.log("Enrolamiento creado:", enrolmentResponse);
 
-            // --- PASO 2: Crear el Dispositivo (device) ---
-            // Aquí registramos el nuevo dispositivo en la base de datos,
-            // vinculándolo al enrolamiento recién creado.
             const devicePayload = {
                 name: device.name,
                 imei: device.imei,
-                imei_two: device.imei_two || null, // Asegúrate de manejar null si no siempre existe
+                imei_two: device.imei_two || null,
                 serial_number: device.serial_number,
                 model: device.model,
                 brand: device.brand,
                 product_name: device.product_name,
-                state: device.state || 'Nuevo', // Estado por defecto si no viene de la UI
-                enrolment_id: enrolmentId // Clave foránea al enrolamiento
+                state: device.state || 'Nuevo',
+                enrolment_id: enrolmentId
             };
             const deviceResponse = await createDevice(devicePayload);
             const deviceId = deviceResponse.device_id;
-            console.log("Dispositivo creado:", deviceResponse);
 
-            // --- PASO 3: Crear el Plan de Pago (plan) ---
-            // Registramos los detalles del plan de cuotas, vinculándolo al dispositivo
-            // y a los usuarios.
-            // NOTA: Para el campo 'contract', si quieres guardar el PDF, necesitarías
-            // un endpoint que acepte un archivo (FormData) y te retorne una URL,
-            // o guardar el PDF en tu servidor de archivos y luego solo la URL aquí.
-            // Por simplicidad, por ahora lo pasamos como null o una cadena.
             const planPayload = {
                 initial_date: paymentPlan.initial_date,
                 quotas: paymentPlan.quotas,
-                // contract: contractBlob ? 'URL_DEL_PDF_SUBIDO' : null, // Si subes el PDF
-                contract: "Contrato digital generado", // O un placeholder si no manejas la URL
-                device_id: deviceId,        // Clave foránea al dispositivo
-                user_id: customer.user_id,  // ID del comprador
-                vendor_id: authenticatedUser.user_id // ID del vendedor
+                contract: "Contrato digital generado",
+                device_id: deviceId,
+                user_id: customer.user_id,
+                vendor_id: authenticatedUser.user_id
             };
             const planResponse = await createPlan(planPayload);
             const planId = planResponse.plan_id;
-            console.log("Plan de pago creado:", planResponse);
 
-            // --- PASO 4: Registrar el Pago Inicial (payment) ---
-            // Registramos el primer pago, vinculándolo al dispositivo y al plan.
             const initialPaymentPayload = {
                 value: initialPayment.value,
                 method: initialPayment.method,
-                state: initialPayment.state || 'Approved', // Estado por defecto
+                state: initialPayment.state || 'Approved',
                 date: initialPayment.date,
-                reference: initialPayment.reference || `PI-${Date.now()}`, // Genera una referencia si no hay
-                device_id: deviceId, // Clave foránea al dispositivo
-                plan_id: planId     // Clave foránea al plan
+                reference: initialPayment.reference || `PI-${Date.now()}`,
+                device_id: deviceId,
+                plan_id: planId
             };
             const paymentResponse = await createPayment(initialPaymentPayload);
-            console.log("Pago inicial registrado:", paymentResponse);
 
-            // Si llegamos hasta aquí, todo fue exitoso
             Swal.close();
             Swal.fire({
                 icon: 'success',
@@ -149,14 +126,13 @@ const PaymentManagementPage = () => {
                 showConfirmButton: false
             });
 
-            fetchPayments(); // Refrescar la tabla de pagos para mostrar el nuevo registro
-            setCurrentStep(0); // Volver a la vista de la tabla
-            setNewInvoiceData({}); // Limpiar datos del formulario
+            fetchPayments();
+            setCurrentStep(0);
+            setNewInvoiceData({});
 
         } catch (err) {
             Swal.close();
             console.error("Error al registrar la venta completa:", err);
-            // Intenta obtener un mensaje de error más específico de la respuesta de la API
             const errorMessage = err.response?.data?.detail || err.message || "Hubo un error inesperado al registrar la venta.";
             Swal.fire({
                 icon: 'error',
@@ -169,10 +145,8 @@ const PaymentManagementPage = () => {
     };
 
     const renderContent = () => {
-        // ... tu función renderContent existente ...
         switch (currentStep) {
             case 0:
-                // ... vista de la tabla de pagos ...
                 if (loading) {
                     return (
                         <div className="flex justify-center items-center h-64">

@@ -1,4 +1,3 @@
-// src/pages/payments/components/Step2DeviceProvisioning.jsx
 import React, { useState, useEffect } from 'react';
 import { QrCodeIcon, WifiIcon, DevicePhoneMobileIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
@@ -11,12 +10,11 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
     const [deviceDetails, setDeviceDetails] = useState(initialData.deviceDetails || null);
     const [loading, setLoading] = useState(false);
 
-    // useEffect para pre-rellenar el formulario si hay datos iniciales
     useEffect(() => {
         if (initialData.deviceDetails) {
             setDeviceDetails(initialData.deviceDetails);
-            setDeviceConnected(true); // Asume que si hay detalles, ya está conectado
-            setQrGenerated(true); // Y el QR fue generado
+            setDeviceConnected(true);
+            setQrGenerated(true);
         }
     }, [initialData]);
 
@@ -58,7 +56,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
         e.preventDefault();
 
         if (deviceDetails) {
-            onNext({ device: deviceDetails }); // Solo pasamos deviceDetails, ahora como 'device'
+            onNext({ device: deviceDetails });
         } else {
             toast.error('Por favor, conecta y obtén los datos del dispositivo para continuar.');
         }
@@ -130,7 +128,6 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
                 )}
             </div>
 
-            {/* <--- Sección de valor del dispositivo ELIMINADA de aquí */}
 
             <div className="flex justify-between gap-3 mt-6">
                 <button
@@ -144,7 +141,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
                 <button
                     type="button"
                     onClick={handleSubmit}
-                    disabled={!deviceDetails || loading} // Eliminado valueError de la condición de disabled
+                    disabled={!deviceDetails || loading} 
                     className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${(!deviceDetails || loading) ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}
                 >
                     Siguiente Paso

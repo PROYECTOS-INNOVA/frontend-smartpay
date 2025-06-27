@@ -1,25 +1,23 @@
-// src/pages/payments/components/Step3PaymentPlan.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
 const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
-    // Estado local para los campos del formulario
     const [paymentPlan, setPaymentPlan] = useState(initialData.paymentPlan || {
         quotas: '',
-        frecuencia_dias: '', // Ej: 30, 60, etc.
-        initial_date: '' // Fecha de inicio del plan
+        frecuencia_dias: '', 
+        initial_date: '' 
     });
     const [initialPayment, setInitialPayment] = useState(initialData.initialPayment || {
         value: '',
-        method: '', // Ej: 'Efectivo', 'Tarjeta', 'Transferencia'
-        date: new Date().toISOString().split('T')[0] // Fecha actual por defecto
+        method: '', 
+        date: new Date().toISOString().split('T')[0] 
     });
-    // NUEVO ESTADO para el valor del dispositivo en Step3
+
     const [devicePrice, setDevicePrice] = useState(initialData.device?.price_usd || '');
     const [errors, setErrors] = useState({});
 
-    // Cargar el precio del dispositivo si viene de initialData (por ejemplo, al regresar de un paso posterior)
+
     useEffect(() => {
         if (initialData.device?.price_usd) {
             setDevicePrice(initialData.device.price_usd);
@@ -27,10 +25,10 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
     }, [initialData.device?.price_usd]);
 
 
-    // Calcular el saldo a financiar
+
     const balanceToFinance = Number(devicePrice) - (Number(initialPayment.value) || 0);
 
-    // Calcular el monto por cuota
+
     const montoPorCuota = useMemo(() => {
         if (Number(paymentPlan.quotas) > 0 && balanceToFinance >= 0) {
             return balanceToFinance / Number(paymentPlan.quotas);
@@ -38,7 +36,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
         return 0;
     }, [balanceToFinance, paymentPlan.quotas]);
 
-    // Generar la tabla de quotas
+
     const generatedInstallments = useMemo(() => {
         const installments = [];
         const numCuotas = Number(paymentPlan.quotas);
@@ -49,38 +47,35 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
             let currentDate = new Date(startDate);
             for (let i = 0; i < numCuotas; i++) {
                 const dueDate = new Date(currentDate);
-                // Si es la primera cuota, la fecha de vencimiento es la fecha de inicio.
-                // Para las siguientes, sumar la frecuencia.
                 if (i > 0) {
                     dueDate.setDate(dueDate.getDate() + freqDays);
                 }
 
                 installments.push({
                     number: i + 1,
-                    dueDate: dueDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+                    dueDate: dueDate.toISOString().split('T')[0],
                     amount: montoPorCuota
                 });
-                currentDate = dueDate; // Actualizar la fecha para el cálculo de la siguiente cuota
+                currentDate = dueDate;
             }
         }
         return installments;
     }, [paymentPlan.quotas, paymentPlan.frecuencia_dias, paymentPlan.initial_date, montoPorCuota]);
 
-    // Función de validación
+
     const validate = () => {
         let tempErrors = {};
 
-        // Validar el precio del dispositivo
+
         if (!devicePrice || Number(devicePrice) <= 0) tempErrors.devicePrice = "El valor del dispositivo es requerido y debe ser mayor a 0.";
 
-        // Validar pago inicial
+        
         if (!initialPayment.value || Number(initialPayment.value) < 0) tempErrors.initialValue = "El valor del pago inicial es requerido y no puede ser negativo.";
         if (Number(initialPayment.value) > Number(devicePrice)) tempErrors.initialValue = "El pago inicial no puede ser mayor que el valor del dispositivo.";
         if (!initialPayment.method) tempErrors.initialMethod = "El método de pago inicial es requerido.";
         if (!initialPayment.date) tempErrors.initialDate = "La fecha del pago inicial es requerida.";
 
 
-        // Validar plan de pagos (después de validar precio y pago inicial)
         if (balanceToFinance < 0) {
             tempErrors.balance = "El saldo a financiar no puede ser negativo. Ajusta el pago inicial.";
         } else if (balanceToFinance > 0) {
@@ -90,8 +85,6 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
         } else { // balanceToFinance === 0
             if (Number(paymentPlan.quotas) > 0) tempErrors.quotas = "Si no hay saldo a financiar, el número de quotas debería ser 0.";
             if (Number(paymentPlan.frecuencia_dias) > 0) tempErrors.frecuencia_dias = "Si no hay saldo a financiar, la frecuencia debería ser 0.";
-            // La fecha de inicio del plan puede ser opcional si no hay quotas
-            // if (paymentPlan.initial_date) tempErrors.initial_date = "Si no hay quotas, la fecha de inicio del plan no es necesaria."; // Esto podría ser una advertencia en lugar de error.
         }
 
         setErrors(tempErrors);
@@ -102,18 +95,17 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
         e.preventDefault();
         if (validate()) {
             onNext({
-                // Asegúrate de que `device` se mantenga y `price_usd` se actualice en el objeto `device`
                 device: {
-                    ...(initialData.device || {}), // Mantenemos los detalles del dispositivo del paso anterior
-                    price_usd: Number(devicePrice) // Añadimos o actualizamos el precio aquí
+                    ...(initialData.device || {}),
+                    price_usd: Number(devicePrice) 
                 },
                 paymentPlan: {
                     ...paymentPlan,
-                    monto_cuota: montoPorCuota, // Añadir el monto_cuota calculado aquí
+                    monto_cuota: montoPorCuota,
                     balance_to_finance: balanceToFinance
                 },
                 initialPayment,
-                generatedInstallments // Guardar las quotas generadas para el resumen o PDF
+                generatedInstallments
             });
         } else {
             toast.error("Por favor, corrige los errores en el formulario.");
@@ -130,7 +122,6 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
         setInitialPayment(prev => ({ ...prev, [name]: name === 'value' ? Number(value) : value }));
     };
 
-    // Manejador para el cambio del valor del dispositivo en Step3
     const handleDevicePriceChange = (e) => {
         setDevicePrice(e.target.value);
     };
@@ -261,14 +252,13 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                 </div>
             </div>
 
-            {/* Tabla para visualizar el plan de pagos - MODIFICADA */}
+
             {generatedInstallments.length > 0 && (
                 <div className="bg-white shadow-md rounded-lg p-6 mt-6">
                     <h3 className="text-xl font-semibold text-gray-800 mb-4">Detalle del Plan de Pagos Programado</h3>
-                    {/* Se añade un div con max-h y overflow-y para el scroll interno */}
                     <div className="max-h-60 overflow-y-auto border border-gray-200 rounded-md">
                         <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50 sticky top-0 z-10"> {/* sticky top-0 para mantener el encabezado visible al hacer scroll */}
+                            <thead className="bg-gray-50 sticky top-0 z-10">
                                 <tr>
                                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Cuota

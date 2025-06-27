@@ -1,8 +1,7 @@
-// src/pages/payments/components/Step4Contract.jsx
 import React, { useState, useEffect } from 'react';
 import { DocumentArrowDownIcon, DocumentArrowUpIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
-import { generateContractPdf } from '../utils/contractGenerator'; // <--- Ensure this path is correct
+import { generateContractPdf } from '../utils/contractGenerator';
 
 const Step4Contract = ({ onNext, onBack, initialData }) => {
     const [contractFile, setContractFile] = useState(initialData.signedContractFile || null);
@@ -25,7 +24,7 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
 
     const handleGenerateContract = async () => {
         setIsLoadingContract(true);
-        setContractUrl(''); // Clear previous URL
+        setContractUrl('');
         try {
             const contractBlob = await generateContractPdf({
                 customer,
@@ -50,7 +49,7 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file && file.type === "application/pdf") {
-            if (file.size > 10 * 1024 * 1024) { // Max 10MB
+            if (file.size > 10 * 1024 * 1024) { 
                 toast.error("El archivo excede el tamaño máximo de 10MB.");
                 setContractFile(null);
             } else {

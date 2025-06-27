@@ -1,9 +1,8 @@
-// src/pages/payments/components/Stepper.jsx (Tu Stepper.jsx)
 import React from 'react';
 import { CheckCircleIcon } from '@heroicons/react/24/solid';
 
 const Stepper = ({ currentStep, totalSteps, stepNames }) => {
-    // console.log para depurar:
+
     console.log("Stepper props: currentStep", currentStep, "totalSteps", totalSteps, "stepNames", stepNames);
 
     return (
@@ -36,7 +35,6 @@ const Stepper = ({ currentStep, totalSteps, stepNames }) => {
                                 </span>
                             )}
                         </div>
-                        {/* ESTA ES LA LÍNEA CRÍTICA PARA EL DIVISOR */}
                         {index < totalSteps - 1 && (
                             <div className={`flex-auto border-t-2 ml-4 mr-4 transition-colors duration-300
                                 ${isCompleted ? 'border-green-500' : isActive ? 'border-blue-600' : 'border-gray-300'}`}></div>

@@ -1,4 +1,3 @@
-// src/pages/payments/components/Step5SummaryInvoice.jsx
 import React from 'react';
 import { DocumentCheckIcon, XCircleIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
 
@@ -9,7 +8,7 @@ const Step5SummaryInvoice = ({ onBack, onFinalize, initialData }) => {
         paymentPlan,
         initialPayment,
         signedContractFile,
-        generatedInstallments // <--- ¡Ahora disponible!
+        generatedInstallments
     } = initialData;
 
     const handleFinalizeClick = () => {
