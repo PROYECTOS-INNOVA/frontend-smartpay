@@ -24,7 +24,7 @@ axiosInstance.interceptors.request.use(
 
 export const getUsers = async (params = {}) => {
     try {
-        const response = await axiosInstance.get('/users/users', { params });
+        const response = await axiosInstance.get('/users', { params });
         return response.data;
     } catch (error) {
         console.error('Error fetching users:', error);
@@ -34,7 +34,7 @@ export const getUsers = async (params = {}) => {
 
 export const createUser = async (userData) => {
     try {
-        const response = await axiosInstance.post('/users/users', userData);
+        const response = await axiosInstance.post('/users', userData);
         return response.data;
     } catch (error) {
         console.error('Error creating user:', error);
@@ -44,7 +44,7 @@ export const createUser = async (userData) => {
 
 export const updateUser = async (userId, userData) => {
     try {
-        const response = await axiosInstance.patch(`/users/users/${userId}`, userData);
+        const response = await axiosInstance.patch(`/users/${userId}`, userData);
         return response.data;
     } catch (error) {
         console.error('Error updating user:', error);
@@ -54,7 +54,7 @@ export const updateUser = async (userId, userData) => {
 
 export const deleteUser = async (userId) => {
     try {
-        const response = await axiosInstance.delete(`/users/users/${userId}`);
+        const response = await axiosInstance.delete(`/users/${userId}`);
         return response.data;
     } catch (error) {
         console.error('Error deleting user:', error);

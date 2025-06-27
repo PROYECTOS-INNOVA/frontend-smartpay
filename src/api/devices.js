@@ -24,6 +24,22 @@ axiosInstance.interceptors.request.use(
     }
 );
 
+// --- NUEVA FUNCIÓN PARA CREAR DISPOSITIVO ---
+/**
+ * Crea un nuevo dispositivo.
+ * @param {object} deviceData - Datos del dispositivo (e.g., { name: '...', imei: '...', enrolment_id: '...' }).
+ * @returns {Promise<object>} La respuesta de la API que incluye el dispositivo creado.
+ */
+export const createDevice = async (deviceData) => {
+    try {
+        const response = await axiosInstance.post('/devices/', deviceData); // Endpoint POST /devices/
+        return response.data;
+    } catch (error) {
+        console.error('Error al crear dispositivo:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
 export const getDevices = async (params = {}) => {
     try {
         const response = await axiosInstance.get('/devices/', { params });
@@ -99,8 +115,6 @@ export const releaseDevice = async (deviceId) => {
 // --- NUEVAS FUNCIONES PARA LA GESTIÓN DE SIMS ---
 export const approveDeviceSim = async (deviceId, imsi) => {
     try {
-        // Asumiendo un endpoint como POST /devices/{device_id}/sims/{imsi}/approve
-        // O un PATCH al dispositivo con la info de la SIM a aprobar
         const response = await axiosInstance.post(`/devices/${deviceId}/sims/${imsi}/approve`);
         return response.data;
     } catch (error) {
@@ -111,8 +125,6 @@ export const approveDeviceSim = async (deviceId, imsi) => {
 
 export const removeDeviceSim = async (deviceId, imsi) => {
     try {
-        // Asumiendo un endpoint como DELETE /devices/{device_id}/sims/{imsi}
-        // O un PATCH al dispositivo para desasignar la SIM
         const response = await axiosInstance.delete(`/devices/${deviceId}/sims/${imsi}`);
         return response.data;
     } catch (error) {
@@ -120,14 +132,3 @@ export const removeDeviceSim = async (deviceId, imsi) => {
         throw error;
     }
 };
-
-// Podrías necesitar una función para registrar pagos si tienes un modal separado
-// export const registerPayment = async (deviceId, paymentData) => {
-//   try {
-//     const response = await axiosInstance.post(`/devices/${deviceId}/payments`, paymentData);
-//     return response.data;
-//   } catch (error) {
-//     console.error(`Error registering payment for device ${deviceId}:`, error);
-//     throw error;
-//   }
-// };

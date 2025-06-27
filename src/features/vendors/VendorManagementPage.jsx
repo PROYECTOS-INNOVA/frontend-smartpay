@@ -239,7 +239,7 @@ const VendorManagementPage = () => {
     if (loading) {
         return (
             <div className="container mx-auto p-4 sm:p-6 lg:p-8 flex justify-center items-center h-screen">
-                <svg className="animate-spin -ml-1 mr-3 h-10 w-10 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -268,12 +268,12 @@ const VendorManagementPage = () => {
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
             <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-                    <UserGroupIcon className="h-8 w-8 mr-2 text-indigo-600" />
+                    <UserGroupIcon className="h-8 w-8 mr-2 text-blue-600" />
                     Gestión de Vendedores
                 </h1>
                 <button
                     onClick={() => handleOpenModal()}
-                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                     <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" />
                     Añadir Vendedor
@@ -289,7 +289,7 @@ const VendorManagementPage = () => {
                         type="text"
                         name="search"
                         id="search"
-                        className="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500"
+                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500"
                         placeholder="Buscar vendedor por nombre, usuario, email, DNI o estado..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -307,7 +307,7 @@ const VendorManagementPage = () => {
                     <div className="mt-6">
                         <button
                             onClick={() => handleOpenModal()}
-                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" />
                             Añadir Primer Vendedor
@@ -319,7 +319,7 @@ const VendorManagementPage = () => {
                     <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron vendedores</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                        Tu búsqueda de "<span className="font-semibold text-indigo-600">{searchTerm}</span>" no arrojó resultados. Intenta con otro término.
+                        Tu búsqueda de "<span className="font-semibold text-blue-600">{searchTerm}</span>" no arrojó resultados. Intenta con otro término.
                     </p>
                 </div>
             ) : (

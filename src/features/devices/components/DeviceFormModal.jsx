@@ -125,7 +125,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                                 id="serial_number"
                                                 value={formData.serial_number}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 required
                                             />
                                         </div>
@@ -137,7 +137,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                                 id="model"
                                                 value={formData.model}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 required
                                             />
                                         </div>
@@ -149,7 +149,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                                 id="type"
                                                 value={formData.type}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 required
                                             />
                                         </div>
@@ -160,7 +160,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                                 id="mdm_status"
                                                 value={formData.mdm_status}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 required
                                             >
                                                 <option value="Activo">Activo</option>
@@ -179,7 +179,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                                 id="assigned_user_id"
                                                 value={formData.assigned_user_id || ''}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 placeholder="ID del usuario asignado (opcional)"
                                             />
                                         </div>
@@ -192,7 +192,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                                 id="os_version"
                                                 value={formData.os_version}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 placeholder="Ej: iOS 17.5.1, Android 14"
                                             />
                                         </div>
@@ -204,7 +204,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                                 id="imei"
                                                 value={formData.imei}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 placeholder="Número IMEI"
                                             />
                                         </div>
@@ -224,7 +224,7 @@ const DeviceFormModal = ({ isOpen, onClose, initialData, onSubmit }) => {
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                                                 disabled={loading}
                                             >
                                                 {loading ? 'Guardando...' : (initialData ? 'Actualizar' : 'Registrar')}

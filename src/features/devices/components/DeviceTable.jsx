@@ -27,7 +27,7 @@ const DeviceTable = ({ devices, onViewDetails, columnFilters, onColumnFilterChan
                     placeholder={` ${columnName}...`}
                     value={columnFilters[columnKey] || ''}
                     onChange={(e) => onColumnFilterChange(columnKey, e.target.value)}
-                    className="mt-1 p-1 w-full border border-gray-300 rounded-md text-gray-700 text-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 p-1 w-full border border-gray-300 rounded-md text-gray-700 text-sm focus:ring-blue-500 focus:border-blue-500"
                     onClick={(e) => e.stopPropagation()}
                 />
             </div>
@@ -70,7 +70,7 @@ const DeviceTable = ({ devices, onViewDetails, columnFilters, onColumnFilterChan
                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <button
                                     onClick={() => onViewDetails(device.device_id)}
-                                    className="text-indigo-600 hover:text-indigo-900 ml-4"
+                                    className="text-blue-600 hover:text-blue-900 ml-4"
                                 >
                                     Ver Detalles
                                 </button>

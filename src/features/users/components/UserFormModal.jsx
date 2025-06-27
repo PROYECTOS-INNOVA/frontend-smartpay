@@ -203,44 +203,44 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                     <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
                                             <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">Nombres *</label>
-                                            <input type="text" name="first_name" id="first_name" value={formData.first_name} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="first_name" id="first_name" value={formData.first_name} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="middle_name" className="block text-sm font-medium text-gray-700">Segundo Nombre</label>
-                                            <input type="text" name="middle_name" id="middle_name" value={formData.middle_name} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="middle_name" id="middle_name" value={formData.middle_name} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">Apellido Paterno *</label>
-                                            <input type="text" name="last_name" id="last_name" value={formData.last_name} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="last_name" id="last_name" value={formData.last_name} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="second_last_name" className="block text-sm font-medium text-gray-700">Apellido Materno</label>
-                                            <input type="text" name="second_last_name" id="second_last_name" value={formData.second_last_name} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="second_last_name" id="second_last_name" value={formData.second_last_name} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email *</label>
-                                            <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username *</label>
-                                            <input type="text" name="username" id="username" value={formData.username} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="username" id="username" value={formData.username} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
-                                            <input type="text" name="dni" id="dni" value={formData.dni} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="dni" id="dni" value={formData.dni} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="prefix" className="block text-sm font-medium text-gray-700">Prefijo Teléfono</label>
-                                            <input type="text" name="prefix" id="prefix" value={formData.prefix} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="prefix" id="prefix" value={formData.prefix} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Teléfono</label>
-                                            <input type="text" name="phone" id="phone" value={formData.phone} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="phone" id="phone" value={formData.phone} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
 
                                         <div className="col-span-3">
                                             <label htmlFor="address" className="block text-sm font-medium text-gray-700">Dirección</label>
-                                            <input type="text" name="address" id="address" value={formData.address} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="address" id="address" value={formData.address} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
 
                                         <div className="relative" ref={cityInputRef}>
@@ -259,7 +259,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                                 autoComplete='off'
                                                 placeholder="Busca y selecciona una ciudad"
                                                 required
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                             />
                                             {showSuggestions && citySuggestions.length > 0 && (
                                                 < ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -290,7 +290,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                                 value={formData.role_id}
                                                 onChange={handleChange}
                                                 required
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                             >
                                                 <option value="">Selecciona un rol</option>
                                                 {roles && roles.length > 0 ? (
@@ -315,7 +315,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                                     value={formData.password}
                                                     onChange={handleChange}
                                                     required={isNewUser}
-                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                                 />
                                             </div>
                                         )}
@@ -328,7 +328,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                                 value={formData.state}
                                                 onChange={handleChange}
                                                 required
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                             >
                                                 <option value="Active">Activo</option>
                                                 <option value="Inactive">Inactivo</option>
@@ -345,7 +345,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitie
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                                             >
                                                 {isNewUser ? 'Crear Usuario' : 'Guardar Cambios'}
                                             </button>

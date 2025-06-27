@@ -3,7 +3,7 @@ import axios from 'axios';
 const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
 const axiosInstance = axios.create({
-  baseURL: `${API_GATEWAY_URL}/api/v1`, // Asegúrate de que esta URL base sea correcta
+  baseURL: `${API_GATEWAY_URL}/api/v1`,
   headers: {
     'Content-Type': 'application/json',
   },

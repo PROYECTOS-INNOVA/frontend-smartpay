@@ -210,7 +210,7 @@ const DeviceDetailsView = ({
                                                 name="state"
                                                 value={formData.state}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                                             >
                                                 <option value="Active">Activo</option>
                                                 <option value="Blocked">Bloqueado</option>
@@ -224,7 +224,7 @@ const DeviceDetailsView = ({
                                                 value={formData[key]}
                                                 onChange={handleChange}
                                                 rows="3"
-                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                                             ></textarea>
                                         ) : (
                                             <input
@@ -232,7 +232,7 @@ const DeviceDetailsView = ({
                                                 name={key}
                                                 value={formData[key]}
                                                 onChange={handleChange}
-                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                                             />
                                         )
                                     ) : (
@@ -373,7 +373,7 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onMakePayment(device.device_id)}
-                                    className="bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full"
                                 >
                                     Registrar Pago
                                 </button>
