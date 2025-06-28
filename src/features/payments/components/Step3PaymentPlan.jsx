@@ -5,13 +5,13 @@ import { toast } from 'react-toastify';
 const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
     const [paymentPlan, setPaymentPlan] = useState(initialData.paymentPlan || {
         quotas: '',
-        frecuencia_dias: '', 
-        initial_date: '' 
+        frecuencia_dias: '',
+        initial_date: ''
     });
     const [initialPayment, setInitialPayment] = useState(initialData.initialPayment || {
         value: '',
-        method: '', 
-        date: new Date().toISOString().split('T')[0] 
+        method: '',
+        date: new Date().toISOString().split('T')[0]
     });
 
     const [devicePrice, setDevicePrice] = useState(initialData.device?.price_usd || '');
@@ -69,7 +69,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
 
         if (!devicePrice || Number(devicePrice) <= 0) tempErrors.devicePrice = "El valor del dispositivo es requerido y debe ser mayor a 0.";
 
-        
+
         if (!initialPayment.value || Number(initialPayment.value) < 0) tempErrors.initialValue = "El valor del pago inicial es requerido y no puede ser negativo.";
         if (Number(initialPayment.value) > Number(devicePrice)) tempErrors.initialValue = "El pago inicial no puede ser mayor que el valor del dispositivo.";
         if (!initialPayment.method) tempErrors.initialMethod = "El método de pago inicial es requerido.";
@@ -94,11 +94,13 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validate()) {
+            // Clonar el objeto device de initialData para no mutarlo directamente
+            const deviceDataToSend = { ...(initialData.device || {}) };
+            // Eliminar price_usd antes de pasarlo a onNext
+            delete deviceDataToSend.price_usd; // <--- ¡EL CAMBIO VA AQUÍ!
+
             onNext({
-                device: {
-                    ...(initialData.device || {}),
-                    price_usd: Number(devicePrice) 
-                },
+                device: deviceDataToSend, // <--- Pasar el objeto device sin price_usd
                 paymentPlan: {
                     ...paymentPlan,
                     monto_cuota: montoPorCuota,

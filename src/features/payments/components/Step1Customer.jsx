@@ -3,14 +3,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Select from 'react-select';
 import { toast } from 'react-toastify';
 
-// Simulación de datos de ciudades (reemplazar con tu API real si existe)
-const cities = [
-    { value: 'Pitalito', label: 'Pitalito' },
-    { value: 'Neiva', label: 'Neiva' },
-    { value: 'Bogota', label: 'Bogotá' },
-    { value: 'Medellin', label: 'Medellín' },
-    { value: 'Cali', label: 'Cali' },
-];
+// Ya no necesitamos 'cities' mock array, la ciudad viene en el objeto customer.city
 
 const Step1Customer = ({ onNext, initialData = {}, customers }) => {
     // Desestructurar initialData para usar valores existentes o nulos de forma segura
@@ -27,32 +20,53 @@ const Step1Customer = ({ onNext, initialData = {}, customers }) => {
         username: initialCustomer?.username || '',
         prefix: initialCustomer?.prefix || '+57',
         phone: initialCustomer?.phone || '',
-        // Asumiendo que initialCustomer.city_id es el ID o valor de la ciudad
-        city_id: initialCustomer?.city_id ? cities.find(c => c.value === initialCustomer.city_id) : null,
+        // Ahora, initialCustomer.city es un OBJETO { city_id, name }
+        city: initialCustomer?.city || null, // Almacenamos el objeto city completo
         address: initialCustomer?.address || ''
     });
 
     const [errors, setErrors] = useState({});
-    const [isNewCustomer, setIsNewCustomer] = useState(!initialCustomer?.user_id); // Asume nuevo si no hay user_id
+    // `isNewCustomer` ya no parece usarse en la lógica actual del formulario.
+    // Si su propósito era habilitar/deshabilitar campos, esa lógica no está presente.
+    // Si no se usa para algo más, la podemos quitar. Por ahora la mantengo pero comentada.
+    // const [isNewCustomer, setIsNewCustomer] = useState(!initialCustomer?.user_id);
 
     const customerOptions = useMemo(() => customers.map(customer => ({
         value: customer.user_id,
         label: `${customer.first_name || ''} ${customer.last_name || ''} (DNI: ${customer.dni || 'N/A'})`,
-        customerData: customer
+        customerData: customer // Guardamos el objeto customer completo para facilitar el llenado
     })), [customers]);
 
     useEffect(() => {
-        // Mejorado para manejar la preselección solo si initialCustomer existe y es diferente
-        // del valor actual en customerData.dni para evitar bucles.
-        if (initialCustomer && customerOptions.length > 0 && customerData.dni !== initialCustomer.dni) {
-            const preSelectedCustomer = customerOptions.find(option => option.value === initialCustomer.user_id);
-            if (preSelectedCustomer) {
-                setCustomerData(prev => ({ ...prev, ...preSelectedCustomer.customerData, city_id: cities.find(c => c.value === preSelectedCustomer.customerData.city_id) }));
-                setIsNewCustomer(false); // Si precargamos un cliente existente, no es nuevo
+        // Mejorado para manejar la preselección solo si initialCustomer existe.
+        // Si initialCustomer ya tiene user_id, precargamos sus datos.
+        if (initialCustomer && initialCustomer.user_id) {
+            // Buscamos si el cliente inicial está en las opciones para asegurar coherencia.
+            // Esto es útil si los 'customers' se cargan asíncronamente y `initialCustomer`
+            // ya viene preestablecido.
+            const preSelectedCustomerOption = customerOptions.find(
+                option => option.value === initialCustomer.user_id
+            );
+
+            if (preSelectedCustomerOption) {
+                setCustomerData(prev => ({
+                    ...prev,
+                    ...preSelectedCustomerOption.customerData,
+                    // Aseguramos que 'city' sea el objeto completo de la ciudad
+                    city: preSelectedCustomerOption.customerData.city || null
+                }));
+                // setIsNewCustomer(false); // Si precargamos un cliente existente, no es nuevo
+            } else {
+                // Si initialCustomer no está en las opciones (ej. acaba de ser creado y aún no se recargan las opciones)
+                // O si initialCustomer fue pasado directamente sin ser de la lista.
+                setCustomerData(prev => ({
+                    ...prev,
+                    ...initialCustomer,
+                    city: initialCustomer.city || null // Aseguramos que 'city' sea el objeto completo
+                }));
             }
         }
-    }, [initialCustomer, customerOptions]);
-
+    }, [initialCustomer, customerOptions]); // Dependencias para re-ejecutar el efecto
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -62,31 +76,37 @@ const Step1Customer = ({ onNext, initialData = {}, customers }) => {
         }
     };
 
+    // Nueva función para manejar el cambio del input de la ciudad, ya que ahora es un campo de texto simple
+    const handleCityChange = (e) => {
+        const { value } = e.target;
+        setCustomerData(prev => ({
+            ...prev,
+            city: { ...prev.city, name: value } // Actualiza solo el 'name' dentro del objeto 'city'
+        }));
+        if (errors.city) {
+            setErrors(prev => ({ ...prev, city: null }));
+        }
+    };
+
     const handleSelectCustomerChange = (selectedOption) => {
         if (selectedOption) {
             setCustomerData(prev => ({
                 ...prev,
                 ...selectedOption.customerData, // Rellena con los datos del cliente seleccionado
-                city_id: cities.find(c => c.value === selectedOption.customerData.city_id) // Precarga la ciudad
+                // customerData.city ya debería ser el objeto completo { city_id, name }
+                city: selectedOption.customerData.city || null
             }));
-            setIsNewCustomer(false);
+            // setIsNewCustomer(false);
         } else {
-            // Si deselecciona, reinicia a un nuevo cliente
+            // Si deselecciona, reinicia a un "nuevo" cliente
             setCustomerData({
                 dni: '', first_name: '', middle_name: '', last_name: '', second_last_name: '',
-                email: '', username: '', prefix: '+57', phone: '', city_id: null, address: ''
+                email: '', username: '', prefix: '+57', phone: '', city: null, address: ''
             });
-            setIsNewCustomer(true);
+            // setIsNewCustomer(true);
         }
         if (errors.customer) {
             setErrors(prev => ({ ...prev, customer: null }));
-        }
-    };
-
-    const handleCityChange = (selectedOption) => {
-        setCustomerData(prev => ({ ...prev, city_id: selectedOption }));
-        if (errors.city_id) {
-            setErrors(prev => ({ ...prev, city_id: null }));
         }
     };
 
@@ -98,7 +118,8 @@ const Step1Customer = ({ onNext, initialData = {}, customers }) => {
         if (!customerData.email) newErrors.email = 'El Email es obligatorio.';
         if (!customerData.username) newErrors.username = 'El Nombre de Usuario es obligatorio.';
         if (!customerData.phone) newErrors.phone = 'El Número de Teléfono es obligatorio.';
-        if (!customerData.city_id) newErrors.city_id = 'La Ciudad es obligatoria.';
+        // Validación para la ciudad: ahora se valida si customerData.city existe y si customerData.city.name tiene un valor.
+        if (!customerData.city?.name) newErrors.city = 'La Ciudad es obligatoria.';
         if (!customerData.address) newErrors.address = 'La Dirección es obligatoria.';
 
         setErrors(newErrors);
@@ -108,12 +129,21 @@ const Step1Customer = ({ onNext, initialData = {}, customers }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (validateForm()) {
-            // Asegúrate de enviar solo el valor de la ciudad, no el objeto Select completo
+            // Asegúrate de enviar el objeto completo de la ciudad o solo su ID/nombre según lo que tu backend espere
+            // Si tu backend espera el objeto city_id, debes extraerlo del objeto city
             const customerDataToSend = {
                 ...customerData,
-                city_id: customerData.city_id?.value || null // Solo el valor de la ciudad
+                // Si el backend espera city_id como UUID, asegúrate de enviarlo
+                // Si el input de ciudad es solo para mostrar y no se edita, esto puede ser omitido o manejado de otra manera.
+                // Aquí, asumo que quieres enviar el city_id del objeto city para la creación/actualización del usuario.
+                city_id: customerData.city?.city_id || null
+                // Si necesitas enviar el nombre de la ciudad directamente para crear una nueva ciudad en el backend,
+                // necesitarías un campo adicional o lógica para eso.
             };
-            onNext({ customer: customerDataToSend }); // Envía SOLO los datos del cliente
+            // Elimina el objeto 'city' completo si tu backend no lo espera directamente en la creación/actualización del usuario.
+            delete customerDataToSend.city;
+
+            onNext({ customer: customerDataToSend }); // Envía los datos del cliente
         } else {
             toast.error('Por favor, corrige los errores en el formulario.');
         }
@@ -132,7 +162,8 @@ const Step1Customer = ({ onNext, initialData = {}, customers }) => {
                     id="select-customer"
                     name="select-customer"
                     options={customerOptions}
-                    value={customerOptions.find(option => option.value === initialCustomer?.user_id) || null}
+                    // Ahora, el 'value' del Select debe coincidir con el 'user_id' del cliente seleccionado
+                    value={customerOptions.find(option => option.value === (customerData.user_id || initialCustomer?.user_id)) || null}
                     onChange={handleSelectCustomerChange}
                     placeholder="Buscar y seleccionar un cliente..."
                     isClearable
@@ -273,21 +304,19 @@ const Step1Customer = ({ onNext, initialData = {}, customers }) => {
                     </div>
                 </div>
 
-                {/* Ciudad */}
-                <div>
-                    <label htmlFor="city_id" className="block text-sm font-medium text-gray-700">Ciudad <span className="text-red-500">*</span></label>
-                    <Select
-                        id="city_id"
-                        name="city_id"
-                        options={cities}
-                        value={customerData.city_id}
+                {/* Ciudad - Ahora es un input de texto que muestra customerData.city.name */}
+                <div className="md:col-span-1">
+                    <label htmlFor="city_name" className="block text-sm font-medium text-gray-700">Ciudad <span className="text-red-500">*</span></label>
+                    <input
+                        type="text"
+                        id="city_name"
+                        name="city_name"
+                        value={customerData.city?.name || ''}
                         onChange={handleCityChange}
-                        placeholder="Buscar y selecciona una ciudad"
-                        isClearable
-                        classNamePrefix="react-select"
-                        className={`mt-1 block w-full ${errors.city_id ? 'border-red-500' : ''}`}
+                        required
+                        className={`mt-1 block w-full border ${errors.city ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm p-2`}
                     />
-                    {errors.city_id && <p className="mt-2 text-sm text-red-600">{errors.city_id}</p>}
+                    {errors.city && <p className="mt-2 text-sm text-red-600">{errors.city}</p>}
                 </div>
 
                 {/* Dirección */}

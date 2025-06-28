@@ -29,6 +29,31 @@ axiosInstance.interceptors.request.use(
 
 // --- FUNCIONES PARA ENROLAMIENTOS ---
 
+
+/**
+ * Obtiene un enrolamiento por su ID.
+ * @param {string} enrolmentId - El ID del enrolamiento.
+ * @returns {Promise<object>} El enrolamiento.
+ */
+export const getEnrolmentById = async (enrolmentId) => {
+    try {
+        // --- CORRECCIÓN AQUÍ: Usar axiosInstance.get ---
+        // La URL ahora es relativa a la baseURL de axiosInstance: /api/v1
+        const response = await axiosInstance.get(`/enrolments/${enrolmentId}`);
+        return response.data;
+    } catch (error) {
+        
+        if (error.response && error.response.status === 404) {
+            // console.warn(`Enrolamiento ${enrolmentId} no encontrado (esperado durante polling).`);
+            // No hacemos nada, la excepción se propaga silenciosamente para un 404 esperado
+        } else {
+            console.error(`Error al obtener enrolamiento con ID ${enrolmentId}:`, error.response?.data || error.message);
+
+        }
+        throw error;
+    }
+};
+
 /**
  * Crea un nuevo enrolamiento.
  * @param {object} enrolmentData - Datos del enrolamiento (e.g., { user_id: '...', vendor_id: '...' }).
@@ -59,20 +84,6 @@ export const getEnrolments = async (params = {}) => {
     }
 };
 
-/**
- * Obtiene un enrolamiento por su ID.
- * @param {string} enrolmentId - El ID del enrolamiento.
- * @returns {Promise<object>} El enrolamiento.
- */
-export const getEnrolmentById = async (enrolmentId) => {
-    try {
-        const response = await axiosInstance.get(`/enrolments/${enrolmentId}`);
-        return response.data;
-    } catch (error) {
-        console.error(`Error al obtener enrolamiento con ID ${enrolmentId}:`, error.response?.data || error.message);
-        throw error;
-    }
-};
 
 /**
  * Actualiza parcialmente un enrolamiento.

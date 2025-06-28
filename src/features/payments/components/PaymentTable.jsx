@@ -15,9 +15,9 @@ const PaymentTable = ({ payments }) => {
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Monto
                         </th>
-                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        {/* <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Cliente
-                        </th>
+                        </th> */}
                         <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Dispositivo
                         </th>
@@ -33,70 +33,54 @@ const PaymentTable = ({ payments }) => {
                 <tbody className="bg-white divide-y divide-gray-200">
                     {payments && payments.length > 0 ? (
                         payments.map((payment) => (
-                            <tr key={payment.payment_id || payment.id}> {/* Usa payment_id del API o id si es dummy */}
-                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.payment_id || payment.id}</td> */}
+                            // Usa payment_id directamente, ya que el API Gateway lo devolverá
+                            <tr key={payment.payment_id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(payment.date).toLocaleDateString()}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {(() => {
-                                        // Primero, intenta obtener el valor de 'value', si no, de 'amount'
                                         const rawValue = payment.value !== undefined && payment.value !== null
                                             ? payment.value
-                                            : payment.amount;
-
-                                        // Si rawValue no existe o es null/undefined, devuelve 'N/A'
+                                            : payment.amount; // En tu caso, payment.value es lo que viene del API
                                         if (rawValue === undefined || rawValue === null) {
                                             return 'N/A';
                                         }
-
-                                        // Intenta convertir a número
                                         const numericValue = parseFloat(rawValue);
-
-                                        // Si la conversión no resultó en un número válido, devuelve 'N/A'
                                         if (isNaN(numericValue)) {
                                             return 'N/A';
                                         }
-
-                                        // Formatear a pesos colombianos (COP)
                                         return new Intl.NumberFormat('es-CO', {
                                             style: 'currency',
                                             currency: 'COP',
-                                            minimumFractionDigits: 2, // Asegura al menos 2 decimales
-                                            maximumFractionDigits: 2, // Asegura no más de 2 decimales
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
                                         }).format(numericValue);
                                     })()}
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {/* Para el Cliente: payment.customer.first_name y payment.customer.last_name */}
-                                    {/* Usamos el operador de encadenamiento opcional (?) y un fallback seguro */}
-                                    {payment.customer?.first_name || payment.customer?.last_name
-                                        ? `${payment.customer.first_name || ''} ${payment.customer.last_name || ''}`.trim()
+                                {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                    {payment.plan?.user?.first_name || payment.plan?.user?.last_name
+                                        ? `${payment.plan.user.first_name || ''} ${payment.plan.user.last_name || ''}`.trim()
                                         : 'N/A'}
-                                </td>
+                                </td> */}
 
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                    {/* Para el Dispositivo: payment.device.model y payment.device.serial_number */}
-                                    {/* Asumo que 'serial_number' es el campo correcto según tu diagrama DB 'device'.
-      Si en tu API Gateway lo mapeaste a 'serial', usa 'payment.device?.serial'. */}
+                                    {/* CAMBIO CLAVE PARA EL DISPOSITIVO: Acceder a payment.device */}
                                     {payment.device?.model || payment.device?.serial_number
                                         ? `${payment.device.model || ''} (${payment.device.serial_number || ''})`.trim()
                                         : 'N/A'}
                                 </td>
+
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.method || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                                     <span
-                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                            // Convertimos el estado a minúsculas para una comparación insensible a mayúsculas/minúsculas
-                                            // Y comparamos con 'approved' para el color verde
-                                            payment.state?.toLowerCase() === 'approved' ||
-                                                payment.state?.toLowerCase() === 'active' || // Mantener 'active' si aplica a otros contextos
-                                                payment.state?.toLowerCase() === 'completado' // Si en algún momento viene 'Completado' y es verde
-                                                ? 'bg-green-100 text-green-800' // Clase para el color verde
-                                                : 'bg-red-100 text-red-800' // Clase para el color rojo (para Pending, Rejected, Failed, Returned)
+                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${payment.state?.toLowerCase() === 'approved' ||
+                                                payment.state?.toLowerCase() === 'active' ||
+                                                payment.state?.toLowerCase() === 'completado'
+                                                ? 'bg-green-100 text-green-800'
+                                                : 'bg-red-100 text-red-800'
                                             }`}
                                     >
-                                        {/* Mapeo para mostrar el estado en español */}
                                         {(() => {
-                                            const state = payment.state?.toLowerCase(); // Asegurarse de trabajar con minúsculas
+                                            const state = payment.state?.toLowerCase();
                                             switch (state) {
                                                 case 'pending':
                                                     return 'Pendiente';
@@ -108,12 +92,12 @@ const PaymentTable = ({ payments }) => {
                                                     return 'Fallido';
                                                 case 'returned':
                                                     return 'Devuelto';
-                                                case 'active': // Si 'active' se usa y quieres que sea 'Activo'
+                                                case 'active':
                                                     return 'Activo';
-                                                case 'completado': // Si 'Completado' podría venir de algún lugar
+                                                case 'completado':
                                                     return 'Completado';
                                                 default:
-                                                    return 'Desconocido'; // Por si acaso hay un estado no manejado
+                                                    return 'Desconocido';
                                             }
                                         })() || 'N/A'}
                                     </span>
