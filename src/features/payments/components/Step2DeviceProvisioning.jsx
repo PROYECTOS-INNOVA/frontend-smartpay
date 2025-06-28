@@ -22,18 +22,21 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
         const generatedId = uuidv4();
         setCurrentEnrolmentId(generatedId);
 
+        // --- JSON DE APROVISIONAMIENTO ACTUALIZADO ---
         const provisioningJson = {
-            "package_name": "com.olimpo.smartpay",
-            "device_admin_receiver": "com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
-            "apk_url": "https://appincdevs.com/enterprise/smartpay-google.apk",
-            "apk_checksum": "KXiBdBNfpJH59esXIqNcpQIW-xxdA5gu1SnKGgQpMrM=",
-            "signature_checksum": "KXiBdBNfpJH59esXIqNcpQIW-xxdA5gu1SnKGgQpMrM=",
-            "logging_enabled": true,
-            "skip_encryption": true,
-            "leave_system_apps_enabled": false,
-            "locale": "es_ES",
-            "enrollment_id": generatedId
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "6cEXtx6xW_4ef5YztnWqIi1Rfbi0A1YdR1brsfulkRc=",
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://appincdevs.com/enterprise/smartpay-google.apk",
+            "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "6cEXtx6xW_4ef5YztnWqIi1Rfbi0A1YdR1brsfulkRc=",
+            "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
+            "android.app.extra.PROVISIONING_LOCALE": "es_ES",
+            "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
+                // Aquí se inyecta el ID de enrolamiento dinámicamente
+                "ENROLLMENT_ID": generatedId
+            }
         };
+        // --- FIN JSON DE APROVISIONAMIENTO ACTUALIZADO ---
+
         setQrProvisioningData(provisioningJson);
         return generatedId;
     }, []);
@@ -98,8 +101,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
                             break;
                         }
                     } catch (error) {
-                        // NO console.error aquí para 404, porque se espera durante el polling.
-                        // La lógica para suprimir el log principal debe ir en enrolments.js (ver abajo).
+                        // La lógica para suprimir el log principal del 404 debe estar en enrolments.js
                         if (error.response?.status !== 404) {
                             console.error(`Error no 404 en el intento ${attempts} de polling para ID ${id}:`, error);
                             toast.warn(`Problema en la conexión con el servidor (código ${error.response?.status}). Intento ${attempts}.`);
