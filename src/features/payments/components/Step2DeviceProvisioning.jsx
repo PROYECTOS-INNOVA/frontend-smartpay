@@ -19,9 +19,9 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
 
   const generateProvisioningJson = (enrolmentId) => ({
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "6cEXtx6xW_4ef5YztnWqIi1Rfbi0A1YdR1brsfulkRc=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "o_Prs6jgMZTwp65fyL4olo4ElGNb-VWRgCgmXnllgos=",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://appincdevs.com/enterprise/smartpay-google.apk",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "6cEXtx6xW_4ef5YztnWqIi1Rfbi0A1YdR1brsfulkRc=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "o_Prs6jgMZTwp65fyL4olo4ElGNb-VWRgCgmXnllgos=",
     "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
     "android.app.extra.PROVISIONING_LOCALE": "es_ES",
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
@@ -54,7 +54,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
       // 1. Crear payload y enviar al backend
       const enrolmentPayload = {
         user_id: initialData.customer?.user_id,
-        vendor_id: initialData.authenticatedUser?.user_id,
+        vendor_id: initialData.authenticatedUser?.user_id
       };
 
       console.log('Payload enviado a createEnrolment:', enrolmentPayload);
