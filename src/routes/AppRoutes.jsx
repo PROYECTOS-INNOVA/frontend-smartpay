@@ -34,6 +34,8 @@ const ClientDashboardPage = lazy(() => import('../features/client-pwa/ClientDash
 const ClientDeviceDetailsView = lazy(() => import('../features/client-pwa/ClientDeviceDetailsView'));
 const ClientMakePaymentPage = lazy(() => import('../features/client-pwa/ClientMakePaymentPage'));
 
+const ConfigurationPage = lazy(() => import('../features/config/ConfigurationPage'));
+const ConfigurationResultPage = lazy(() => import('../features/config/ConfigurationResponsePage'));
 
 const AppRoutes = () => {
     return (
@@ -73,6 +75,9 @@ const AppRoutes = () => {
                                 <Route path="payments-management" element={<PaymentManagementPage />} />
                                 <Route path="reports" element={<ReportsPage />} />
                                 <Route path="profile" element={<UserProfilePage />} />
+
+                                <Route path="configuration" element={<ConfigurationPage />} />
+                                <Route path="configuration/response" element={<ConfigurationResultPage />} />
 
                                 {/* Catch-all para rutas no encontradas dentro del Layout (Admin) */}
                                 <Route path="*" element={<div className="p-8 text-white">404 - Página no encontrada (Dentro del Layout de Admin)</div>} />

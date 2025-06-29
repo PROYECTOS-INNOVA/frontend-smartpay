@@ -41,6 +41,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
         { name: 'Reportes y Análisis', icon: ChartBarIcon, href: '/reports' },
         { name: 'Gestión de Planes', icon: ClipboardDocumentListIcon, href: '/plans-management' }, // Agregado, ajusta la ruta si es diferente
+        { name: 'Configuración', icon: ClipboardDocumentListIcon, href: '/configuration' },
     ];
 
     const adminNavItems = [
