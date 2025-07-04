@@ -1,35 +1,27 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 
-const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim }) => {
+const SimManagementModal = ({ sims, isOpen, onClose, device, onApproveSim, onRemoveSim }) => {
     const [loadingAction, setLoadingAction] = useState(false);
 
-    const dummySims = [
-        { imsi: '716152566200284', iccid: '89511500025662002841', phone_no: '+51920035322', status: 'approved' },
-        { imsi: '716060900620465', iccid: '8951065012344121051', phone_no: '+51920035322', status: 'approved' },
-        { imsi: '716101694175400', iccid: '89511016941754008', phone_no: 'N/A', status: 'approved' },
-        { imsi: '89511016941754009', iccid: '89511016941754009', phone_no: 'N/A', status: 'unapproved' },
-        { imsi: '123456789012345', iccid: '98765432109876543210', phone_no: 'N/A', status: 'unapproved' },
-    ];
-    const allSims = device?.sim_cards && device.sim_cards.length > 0 ? device.sim_cards : dummySims;
-
-    const approvedSims = allSims.filter(sim => sim.status === 'approved');
-    const unapprovedSims = allSims.filter(sim => sim.status === 'unapproved');
+    const approvedSims = Array.isArray(sims) ? sims.filter(sim => sim.state === 'Active') : [];
+    const unapprovedSims = Array.isArray(sims) ? sims.filter(sim => sim.state === 'Inactive') : [];
 
     if (!isOpen) return null;
 
-    const handleApprove = async (sim) => {
+    const handleApprove = async (sim) => { 
         if (loadingAction) return;
 
         const result = await Swal.fire({
             title: '¿Estás seguro?',
-            text: `¿Quieres APROBAR la SIM con IMSI: ${sim.imsi}?`,
+            text: `¿Quieres APROBAR la SIM con IMSI: ${sim.icc_id}?`,
             icon: 'question',
             showCancelButton: true,
-            confirmButtonColor: '#28a745',
-            cancelButtonColor: '#dc3545',
             confirmButtonText: 'Sí, Aprobar',
-            cancelButtonText: 'Cancelar'
+            cancelButtonText: 'Cancelar',
+            customClass: {
+                popup: 'swal2-zindex-fix'
+            }
         });
 
         if (!result.isConfirmed) {
@@ -38,7 +30,7 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
 
         setLoadingAction(true);
         try {
-            await onApproveSim(sim.imsi);
+            await onApproveSim(sim.sim_id, sim.icc_id);
         } catch (error) {
             console.error('Error al aprobar SIM:', error);
         } finally {
@@ -56,7 +48,7 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
             showCancelButton: true,
             confirmButtonColor: '#dc3545', 
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, Eliminar',
+            confirmButtonText: 'Sí, Inactivar',
             cancelButtonText: 'Cancelar'
         });
 
@@ -66,7 +58,7 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
 
         setLoadingAction(true);
         try {
-            await onRemoveSim(sim.imsi);
+            await onRemoveSim(sim.sim_id, sim.icc_id);
         } catch (error) {
             console.error('Error al eliminar SIM:', error);
         } finally {
@@ -97,9 +89,9 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
                             <ul className="space-y-3">
                                 {unapprovedSims.map((sim, index) => (
                                     <li key={sim.imsi || index} className="p-3 bg-white border border-red-200 rounded-md shadow-sm text-sm">
-                                        <p className="font-medium text-gray-700">IMSI: <span className="font-normal">{sim.imsi || 'N/A'}</span></p>
-                                        <p className="text-gray-600">ICCID: <span className="font-normal">{sim.iccid || 'N/A'}</span></p>
-                                        <p className="text-gray-600">Phone No: <span className="font-normal">{sim.phone_no || 'N/A'}</span></p>
+                                        <p className="font-medium text-gray-700">ICCID: <span className="font-normal">{sim.icc_id || 'N/A'}</span></p>
+                                        <p className="text-gray-600">Operador: <span className="font-normal">{sim.operator || 'N/A'}</span></p>
+                                        <p className="text-gray-600">Número de Teléfono: <span className="font-normal">{sim.number || 'N/A'}</span></p>
                                         <button
                                             onClick={() => handleApprove(sim)}
                                             className="mt-2 px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50"
@@ -125,15 +117,15 @@ const SimManagementModal = ({ isOpen, onClose, device, onApproveSim, onRemoveSim
                             <ul className="space-y-3">
                                 {approvedSims.map((sim, index) => (
                                     <li key={sim.imsi || index} className="p-3 bg-white border border-green-200 rounded-md shadow-sm text-sm">
-                                        <p className="font-medium text-gray-700">IMSI: <span className="font-normal">{sim.imsi || 'N/A'}</span></p>
-                                        <p className="text-gray-600">ICCID: <span className="font-normal">{sim.iccid || 'N/A'}</span></p>
-                                        <p className="text-gray-600">Phone No: <span className="font-normal">{sim.phone_no || 'N/A'}</span></p>
+                                        <p className="font-medium text-gray-700">ICCID: <span className="font-normal">{sim.icc_id || 'N/A'}</span></p>
+                                        <p className="text-gray-600">Operador: <span className="font-normal">{sim.operator || 'N/A'}</span></p>
+                                        <p className="text-gray-600">Número de Teléfono: <span className="font-normal">{sim.number || 'N/A'}</span></p>
                                         <button
                                             onClick={() => handleRemove(sim)}
                                             className="mt-2 px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50"
                                             disabled={loadingAction}
                                         >
-                                            {loadingAction ? 'Eliminando...' : 'Eliminar'}
+                                            {loadingAction ? 'Inactivando...' : 'Inactivar'}
                                         </button>
                                     </li>
                                 ))}

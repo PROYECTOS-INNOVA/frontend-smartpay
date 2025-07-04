@@ -1,18 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { getDevices, getDeviceById, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice } from '../../api/devices'; // Remove approveDeviceSim, removeDeviceSim
+import { getDevices, getDeviceById, getLastLocation, getActionsHistory, getSims, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice } from '../../api/devices'; // Remove approveDeviceSim, removeDeviceSim
 import DeviceTable from './components/DeviceTable';
 import DeviceDetailsView from './views/DeviceDetailsView';
 
 // Importaciones de react-toastify
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { last } from 'lodash';
 
 const DeviceManagementPage = () => {
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedDevice, setSelectedDevice] = useState(null);
-
+    const [lastLocation, setLastLocation] = useState(null);
+    const [sims, setSims] = useState(null);
+    const [actionsHistory, setActionsHistory] = useState([]);
+    const [isPolling, setIsPolling] = useState(false);
 
     const [columnFilters, setColumnFilters] = useState({
         name: '',
@@ -48,7 +52,18 @@ const DeviceManagementPage = () => {
         setLoading(true);
         try {
             const deviceDetails = await getDeviceById(deviceId);
+            const lastLocation = await getLastLocation(deviceId);
+            const actions = await getActionsHistory(deviceId);
+            const simsResponse = await getSims(deviceId);
+
+            if (Array.isArray(actions) && actions.length > 0) {
+                const sortedActions = [...actions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                setActionsHistory(sortedActions);
+            }
+
             setSelectedDevice(deviceDetails);
+            setLastLocation(lastLocation);
+            setSims(simsResponse);
         } catch (err) {
             console.error('Error al cargar detalles del dispositivo:', err);
             setError('Error al cargar los detalles del dispositivo.');
@@ -111,13 +126,53 @@ const DeviceManagementPage = () => {
         }
     };
 
+     // 5. Iniciar polling
+    const checkDeviceConnection = async (deviceId) => {
+        let connected = false;
+        let attempts = 0;
+        const maxAttempts = 100;
+        const delayMs = 3000;
+    
+        setIsPolling(true);
+        const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+        while (!connected && attempts < maxAttempts) {
+            attempts++;
+            try {
+
+                //Espera de 5 segundos a que el movil envie coordenadas
+                await delay(5000)
+                const lastLocation = await getLastLocation(deviceId);
+                if (lastLocation) {
+                  setLastLocation(lastLocation)
+                  connected = true
+                  setIsPolling(false);
+                  break;
+                }
+            } catch (error) {
+                if (error.response?.status !== 404) {
+                  console.error(`Error en polling:`, error);
+                  }
+            }
+            
+            if (!connected) {
+                await new Promise((resolve) => setTimeout(resolve, delayMs));
+            }
+        }
+    
+        if (!connected) {
+            toast.error('Tiempo de espera agotado. El dispositivo no se conectó.');
+        }
+    };
+    
+
     const handleLocate = async (deviceId) => {
         try {
             const response = await locateDevice(deviceId);
             toast.success(`Solicitud de ubicación enviada. ${response.message || ''}`);
             fetchDevices();
             if (selectedDevice && selectedDevice.device_id === deviceId) {
-                handleViewDetails(deviceId);
+                setTimeout(() => checkDeviceConnection(selectedDevice.device_id), 1000);
             }
         } catch (err) {
             console.error('Error al localizar dispositivo:', err);
@@ -192,6 +247,9 @@ const DeviceManagementPage = () => {
             {selectedDevice ? (
                 <DeviceDetailsView
                     device={selectedDevice}
+                    location={lastLocation}
+                    actionsHistory={actionsHistory}
+                    sims={sims}
                     onBackToList={handleBackToList}
                     onBlock={handleBlock}
                     onUnblock={handleUnblock}
@@ -200,8 +258,8 @@ const DeviceManagementPage = () => {
                     onMakePayment={handleMakePayment}
                     onUpdateDevice={handleUpdateDevice}
                     userRole={userRole}
-
                     onDeviceUpdate={() => handleViewDetails(selectedDevice.device_id)}
+                    isPolling={isPolling}
                 />
             ) : (
                 <>

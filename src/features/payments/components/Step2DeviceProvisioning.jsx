@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import QRCode from 'react-qr-code';
 
-import { createEnrolment, getEnrolmentById } from '../../../api/enrolments';
+import { createEnrolment, getDeviceByEnrolmentId } from '../../../api/enrolments';
 
 const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
   const [qrGenerated, setQrGenerated] = useState(false);
@@ -19,9 +19,9 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
 
   const generateProvisioningJson = (enrolmentId) => ({
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "o_Prs6jgMZTwp65fyL4olo4ElGNb-VWRgCgmXnllgos=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "iuScC5qrA6B33bViUuTQopY8FNza_y4yySYYUoiRLko=",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://appincdevs.com/enterprise/smartpay-google.apk",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "o_Prs6jgMZTwp65fyL4olo4ElGNb-VWRgCgmXnllgos=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "iuScC5qrA6B33bViUuTQopY8FNza_y4yySYYUoiRLko=",
     "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
     "android.app.extra.PROVISIONING_LOCALE": "es_ES",
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
@@ -62,6 +62,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
 
       // 3. Confirmar ID retornado
       const enrollmentId = enrolmentCreationResponse?.enrolment_id;
+      console.log('Aqui EnrollmentId:', enrollmentId);
       setCurrentEnrolmentId(enrollmentId);
 
       // 4. Generar JSON de QR
@@ -84,10 +85,11 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
         while (!connected && attempts < maxAttempts) {
           attempts++;
           try {
-            console.log('EnrollmentId:', enrollmentId);
-            const response = await getEnrolmentById(enrollmentId);
-            if (response && response.device_details) {
-              setDeviceDetails(response.device_details);
+            console.log('x2 EnrollmentId:', enrollmentId);
+            const response = await getDeviceByEnrolmentId(enrollmentId);
+            console.log("Response step2", response);
+            if (response) {
+              setDeviceDetails(response);
               setDeviceConnected(true);
               toast.success('Dispositivo conectado y datos obtenidos.');
               connected = true;

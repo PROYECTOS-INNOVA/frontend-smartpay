@@ -35,19 +35,26 @@ axiosInstance.interceptors.request.use(
  * @param {string} enrolmentId - El ID del enrolamiento.
  * @returns {Promise<object>} El enrolamiento.
  */
-export const getEnrolmentById = async (enrolmentId) => {
+export const getDeviceByEnrolmentId = async (enrollmentId) => {
     try {
-        // --- CORRECCIÓN AQUÍ: Usar axiosInstance.get ---
-        // La URL ahora es relativa a la baseURL de axiosInstance: /api/v1
-        const response = await axiosInstance.get(`/enrolments/${enrolmentId}`);
-        return response.data;
+        const params = { enrollment_id: enrollmentId };
+
+        const response = await axiosInstance.get('/devices/', { params });
+        const data = response.data;
+        console.log("response", data);
+         // Verifica si es una lista y si tiene elementos
+        if (Array.isArray(data) && data.length > 0) {
+            return data[0]; 
+        } else {
+            return null;
+        }
     } catch (error) {
         
         if (error.response && error.response.status === 404) {
             // console.warn(`Enrolamiento ${enrolmentId} no encontrado (esperado durante polling).`);
             // No hacemos nada, la excepción se propaga silenciosamente para un 404 esperado
         } else {
-            console.error(`Error al obtener enrolamiento con ID ${enrolmentId}:`, error.response?.data || error.message);
+            console.error(`Error al obtener enrolamiento con ID ${enrollmentId}:`, error.response?.data || error.message);
 
         }
         throw error;

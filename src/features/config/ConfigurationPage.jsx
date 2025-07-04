@@ -25,7 +25,7 @@ function ConfigurationPage() {
               setAccounts(data);
           } catch (err) {
               console.error('Error al cargar clientes:', err);
-              setError('No se pudieron cargar los clientes. Inténtalo de nuevo más tarde.');
+              setError('No se pudieron cargar las cuentas para Factory Reset. Inténtalo de nuevo más tarde.');
               toast.error('Error al cargar clientes.');
           } finally {
               setLoading(false);
@@ -113,17 +113,17 @@ function ConfigurationPage() {
             {filteredAccounts.length === 0 && !searchTerm ? (
                 <div className="p-6 text-center text-gray-500 bg-white shadow sm:rounded-lg">
                     <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No hay clientes para mostrar</h3>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No hay cuentas para mostrar</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                        Añade un nuevo cliente para empezar a gestionarlos.
+                        Añade una nueva cuenta para empezar.
                     </p>
                     <div className="mt-6">
                         <button
-                            onClick={() => handleOpenModal()}
+                            onClick={() => login()}
                             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" />
-                            Añadir Primer Cliente
+                            Añadir Primera Cuenta
                         </button>
                     </div>
                 </div>

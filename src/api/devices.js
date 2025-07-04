@@ -1,5 +1,6 @@
 // src/api/devices.js
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode';
 
 const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
@@ -24,6 +25,24 @@ axiosInstance.interceptors.request.use(
     }
 );
 
+const getUserId = () => {
+    const token =  localStorage.getItem('token')
+    const decodedToken = jwtDecode(token);
+    return decodedToken.sub;
+}
+// Interceptor para agregar el token de autorización
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 // --- NUEVA FUNCIÓN PARA CREAR DISPOSITIVO ---
 /**
  * Crea un nuevo dispositivo.
@@ -50,6 +69,30 @@ export const getDevices = async (params = {}) => {
     }
 };
 
+export const getActionsHistory = async (deviceId) => {
+    try {
+        const params = {
+            deviceId: deviceId,
+        };
+
+        const response = await axiosInstance.get(`/actions/`, {params});
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching actions:', error);
+        return null;
+    }
+};
+
+export const getSims = async (deviceId) => {
+    try {
+        const response = await axiosInstance.get(`/sims/by-device/${deviceId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching actions:', error);
+        return null;
+    }
+};
+
 export const getDeviceById = async (deviceId) => {
     try {
         const response = await axiosInstance.get(`/devices/${deviceId}`);
@@ -60,10 +103,38 @@ export const getDeviceById = async (deviceId) => {
     }
 };
 
+
+export const getLastLocation = async (deviceId) => {
+    try {
+        const params = {
+            deviceId: deviceId,
+        };
+
+        const response = await axiosInstance.get(`/devices/locations/`, { params });
+        const data = response.data;
+
+        if (Array.isArray(data) && data.length > 0) {
+            return data[0];
+        }
+        return null;
+    } catch (error) {
+        console.error(`Error fetching location with ID ${deviceId}:`, error);
+        return null;
+    }
+};
+
 // --- FUNCIÓN PARA ACTUALIZAR DISPOSITIVO ---
 export const updateDevice = async (deviceId, deviceData) => {
     try {
-        const response = await axiosInstance.patch(`/devices/${deviceId}`, deviceData);
+        const userId = getUserId();
+
+        const data = {
+            ...deviceData,
+            applied_by_id: userId
+        }
+
+        console.log('New data', data)
+        const response = await axiosInstance.patch(`/devices/${deviceId}`, data);
         return response.data;
     } catch (error) {
         console.error(`Error updating device with ID ${deviceId}:`, error);
@@ -74,7 +145,15 @@ export const updateDevice = async (deviceId, deviceData) => {
 // Funciones para acciones específicas
 export const blockDevice = async (deviceId) => {
     try {
-        const response = await axiosInstance.patch(`/devices/${deviceId}/block`);
+        const userId = getUserId();
+
+        const data = {
+            applied_by_id: userId,
+            payload: null
+        };
+
+        console.log("Sending block request with data:", data);
+        const response = await axiosInstance.post(`/action/${deviceId}/block`, data);
         return response.data;
     } catch (error) {
         console.error(`Error blocking device with ID ${deviceId}:`, error);
@@ -84,7 +163,16 @@ export const blockDevice = async (deviceId) => {
 
 export const unblockDevice = async (deviceId) => {
     try {
-        const response = await axiosInstance.patch(`/devices/${deviceId}/unblock`);
+        const userId = getUserId();
+
+        const data = {
+            applied_by_id: userId,
+            payload: {
+                duration: 0
+            }
+        };
+
+        const response = await axiosInstance.post(`/action/${deviceId}/unblock`, data);
         return response.data;
     } catch (error) {
         console.error(`Error unblocking device with ID ${deviceId}:`, error);
@@ -94,7 +182,14 @@ export const unblockDevice = async (deviceId) => {
 
 export const locateDevice = async (deviceId) => {
     try {
-        const response = await axiosInstance.post(`/devices/${deviceId}/locate`);
+        const userId = getUserId();
+
+        const data = {
+            applied_by_id: userId,
+            payload: null
+        };
+
+        const response = await axiosInstance.post(`/action/${deviceId}/locate`, data);
         return response.data;
     } catch (error) {
         console.error(`Error locating device with ID ${deviceId}:`, error);
@@ -113,19 +208,47 @@ export const releaseDevice = async (deviceId) => {
 };
 
 // --- NUEVAS FUNCIONES PARA LA GESTIÓN DE SIMS ---
-export const approveDeviceSim = async (deviceId, imsi) => {
+export const approveDeviceSim = async (deviceId, simId) => {
     try {
-        const response = await axiosInstance.post(`/devices/${deviceId}/sims/${imsi}/approve`);
+        const data = {
+            state: "Active"
+        };
+        const response = await axiosInstance.patch(`/sims/${simId}`, data);
+
+        const userId = getUserId();
+
+        const actionData = {
+            applied_by_id: userId,
+            payload: {
+                sim_id: simId
+            }
+        };
+
+        await axiosInstance.post(`/action/${deviceId}/unblock_sim`, actionData);
         return response.data;
     } catch (error) {
-        console.error(`Error approving SIM ${imsi} for device ${deviceId}:`, error);
+        console.error(`Error approving SIM ${simId} for device ${deviceId}:`, error);
         throw error;
     }
 };
 
-export const removeDeviceSim = async (deviceId, imsi) => {
+export const removeDeviceSim = async (deviceId, simId) => {
     try {
-        const response = await axiosInstance.delete(`/devices/${deviceId}/sims/${imsi}`);
+         const data = {
+            state: "Inactive"
+        };
+        
+        const response = await axiosInstance.patch(`/sims/${simId}`, data);
+        
+        const userId = getUserId();
+
+        const actionData = {
+            applied_by_id: userId,
+            payload: {
+                sim_id: simId
+            }
+        };
+        await axiosInstance.post(`/action/${deviceId}/block_sim`, actionData);
         return response.data;
     } catch (error) {
         console.error(`Error removing SIM ${imsi} from device ${deviceId}:`, error);

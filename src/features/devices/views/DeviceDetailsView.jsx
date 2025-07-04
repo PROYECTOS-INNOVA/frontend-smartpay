@@ -10,6 +10,9 @@ import { approveDeviceSim, removeDeviceSim } from '../../../api/devices';
 
 const DeviceDetailsView = ({
     device,
+    location,
+    actionsHistory,
+    sims,
     onBackToList,
     onBlock,
     onUnblock,
@@ -18,24 +21,19 @@ const DeviceDetailsView = ({
     onMakePayment,
     onUpdateDevice,
     userRole,
-    onDeviceUpdate
+    onDeviceUpdate,
+    isPolling
 }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
+    const [localSims, setLocalSims] = useState(sims);
 
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
     const [isContractModalOpen, setIsContractModalOpen] = useState(false);
 
 
     const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf'; 
-
-    const dummyActionHistory = [
-        { id: 1, type: 'Asignación', description: 'Dispositivo asignado a Juan Pérez', timestamp: '2024-01-15T10:00:00Z' },
-        { id: 2, type: 'Bloqueo', description: 'Dispositivo bloqueado por falta de pago', timestamp: '2024-02-01T11:30:00Z' },
-        { id: 3, type: 'Desbloqueo', description: 'Dispositivo desbloqueado después de pago', timestamp: '2024-02-05T14:00:00Z' },
-        { id: 4, type: 'Localización', description: 'Ubicación solicitada y obtenida', timestamp: '2024-03-10T09:15:00Z' },
-    ];
 
     const dummyPaymentHistory = [
         { id: 1, amount: 50.00, date: '2024-01-20', description: 'Cuota 1 de 12' },
@@ -79,11 +77,18 @@ const DeviceDetailsView = ({
     const handleSave = async () => {
         setIsSaving(true);
         try {
-            const dataToSend = {
+            const data = {
                 ...formData,
                 purchase_date: formData.purchase_date ? new Date(formData.purchase_date).toISOString() : null,
                 warranty_end_date: formData.warranty_end_date ? new Date(formData.warranty_end_date).toISOString() : null,
             };
+
+            const dataToSend = {
+                name: data.name,
+                state: data.state,
+
+            }
+            console.log("Data", dataToSend)
             await onUpdateDevice(device.device_id, dataToSend);
             setIsEditing(false);
             if (onDeviceUpdate) {
@@ -116,27 +121,34 @@ const DeviceDetailsView = ({
     };
 
 
-    const handleApproveSim = async (imsi) => {
+    const handleApproveSim = async (simId, iccId) => {
         try {
-            await approveDeviceSim(device.device_id, imsi);
-            toast.success(`SIM ${imsi} aprobada con éxito.`);
+            const updatedSim = await approveDeviceSim(device.device_id, simId);
+
+            setLocalSims(prev =>
+                prev.map(sim => sim.icc_id === iccId ? updatedSim : sim)
+            );
+            toast.success(`SIM ${iccId} aprobada con éxito.`);
             return true;
         } catch (error) {
             const errorMessage = error.response?.data?.detail || error.message || 'Error desconocido al aprobar SIM';
-            Swal.fire('Error', `Error al aprobar SIM ${imsi}: ${errorMessage}`, 'error');
+            Swal.fire('Error', `Error al aprobar SIM ${iccId}: ${errorMessage}`, 'error');
             console.error('Error al aprobar SIM:', error);
             return false;
         }
     };
 
-    const handleRemoveSim = async (imsi) => {
+    const handleRemoveSim = async (simId, iccId) => {
         try {
-            await removeDeviceSim(device.device_id, imsi);
-            toast.success(`SIM ${imsi} desvinculada con éxito.`);
+            const updatedSim = await removeDeviceSim(device.device_id, simId);
+            setLocalSims(prev =>
+                prev.map(sim => sim.icc_id === iccId ? updatedSim : sim)
+            );
+            toast.success(`SIM ${iccId} desvinculada con éxito.`);
             return true;
         } catch (error) {
             const errorMessage = error.response?.data?.detail || error.message || 'Error desconocido al desvincular SIM';
-            Swal.fire('Error', `Error al desvincular SIM ${imsi}: ${errorMessage}`, 'error');
+            Swal.fire('Error', `Error al desvincular SIM ${iccId}: ${errorMessage}`, 'error');
             console.error('Error al desvincular SIM:', error);
             return false;
         }
@@ -149,10 +161,7 @@ const DeviceDetailsView = ({
     const getStatusClass = (status) => {
         switch (status) {
             case 'Active': return 'bg-green-100 text-green-800';
-            case 'Blocked': return 'bg-red-100 text-red-800';
-            case 'Released': return 'bg-blue-100 text-blue-800';
             case 'Inactive': return 'bg-gray-100 text-gray-800';
-            case 'Pending': return 'bg-yellow-100 text-yellow-700';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -173,7 +182,28 @@ const DeviceDetailsView = ({
         { key: 'created_at', label: 'Creado el' }, { key: 'updated_at', label: 'Última Actualización' },
     ];
 
-    const fieldsToExcludeFromDirectEdit = ['device_id', 'created_at', 'updated_at', 'last_location_latitude', 'last_location_longitude'];
+    const fieldsToExcludeFromDirectEdit = ['device_id', 'serial_number', 'model', 'brand', 'imei', 'product_name' , 'imei_two', 'created_at', 'updated_at', 'last_location_latitude', 'last_location_longitude'];
+
+    const actionLabels = {
+        block: "Bloqueo",
+        unblock: "Desbloqueo",
+        locate: "Ubicación"
+    };
+
+    const stateLabels = {
+        pending: "Pendiente por ejecutar",
+        failed: "Fallida",
+        applied: "Aplicada"
+    };
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10; // o cualquier cantidad que quieras mostrar
+    const totalPages = Math.ceil(actionsHistory?.length / itemsPerPage) || 1;
+
+    const paginatedActions = actionsHistory.slice(
+        (currentPage - 1) * itemsPerPage,
+     currentPage * itemsPerPage
+    );
 
     return (
         <div className="bg-white p-6 rounded-lg shadow-xl mx-auto">
@@ -213,10 +243,7 @@ const DeviceDetailsView = ({
                                                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-1.5 px-2 focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-sm"
                                             >
                                                 <option value="Active">Activo</option>
-                                                <option value="Blocked">Bloqueado</option>
-                                                <option value="Released">Liberado</option>
                                                 <option value="Inactive">Inactivo</option>
-                                                <option value="Pending">Pendiente</option>
                                             </select>
                                         ) : type === 'textarea' ? (
                                             <textarea
@@ -333,15 +360,15 @@ const DeviceDetailsView = ({
                         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ubicación del Dispositivo</h3>
                         {/* Aquí integramos el DeviceMapComponent */}
                         <DeviceMapComponent
-                            latitude={device.last_location_latitude}
-                            longitude={device.last_location_longitude}
+                            latitude={location?.latitude ?? 0}
+                            longitude={location?.longitude ?? 0}
                             deviceSerial={device.serial_number || device.name} // Usar serial o nombre para el popup
                         />
                         {/* Botón Localizar: siempre habilitado */}
                         {isSuperAdmin && (
                             <button
                                 onClick={() => onLocate(device.device_id)}
-                                className="mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full"
+                                className={`mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${isPolling ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 Notificar Ubicación
                             </button>
@@ -355,8 +382,8 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onBlock(device.device_id)}
-                                    disabled={device.state === 'Blocked'}
-                                    className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${device.state === 'Blocked' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={false}
+                                    className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
                                 >
                                     Bloquear
                                 </button>
@@ -364,8 +391,8 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onUnblock(device.device_id)}
-                                    disabled={device.state !== 'Blocked'}
-                                    className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${device.state !== 'Blocked' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={false}
+                                    className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
                                 >
                                     Desbloquear
                                 </button>
@@ -395,29 +422,62 @@ const DeviceDetailsView = ({
             {/* Historial de Acciones (debajo de las columnas principales) */}
             <div className="mt-8 bg-gray-50 p-6 rounded-lg shadow-inner">
                 <h3 className="text-2xl font-semibold text-gray-800 mb-4">Historial de Acciones</h3>
-                {dummyActionHistory.length > 0 ? (
+                {Array.isArray(actionsHistory) && actionsHistory.length > 0 ? (
+                <>
                     <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-100">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {dummyActionHistory.map((action) => (
-                                    <tr key={action.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{action.type}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{action.description}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(action.timestamp).toLocaleString()}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                    <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-100">
+                        <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aplicado por</th>
+                        </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                        {paginatedActions.map((action) => (
+                            <tr key={action.id}>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{actionLabels[action.action] || action.action}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{stateLabels[action.state] || action.state}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(action.created_at).toLocaleString()}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                 {action.applied_by
+                                    ? [action.applied_by.first_name, action.applied_by.middle_name, action.applied_by.last_name, action.applied_by.second_last_name]
+                                        .filter(Boolean)
+                                        .join(' ')
+                                    : '—'}
+                            </td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
                     </div>
+
+                    {/* Paginación */}
+                    {totalPages > 1 && (
+                    <div className="flex justify-center items-center mt-4 space-x-2">
+                        <button
+                            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            disabled={currentPage === 1}
+                            >
+                            Anterior
+                        </button>
+                        <span className="text-sm text-gray-700">
+                            Página {currentPage} de {totalPages}
+                        </span>
+                        <button
+                            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            disabled={currentPage === totalPages}
+                        >
+                            Siguiente
+                        </button>
+                    </div>
+                    )}
+                </>
                 ) : (
-                    <p className="text-gray-600">No hay historial de acciones disponible.</p>
+                <p className="text-gray-600">No hay historial de acciones disponible.</p>
                 )}
             </div>
 
@@ -453,6 +513,7 @@ const DeviceDetailsView = ({
             {/* Modal de Gestión de SIMs */}
             {isSimModalOpen && (
                 <SimManagementModal
+                    sims={localSims}
                     isOpen={isSimModalOpen}
                     onClose={handleCloseSimModal}
                     device={device}

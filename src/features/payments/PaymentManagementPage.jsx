@@ -71,36 +71,11 @@ const PaymentManagementPage = () => {
         });
 
         try {
-            const { customer, device, authenticatedUser, paymentPlan, initialPayment, contractBlob } = finalData;
+            const { customer, authenticatedUser, paymentPlan, initialPayment, contractBlob } = finalData;
 
-            // --- Enrolment Payload ---
-            const enrolmentPayload = {
-                user_id: customer.user_id,
-                vendor_id: authenticatedUser.user_id
-            };
-            console.log('Sending Enrolment Payload:', JSON.stringify(enrolmentPayload, null, 2)); // <-- AGREGAR ESTO
-            const enrolmentResponse = await createEnrolment(enrolmentPayload);
-            const enrolmentId = enrolmentResponse.enrolment_id;
-            console.log('Enrolment created with ID:', enrolmentId);
+            const deviceId = finalData.device.device_id;
+            console.log("DeviceId", deviceId);
 
-            // --- Device Payload ---
-            const devicePayload = {
-                name: device.name,
-                imei: device.imei,
-                imei_two: device.imei_two || null,
-                serial_number: device.serial_number,
-                model: device.model,
-                brand: device.brand,
-                product_name: device.product_name,
-                state: device.state || 'Nuevo',
-                enrolment_id: enrolmentId
-            };
-            console.log('Sending Device Payload:', JSON.stringify(devicePayload, null, 2)); // <-- AGREGAR ESTO
-            const deviceResponse = await createDevice(devicePayload);
-            const deviceId = deviceResponse.device_id;
-            console.log('Device created with ID:', deviceId); // <-- AGREGAR ESTO
-
-            // --- Plan Payload ---
             const planPayload = {
                 initial_date: paymentPlan.initial_date,
                 quotas: paymentPlan.quotas,

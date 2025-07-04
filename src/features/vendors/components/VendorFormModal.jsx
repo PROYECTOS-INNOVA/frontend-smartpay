@@ -366,7 +366,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-blueo-600 px-4 py-2 text-sm font-medium text-white hover:bg-blueo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-blueo-500 focus-visible:ring-offset-2"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
                                             >
                                                 {isNewVendor ? 'Crear Vendedor' : 'Guardar Cambios'}
                                             </button>
