@@ -1,3 +1,4 @@
+// src/pages/payments/components/Step2DeviceProvisioning.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { QrCodeIcon, WifiIcon, DevicePhoneMobileIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
@@ -10,12 +11,14 @@ import { createEnrolment, getDeviceByEnrolmentId } from '../../../api/enrolments
 const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
   const [qrGenerated, setQrGenerated] = useState(false);
   const [deviceConnected, setDeviceConnected] = useState(false);
-  const [deviceDetails, setDeviceDetails] = useState(initialData.deviceDetails || null);
+  const [deviceDetails, setDeviceDetails] = useState(initialData.device || null);
   const [loading, setLoading] = useState(true);
   const [isPolling, setIsPolling] = useState(false);
   const [qrProvisioningData, setQrProvisioningData] = useState(null);
   const [currentEnrolmentId, setCurrentEnrolmentId] = useState(null);
-  const hasStartedProvisioning = useRef(false); // 👈 Nuevo control
+  const hasStartedProvisioning = useRef(false);
+
+  const [simulateDummyDevice, setSimulateDummyDevice] = useState(false);
 
   const generateProvisioningJson = (enrolmentId) => ({
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
@@ -30,11 +33,11 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
   });
 
   const startProvisioningProcess = useCallback(async () => {
-    if (initialData.deviceDetails) {
-      setDeviceDetails(initialData.deviceDetails);
+    if (initialData.device) {
+      setDeviceDetails(initialData.device);
       setDeviceConnected(true);
       setQrGenerated(true);
-      setCurrentEnrolmentId(initialData.deviceDetails.enrolment_id);
+      setCurrentEnrolmentId(initialData.device.enrolment_id);
       setLoading(false);
       setIsPolling(false);
       return;
@@ -48,10 +51,38 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
     setCurrentEnrolmentId(null);
     setIsPolling(false);
 
+    if (simulateDummyDevice) {
+      toast.info('Simulando aprovisionamiento de dispositivo dummy...');
+      const timer = setTimeout(() => {
+        const dummyDeviceId = uuidv4();
+        const dummyEnrolmentId = initialData.customer?.user_id ? `ENR-${initialData.customer.user_id.substring(0, 8)}-${Date.now()}` : `ENR-${uuidv4().substring(0, 8)}-${Date.now()}`;
+
+        const dummyDevice = {
+          device_id: dummyDeviceId,
+          enrolment_id: dummyEnrolmentId,
+          product_name: "SmartPOS T-800 Simulada",
+          brand: "OlimpoTech Sim.",
+          model: "T800-SP-PRO-Sim",
+          serial_number: `SN-${Date.now().toString().slice(-8)}`,
+          imei: `IMEI-${Math.floor(Math.random() * 1000000000000000)}`,
+          imei_two: `IMEI2-${Math.floor(Math.random() * 1000000000000000)}`,
+          state: "Activo",
+        };
+
+        setDeviceDetails(dummyDevice);
+        setDeviceConnected(true);
+        setLoading(false);
+        // Aseguramos que isPolling se establezca a false cuando la simulación termina
+        setIsPolling(false);
+        toast.success('Dispositivo dummy aprovisionado y listo para continuar.');
+      }, 1500);
+
+      return () => clearTimeout(timer);
+    }
+
     try {
       toast.info('Generando QR y preparando enrolamiento...');
 
-      // 1. Crear payload y enviar al backend
       const enrolmentPayload = {
         user_id: initialData.customer?.user_id,
         vendor_id: initialData.authenticatedUser?.user_id
@@ -60,12 +91,10 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
       console.log('Payload enviado a createEnrolment:', enrolmentPayload);
       const enrolmentCreationResponse = await createEnrolment(enrolmentPayload);
 
-      // 3. Confirmar ID retornado
       const enrollmentId = enrolmentCreationResponse?.enrolment_id;
       console.log('Aqui EnrollmentId:', enrollmentId);
       setCurrentEnrolmentId(enrollmentId);
 
-      // 4. Generar JSON de QR
       const provisioningJson = generateProvisioningJson(enrollmentId);
       setQrProvisioningData(provisioningJson);
 
@@ -75,7 +104,6 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
       toast.success('QR generado. Escanea el código con el dispositivo.');
       toast.info('Esperando que el dispositivo establezca conexión...');
 
-      // 5. Iniciar polling
       const checkDeviceConnection = async (enrollmentId) => {
         let connected = false;
         let attempts = 0;
@@ -121,39 +149,73 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
       const msg = error.response?.data?.detail || error.message || "Hubo un error inesperado.";
       toast.error(`Error al iniciar aprovisionamiento: ${msg}`);
     }
-  }, [initialData]);
+  }, [initialData, simulateDummyDevice]);
 
-  // ✅ Ejecutar solo una vez
   useEffect(() => {
-    if (!hasStartedProvisioning.current) {
+    if (!initialData.device && !hasStartedProvisioning.current) {
       hasStartedProvisioning.current = true;
       startProvisioningProcess();
+    } else if (initialData.device) {
+      setDeviceDetails(initialData.device);
+      setDeviceConnected(true);
+      setLoading(false);
     }
-  }, [startProvisioningProcess]);
+  }, [startProvisioningProcess, initialData.device]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (deviceDetails) {
       onNext({ device: deviceDetails });
     } else {
-      toast.error('Conecta el dispositivo para continuar.');
+      toast.error(simulateDummyDevice ? 'Esperando que la simulación finalice.' : 'Conecta el dispositivo para continuar.');
     }
+  };
+
+  const handleRetryProvisioning = () => {
+    hasStartedProvisioning.current = false;
+    setDeviceDetails(null);
+    setDeviceConnected(false);
+    setQrGenerated(false);
+    setQrProvisioningData(null);
+    setCurrentEnrolmentId(null);
+    setLoading(true);
+    setIsPolling(false);
+    startProvisioningProcess();
   };
 
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">Paso 2: Aprovisionamiento de Dispositivo</h2>
 
+      <div className="flex items-center justify-end mb-4">
+        <span className="mr-3 text-sm font-medium text-gray-900">Modo de Simulación Dummy</span>
+        <label htmlFor="toggle-dummy" className="relative inline-flex items-center cursor-pointer">
+          <input
+            type="checkbox"
+            id="toggle-dummy"
+            className="sr-only peer"
+            checked={simulateDummyDevice}
+            onChange={(e) => {
+              setSimulateDummyDevice(e.target.checked);
+              handleRetryProvisioning();
+            }}
+          />
+          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+        </label>
+      </div>
+
       <div className="bg-gray-50 p-6 rounded-lg shadow-inner text-center">
         {loading && (
           <div className="text-center p-4">
             <ArrowPathIcon className="mx-auto h-24 w-24 text-blue-600 animate-spin" />
-            <p className="mt-4 text-lg font-medium text-blue-700">Iniciando aprovisionamiento...</p>
+            <p className="mt-4 text-lg font-medium text-blue-700">
+              {simulateDummyDevice ? 'Simulando aprovisionamiento...' : 'Iniciando aprovisionamiento...'}
+            </p>
             <p className="text-sm text-gray-500">Esto puede tomar unos segundos.</p>
           </div>
         )}
 
-        {!loading && qrGenerated && !deviceConnected && qrProvisioningData && isPolling && (
+        {!loading && qrGenerated && !deviceConnected && qrProvisioningData && isPolling && !simulateDummyDevice && (
           <div className="text-center p-4">
             <p className="text-lg font-medium text-gray-700">Escanea el siguiente QR:</p>
             <div className="mt-4 flex justify-center">
@@ -169,13 +231,13 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
           </div>
         )}
 
-        {!loading && qrGenerated && !deviceConnected && !isPolling && (
+        {!loading && qrGenerated && !deviceConnected && !isPolling && !simulateDummyDevice && (
           <div className="text-center p-4 text-red-600">
             <QrCodeIcon className="mx-auto h-24 w-24 text-red-400" />
             <p className="mt-4 text-lg font-medium">Dispositivo no detectado.</p>
             <p className="text-sm">El tiempo de espera ha expirado. Intenta nuevamente.</p>
             <button
-              onClick={startProvisioningProcess}
+              onClick={handleRetryProvisioning}
               className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
               <ArrowPathIcon className="-ml-0.5 mr-2 h-5 w-5" />
@@ -191,6 +253,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
               <h3 className="ml-3 text-lg font-medium text-green-800">Dispositivo Conectado</h3>
             </div>
             <div className="mt-4 text-sm text-green-700 space-y-1">
+              <p><strong>ID de Dispositivo:</strong> {deviceDetails.device_id}</p>
               <p><strong>ID de Enrolamiento:</strong> {deviceDetails.enrolment_id}</p>
               <p><strong>Nombre Comercial:</strong> {deviceDetails.product_name}</p>
               <p><strong>Marca:</strong> {deviceDetails.brand}</p>
@@ -199,6 +262,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
               <p><strong>IMEI (Principal):</strong> {deviceDetails.imei}</p>
               {deviceDetails.imei_two && <p><strong>IMEI (Secundario):</strong> {deviceDetails.imei_two}</p>}
               <p><strong>Estado:</strong> {deviceDetails.state}</p>
+              <p><strong>Precio del Dispositivo:</strong> {deviceDetails.currency} {deviceDetails.price_usd?.toFixed(2)}</p>
             </div>
           </div>
         )}
@@ -212,8 +276,11 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
         <button
           type="button"
           onClick={handleSubmit}
-          disabled={!deviceDetails || loading || isPolling}
-          className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${(!deviceDetails || loading || isPolling) ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+          // MODIFICACIÓN CLAVE AQUÍ:
+          // Ahora el botón estará deshabilitado si aún está cargando O si está en modo polling Y NO es un dummy device.
+          // En modo dummy, queremos que se habilite una vez `loading` es `false` y `deviceDetails` está presente.
+          disabled={!deviceDetails || loading || (isPolling && !simulateDummyDevice)}
+          className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white ${(!deviceDetails || loading || (isPolling && !simulateDummyDevice)) ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
         >
           Siguiente Paso
           <ChevronRightIcon className="-mr-0.5 ml-2 h-5 w-5" />

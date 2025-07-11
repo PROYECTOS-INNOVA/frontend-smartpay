@@ -193,7 +193,7 @@ const PaymentManagementPage = () => {
     };
 
     return (
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
+        <div className="container bg-white rounded-xl mx-auto p-4 sm:p-6 lg:p-8">
             {renderContent()}
         </div>
     );

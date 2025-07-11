@@ -1,55 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { DocumentArrowDownIcon, DocumentArrowUpIcon, ChevronLeftIcon } from '@heroicons/react/24/outline';
+import { ChevronLeftIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
-import { generateContractPdf } from '../utils/contractGenerator';
+// Importa tu nuevo componente generador de PDF
+import ContractPDFGenerator from '../contract/ContractPDFGenerator'; // ¡Asegúrate de que esta ruta sea correcta!
 
 const Step4Contract = ({ onNext, onBack, initialData }) => {
     const [contractFile, setContractFile] = useState(initialData.signedContractFile || null);
-    const [isLoadingContract, setIsLoadingContract] = useState(false);
-    const [contractUrl, setContractUrl] = useState('');
+    // Ya no necesitamos isLoadingContract ni contractUrl aquí, porque ContractPDFGenerator los manejará internamente.
+    // Aunque, si quieres mostrar un loader o un link de descarga ANTES de que el usuario haga click en generar,
+    // podríamos mantener un estado de URL aquí y pasar una prop para el link de descarga.
+    // Por ahora, lo simplificaremos para que el botón y el link estén dentro de ContractPDFGenerator.
 
+    // Desestructuramos los datos que pasaremos al generador de PDF
     const {
         customer,
         device,
-        authenticatedUser,
+        authenticatedUser, // Asumiendo que authenticatedUser contiene los datos del representante/vendedor
         paymentPlan,
-        initialPayment
+        initialPayment,
+        generatedInstallments // Importante pasar las cuotas generadas
     } = initialData;
 
-    useEffect(() => {
-        if (customer && device && authenticatedUser && paymentPlan && initialPayment && !contractUrl) {
-            handleGenerateContract();
-        }
-    }, [customer, device, authenticatedUser, paymentPlan, initialPayment, contractUrl]);
-
-    const handleGenerateContract = async () => {
-        setIsLoadingContract(true);
-        setContractUrl('');
-        try {
-            const contractBlob = await generateContractPdf({
-                customer,
-                device,
-                authenticatedUser,
-                paymentPlan,
-                initialPayment
-            });
-
-            const url = URL.createObjectURL(contractBlob);
-            setContractUrl(url);
-
-            toast.success("Contrato pre-llenado generado con éxito.");
-        } catch (error) {
-            console.error("Error al generar el contrato:", error);
-            toast.error("Error al generar el contrato. Por favor, revisa los datos.");
-        } finally {
-            setIsLoadingContract(false);
-        }
-    };
+    // Aquí ya no es necesario llamar a handleGenerateContract con un useEffect,
+    // ya que el botón de generar estará en el ContractPDFGenerator.
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file && file.type === "application/pdf") {
-            if (file.size > 10 * 1024 * 1024) { 
+            if (file.size > 10 * 1024 * 1024) { // Límite de 10MB
                 toast.error("El archivo excede el tamaño máximo de 10MB.");
                 setContractFile(null);
             } else {
@@ -73,70 +51,72 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Paso 4: Contrato</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Paso 4: Contrato 📄</h2>
 
-            <div className="bg-gray-50 p-6 rounded-lg shadow-inner">
-                <h3 className="text-lg font-medium text-gray-800 mb-3">Generar y Descargar Contrato</h3>
-                <p className="text-sm text-gray-600 mb-4">
-                    Haz clic en "Generar Contrato" para crear un PDF pre-llenado con todos los detalles de la venta. Una vez generado, descárgalo, fírmalo, y luego súbelo en la sección de abajo.
+            <div className="bg-white shadow-md rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Generar y Descargar Contrato</h3>
+                <p className="text-gray-600 mb-4 text-sm">
+                    Haz clic en "Generar PDF del Contrato" para visualizar y descargar el contrato pre-llenado. Luego, imprímelo, fírmalo, escanéalo y súbelo en la sección de abajo.
                 </p>
 
-                <div className="flex items-center space-x-4 mb-6">
-                    <button
-                        type="button"
-                        onClick={handleGenerateContract}
-                        disabled={isLoadingContract || !(customer && device && authenticatedUser && paymentPlan && initialPayment)}
-                        className={`inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white
-                            ${isLoadingContract || !(customer && device && authenticatedUser && paymentPlan && initialPayment) ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'}`}
-                    >
-                        {isLoadingContract ? (
-                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                        ) : (
-                            <DocumentArrowDownIcon className="-ml-0.5 mr-2 h-5 w-5" />
-                        )}
-                        {isLoadingContract ? 'Generando...' : 'Generar Contrato'}
-                    </button>
-                    {contractUrl && (
-                        <a
-                            href={contractUrl}
-                            download="contrato_venta.pdf"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center"
-                        >
-                            <DocumentArrowDownIcon className="h-5 w-5 mr-1" />
-                            Descargar/Ver PDF
-                        </a>
-                    )}
-                </div>
+                {/* Renderiza el ContractPDFGenerator aquí */}
+                {/* Asegúrate de pasar todas las props necesarias desde initialData */}
+                <ContractPDFGenerator
+                    // Datos de la compañía (pueden ser props o importar de una constante global si son fijos)
+                    // ruc={companyInfo.ruc} // Si los tienes en initialData.company, úsalos
+                    // companyName={companyInfo.name}
+                    // ...etc.
 
-                <div className="mt-6">
-                    <label htmlFor="file-upload" className="block text-sm font-medium text-gray-700 mb-2">
-                        Subir Contrato Firmado (PDF)
-                    </label>
-                    <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                        <div className="space-y-1 text-center">
-                            <DocumentArrowUpIcon className="mx-auto h-12 w-12 text-gray-400" />
-                            <div className="flex text-sm text-gray-600">
-                                <label
-                                    htmlFor="file-upload"
-                                    className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                                >
-                                    <span>Cargar un archivo</span>
-                                    <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf" />
-                                </label>
-                                <p className="pl-1">o arrastra y suelta</p>
-                            </div>
-                            <p className="text-xs text-gray-500">
-                                Solo archivos PDF (máx. 10MB)
-                            </p>
-                            {contractFile && (
-                                <p className="mt-2 text-sm text-gray-700">Archivo seleccionado: <span className="font-semibold">{contractFile.name}</span></p>
-                            )}
+                    // Datos del cliente (borrower)
+                    borrowerName={`${customer.name} ${customer.lastName}`}
+                    borrowerDNI={customer.identificationNumber}
+                    borrowerPhone={customer.phoneNumber}
+                    borrowerEmail={customer.email}
+                    borrowerAddress={customer.address}
+
+                    // Datos del dispositivo
+                    equipment={{
+                        brand: device.brand,
+                        model: device.model,
+                        imei: device.imei
+                    }}
+                    devicePrice={device.price_usd} // Usa el valor numérico real del dispositivo
+
+                    // Datos del plan de pagos
+                    paymentPlan={paymentPlan} // Este objeto ya contiene quotas, frecuencia_dias, monto_cuota, balance_to_finance, currency
+                    initialPayment={initialPayment} // Este objeto ya contiene value, method, date
+                    generatedInstallments={initialData.generatedInstallments} // Las cuotas generadas del Paso 3
+
+                    // Datos del vendedor (authenticatedUser)
+                    representativeName={`${authenticatedUser.name} ${authenticatedUser.lastName}`}
+                    representativeDNI={authenticatedUser.identificationNumber || 'N/A'} // Asumiendo que el usuario autenticado tiene DNI
+                    representativePhone={authenticatedUser.phone || 'N/A'} // Asumiendo que tiene teléfono
+                    representativeEmail={authenticatedUser.email}
+                // contractDate ya se usa en ContractPDFGenerator como new Date() por defecto
+                />
+            </div>
+
+            <div className="bg-white shadow-md rounded-lg p-6 mt-6">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Cargar Contrato Firmado</h3>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                    <div className="space-y-1 text-center">
+                        <DocumentArrowUpIcon className="mx-auto h-12 w-12 text-gray-400" />
+                        <div className="flex text-sm text-gray-600">
+                            <label
+                                htmlFor="file-upload"
+                                className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                <span>Cargar un archivo</span>
+                                <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleFileChange} accept=".pdf" />
+                            </label>
+                            <p className="pl-1">o arrastra y suelta</p>
                         </div>
+                        <p className="text-xs text-gray-500">
+                            Solo archivos PDF (máx. 10MB)
+                        </p>
+                        {contractFile && (
+                            <p className="mt-2 text-sm text-gray-700">Archivo seleccionado: <span className="font-semibold">{contractFile.name}</span></p>
+                        )}
                     </div>
                 </div>
             </div>
