@@ -18,6 +18,7 @@ export const capitalizeFirstLetter = (string) => {
  * @returns {string} La fecha formateada.
  */
 export const formatDisplayDate = (isoString) => {
+    console.error("Error", isoString)
     if (!isoString) return 'N/A';
     try {
         const date = new Date(isoString);

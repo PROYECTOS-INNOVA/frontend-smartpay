@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { PlusIcon, LockClosedIcon, MagnifyingGlassIcon, InformationCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
-import Swal from 'sweetalert2';
 import { toast } from 'react-toastify';
 
 import { getFactoryReset } from '../../api/factory_reset_protection';
+import { getConfigurations, updateConfiguration } from '../../api/configuration';
+
+import AccountTable from './components/AccountTable';
 import ConfigurationTable from './components/ConfigurationTable';
+import ConfigurationModal from './components/ConfigurationModal';
+import { SettingsIcon } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 function ConfigurationPage() {
   const CLIENT_ID = "631597337466-dt7qitq7tg2022rhje5ib5sk0eua6t79.apps.googleusercontent.com";
@@ -12,10 +17,14 @@ function ConfigurationPage() {
   const SCOPE = "profile email https://www.googleapis.com/auth/userinfo.profile";
 
   const [accounts, setAccounts] = useState([]);
+  const [configurations, setConfigurations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [editingConfiguration, setEditingConfiguration] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [searchTerm, setSearchTerm] = useState(''); // Estado para el término de búsqueda
+  const [searchAccounts, setSearchAccounts] = useState(''); 
+  const [searchConfig, setSearchConfig] = useState(''); 
 
   const fetchAccounts = useCallback(async () => {
           setLoading(true);
@@ -24,18 +33,84 @@ function ConfigurationPage() {
               const data = await getFactoryReset();
               setAccounts(data);
           } catch (err) {
-              console.error('Error al cargar clientes:', err);
+              console.error('Error al cargar cuentas:', err);
               setError('No se pudieron cargar las cuentas para Factory Reset. Inténtalo de nuevo más tarde.');
-              toast.error('Error al cargar clientes.');
+              toast.error('Error al cargar cuentas.');
           } finally {
               setLoading(false);
           }
       }, []); 
+    
+  const fetchConfigurations = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+        const data = await getConfigurations();
+        setConfigurations(data);
+    } catch (err) {
+        console.error('Error al cargar configuraciones:', err);
+        setError('No se pudieron cargar las configuraciones. Inténtalo de nuevo más tarde.');
+        toast.error('Error al cargar configuraciones.');
+    } finally {
+        setLoading(false);
+    }
+  }, []); 
 
   // Este useEffect se encargará de cargar los clientes y roles solo una vez al montar el componente.
   useEffect(() => {
     fetchAccounts();
-  }, [fetchAccounts]); 
+    fetchConfigurations();
+  }, [fetchAccounts, fetchConfigurations]);
+
+  const handleOpenModal = (configuration = null) => {
+    console.error("Data", configuration);
+    setEditingConfiguration(configuration);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditingConfiguration(null);
+  };
+
+  const handleSubmitConfiguration = async (configuration) => {
+          Swal.fire({
+              title: 'Actualizando configuracion...',
+              text: 'Por favor espera',
+              allowOutsideClick: false,
+              didOpen: () => {
+                  Swal.showLoading();
+              }
+          });
+  
+          try {
+            const dataToUpdate = { ...configuration };
+            await updateConfiguration(editingConfiguration.configuration_id, dataToUpdate);
+            Swal.close();
+            Swal.fire({
+                icon: 'success',
+                title: '¡Actualizado!',
+                text: `La configuracion ${configuration.key} ha sido actualizada.`,
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false
+            });
+            fetchConfigurations(); // Vuelve a cargar los clientes después de una operación CRUD
+          } catch (err) {
+              Swal.close();
+              console.error("Error saving configuration:", err);
+              const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al actualizar la configuración.";
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error al actualizar',
+                  text: errorMessage,
+                  confirmButtonText: 'Ok'
+              });
+              toast.error(`Error al actualizar la configuración: ${errorMessage}`);
+          } finally {
+              handleCloseModal();
+          }
+  };
 
   const login = () => {
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${encodeURIComponent(SCOPE)}&access_type=offline&prompt=consent`;
@@ -72,9 +147,15 @@ function ConfigurationPage() {
 
     // FILTRADO: Ahora el filtrado se realiza sobre el array `accounts` que ya está en el estado
     const filteredAccounts = accounts.filter(account => {
-        const searchLower = searchTerm.toLowerCase();
+        const searchLower = searchAccounts.toLowerCase();
 
-        return (account.email.includes(searchLower));
+        return (account.email.toLowerCase().includes(searchLower) || account.name.toLowerCase().includes(searchLower) || account.account_id.toLowerCase().includes(searchLower));
+    });
+
+    const filteredConfigurations = configurations.filter(configuration => {
+        const searchLower = searchConfig.toLowerCase();
+
+        return (configuration.key.toLowerCase().includes(searchLower) || configuration.description.toLowerCase().includes(searchLower) || configuration.value.toLowerCase().includes(searchLower));
     });
 
     return (
@@ -103,14 +184,14 @@ function ConfigurationPage() {
                         name="search"
                         id="search"
                         className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500"
-                        placeholder="Buscar cliente por nombre, usuario, email, DNI o estado..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Buscar cuenta por accountId, Nombre, Email..."
+                        value={searchAccounts}
+                        onChange={(e) => setSearchAccounts(e.target.value)}
                     />
                 </div>
             </div>
 
-            {filteredAccounts.length === 0 && !searchTerm ? (
+            {filteredAccounts.length === 0 && !searchAccounts ? (
                 <div className="p-6 text-center text-gray-500 bg-white shadow sm:rounded-lg">
                     <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
                     <h3 className="mt-2 text-sm font-medium text-gray-900">No hay cuentas para mostrar</h3>
@@ -127,19 +208,67 @@ function ConfigurationPage() {
                         </button>
                     </div>
                 </div>
-            ) : filteredAccounts.length === 0 && searchTerm ? (
+            ) : filteredAccounts.length === 0 && searchAccounts ? (
                 <div className="p-6 text-center text-gray-500 bg-white shadow sm:rounded-lg">
                     <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron clientes</h3>
+                    <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron cuentas</h3>
                     <p className="mt-1 text-sm text-gray-500">
-                        Tu búsqueda de "<span className="font-semibold text-blue-600">{searchTerm}</span>" no arrojó resultados. Intenta con otro término.
+                        Tu búsqueda de "<span className="font-semibold text-blue-600">{searchAccounts}</span>" no arrojó resultados. Intenta con otro término.
                     </p>
                 </div>
             ) : (
-                <ConfigurationTable
+                <AccountTable
                     accounts={filteredAccounts}
                 />
             )}
+
+            <div className="flex justify-between items-center mb-6 border-b pb-4 pt-16">
+                <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+                    <SettingsIcon className="h-8 w-8 mr-2 text-blue-600" />
+                    Configuraciones
+                </h1>
+            </div>
+
+            <div className="mb-6">
+                <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                    </div>
+                    <input
+                        type="text"
+                        name="search"
+                        id="search"
+                        className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500"
+                        placeholder="Buscar llave, descripción, valor"
+                        value={searchConfig}
+                        onChange={(e) => setSearchConfig(e.target.value)}
+                    />
+                </div>
+
+                {filteredConfigurations.length === 0 && searchConfig ? (
+                    <div className="p-6 text-center text-gray-500 bg-white shadow sm:rounded-lg">
+                        <InformationCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
+                        <h3 className="mt-2 text-sm font-medium text-gray-900">No se encontraron configuraciones</h3>
+                        <p className="mt-1 text-sm text-gray-500">
+                            Tu búsqueda de "<span className="font-semibold text-blue-600">{searchConfig}</span>" no arrojó resultados. Intenta con otro término.
+                        </p>
+                    </div>
+                ) : (
+                    <div className="pt-6">
+                        <ConfigurationTable
+                            configurations={filteredConfigurations}
+                            onEdit={handleOpenModal}
+                        />
+                    </div>
+                )}
+
+                <ConfigurationModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    initialData={editingConfiguration}
+                    onSubmit={handleSubmitConfiguration}
+                />
+            </div>
         </div>
     );
 }

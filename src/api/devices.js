@@ -30,19 +30,7 @@ const getUserId = () => {
     const decodedToken = jwtDecode(token);
     return decodedToken.sub;
 }
-// Interceptor para agregar el token de autorización
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+
 // --- NUEVA FUNCIÓN PARA CREAR DISPOSITIVO ---
 /**
  * Crea un nuevo dispositivo.
@@ -153,7 +141,7 @@ export const blockDevice = async (deviceId) => {
         };
 
         console.log("Sending block request with data:", data);
-        const response = await axiosInstance.post(`/action/${deviceId}/block`, data);
+        const response = await axiosInstance.post(`/device-actions/${deviceId}/block`, data);
         return response.data;
     } catch (error) {
         console.error(`Error blocking device with ID ${deviceId}:`, error);
@@ -161,18 +149,19 @@ export const blockDevice = async (deviceId) => {
     }
 };
 
-export const unblockDevice = async (deviceId) => {
+export const unblockDevice = async (deviceId, params) => {
     try {
         const userId = getUserId();
 
         const data = {
             applied_by_id: userId,
             payload: {
-                duration: 0
+                ...params
             }
         };
 
-        const response = await axiosInstance.post(`/action/${deviceId}/unblock`, data);
+        console.log("Aqui", data);
+        const response = await axiosInstance.post(`/device-actions/${deviceId}/unblock`, data);
         return response.data;
     } catch (error) {
         console.error(`Error unblocking device with ID ${deviceId}:`, error);
@@ -189,7 +178,7 @@ export const locateDevice = async (deviceId) => {
             payload: null
         };
 
-        const response = await axiosInstance.post(`/action/${deviceId}/locate`, data);
+        const response = await axiosInstance.post(`/device-actions/${deviceId}/locate`, data);
         return response.data;
     } catch (error) {
         console.error(`Error locating device with ID ${deviceId}:`, error);
@@ -224,7 +213,7 @@ export const approveDeviceSim = async (deviceId, simId) => {
             }
         };
 
-        await axiosInstance.post(`/action/${deviceId}/unblock_sim`, actionData);
+        await axiosInstance.post(`/device-actions/${deviceId}/unblock_sim`, actionData);
         return response.data;
     } catch (error) {
         console.error(`Error approving SIM ${simId} for device ${deviceId}:`, error);
@@ -248,10 +237,29 @@ export const removeDeviceSim = async (deviceId, simId) => {
                 sim_id: simId
             }
         };
-        await axiosInstance.post(`/action/${deviceId}/block_sim`, actionData);
+        await axiosInstance.post(`/device-actions/${deviceId}/block_sim`, actionData);
         return response.data;
     } catch (error) {
         console.error(`Error removing SIM ${imsi} from device ${deviceId}:`, error);
+        throw error;
+    }
+};
+
+export const sendNotification = async (deviceId, data) => {
+    try {
+        const userId = getUserId();
+
+        const notificationData = {
+            applied_by_id: userId,
+            payload: {
+                ...data
+            }
+        };
+        console.log("Data", notificationData);
+        const response = await axiosInstance.post(`/device-actions/${deviceId}/notify`, notificationData);
+        return response.data;
+    } catch (error) {
+        console.error('Error sent notification:', error);
         throw error;
     }
 };

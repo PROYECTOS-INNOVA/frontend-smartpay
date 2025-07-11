@@ -2,24 +2,28 @@ import React, { useState, useEffect } from 'react';
 import { formatDisplayDate } from '../../../common/utils/helpers';
 import SimManagementModal from '../components/SimManagementModal';
 import ContractViewModal from '../components/ContractViewModal';
+import RegisterPaymentModal from '../components/RegisterPaymentModal';
 import DeviceMapComponent from '../components/DeviceMapComponent';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
 import { approveDeviceSim, removeDeviceSim } from '../../../api/devices';
+import NotifyModal from '../components/NotifyModal';
 
 const DeviceDetailsView = ({
-    device,
+    plan,
     location,
+    payments,
     actionsHistory,
     sims,
     onBackToList,
     onBlock,
+    onSubmitPayment,
     onUnblock,
     onLocate,
     onRelease,
-    onMakePayment,
     onUpdateDevice,
+    onNotification,
     userRole,
     onDeviceUpdate,
     isPolling
@@ -28,46 +32,44 @@ const DeviceDetailsView = ({
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [localSims, setLocalSims] = useState(sims);
+    const [quotaValue, setQuotaValue] = useState(null);
 
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
     const [isContractModalOpen, setIsContractModalOpen] = useState(false);
+    const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
 
 
     const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf'; 
 
-    const dummyPaymentHistory = [
-        { id: 1, amount: 50.00, date: '2024-01-20', description: 'Cuota 1 de 12' },
-        { id: 2, amount: 50.00, date: '2024-02-20', description: 'Cuota 2 de 12' },
-        { id: 3, amount: 50.00, date: '2024-03-20', description: 'Cuota 3 de 12' },
-    ];
-    // --- Fin Datos quemados ---
+    useEffect(() => {
+        if (plan.device) {
+            const newFormData = {
+                name: plan.device.name || '',
+                description: plan.device.description || '',
+                imei: plan.value || '',
+                imei2: plan.device.imei2 || '',
+                serial_number: plan.device.serial_number || '',
+                model: plan.device.model || '',
+                brand: 'sdasdsadsdads',
+                price: plan.value || 0,
+                purchase_date: plan.initial_date || '',
+                state: plan.device.state || 'Active'
+            };
 
-    const allPaymentsMade = dummyPaymentHistory.length >= 12;
+            setFormData(newFormData);
+        }
+    }, [plan.device]);
 
     useEffect(() => {
-        if (device) {
-            setFormData({
-                name: device.name || '',
-                description: device.description || '',
-                imei: device.imei || '',
-                imei2: device.imei2 || '',
-                serial_number: device.serial_number || '',
-                model: device.model || '',
-                brand: device.brand || '',
-                price: device.price || 0,
-                purchase_date: device.purchase_date ? device.purchase_date.split('T')[0] : '',
-                warranty_end_date: device.warranty_end_date ? device.warranty_end_date.split('T')[0] : '',
-                assigned_to_user_id: device.assigned_to_user_id || '',
-                state: device.state || 'Active',
-                location: device.location || '',
-                notes: device.notes || '',
-                created_at: device.created_at || '',
-                updated_at: device.updated_at || '',
-                last_location_latitude: device.last_location_latitude || '',
-                last_location_longitude: device.last_location_longitude || '',
-            });
+        if (plan && payments && Array.isArray(payments)) {
+            const totalPagado = payments.reduce((acc, p) => acc + Number(p.value), 0);
+            const saldoPendiente = Number(plan.value) - totalPagado;
+            const valorCuota = plan.quotas > 0 ? Math.round(saldoPendiente / Number(plan.quotas)).toFixed(2) : 0;
+
+            setQuotaValue(valorCuota);
         }
-    }, [device]);
+    }, [plan, payments]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -88,8 +90,8 @@ const DeviceDetailsView = ({
                 state: data.state,
 
             }
-            console.log("Data", dataToSend)
-            await onUpdateDevice(device.device_id, dataToSend);
+
+            await onUpdateDevice(plan.device_id, dataToSend);
             setIsEditing(false);
             if (onDeviceUpdate) {
                 onDeviceUpdate();
@@ -120,10 +122,26 @@ const DeviceDetailsView = ({
         setIsContractModalOpen(false);
     };
 
+    const handleOpenNotifyModal = () => {
+        setIsNotifyModalOpen(true);
+    };
+
+    const handleCloseNotifyModal = () => {
+        setIsNotifyModalOpen(false);
+    };
+
+    const handleOpenPaymentModal = () => {
+        setIsPaymentModalOpen(true);
+    };
+
+    const handleClosePaymentModal = () => {
+        setIsPaymentModalOpen(false);
+    };
+
 
     const handleApproveSim = async (simId, iccId) => {
         try {
-            const updatedSim = await approveDeviceSim(device.device_id, simId);
+            const updatedSim = await approveDeviceSim(plan.device.device_id, simId);
 
             setLocalSims(prev =>
                 prev.map(sim => sim.icc_id === iccId ? updatedSim : sim)
@@ -140,7 +158,7 @@ const DeviceDetailsView = ({
 
     const handleRemoveSim = async (simId, iccId) => {
         try {
-            const updatedSim = await removeDeviceSim(device.device_id, simId);
+            const updatedSim = await removeDeviceSim(plan.device.device_id, simId);
             setLocalSims(prev =>
                 prev.map(sim => sim.icc_id === iccId ? updatedSim : sim)
             );
@@ -154,7 +172,9 @@ const DeviceDetailsView = ({
         }
     };
 
-    if (!device) {
+    
+
+    if (!plan.device) {
         return <div className="text-center py-8">Cargando detalles del dispositivo...</div>;
     }
 
@@ -166,6 +186,13 @@ const DeviceDetailsView = ({
         }
     };
 
+    const getDescription = (index) => {
+        if (index == 0) {
+            return `Cuota inicial`;
+        }
+        return `Cuota ${index } de ${plan.quotas}`
+    };
+
     const isSuperAdmin = userRole === 'superadmin';
 
     const generalInfoFields = [
@@ -174,20 +201,32 @@ const DeviceDetailsView = ({
         { key: 'imei', label: 'IMEI 1' }, { key: 'imei2', label: 'IMEI 2' },
         { key: 'state', label: 'Estado' }, { key: 'price', label: 'Precio', type: 'number' },
         { key: 'purchase_date', label: 'Fecha de Compra', type: 'date' },
-        { key: 'warranty_end_date', label: 'Fin de Garantía', type: 'date' },
-        { key: 'assigned_to_user_id', label: 'Asignado a Usuario ID' },
+        { key: 'vendor', label: 'Vendedor' },
         { key: 'location', label: 'Ubicación' },
-        { key: 'description', label: 'Descripción', type: 'textarea' },
-        { key: 'notes', label: 'Notas', type: 'textarea' },
         { key: 'created_at', label: 'Creado el' }, { key: 'updated_at', label: 'Última Actualización' },
     ];
 
-    const fieldsToExcludeFromDirectEdit = ['device_id', 'serial_number', 'model', 'brand', 'imei', 'product_name' , 'imei_two', 'created_at', 'updated_at', 'last_location_latitude', 'last_location_longitude'];
+    const fieldsToExcludeFromDirectEdit = [
+        'device_id', 
+        'serial_number', 
+        'model', 
+        'brand', 
+        'imei', 
+        'product_name' , 
+        'imei_two', 
+        'created_at', 
+        'updated_at', 
+        'location',
+        'purchase_date',
+        'price',
+        'vendor'
+    ];
 
     const actionLabels = {
         block: "Bloqueo",
         unblock: "Desbloqueo",
-        locate: "Ubicación"
+        locate: "Ubicación",
+        notify: "Notificación"
     };
 
     const stateLabels = {
@@ -199,6 +238,8 @@ const DeviceDetailsView = ({
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // o cualquier cantidad que quieras mostrar
     const totalPages = Math.ceil(actionsHistory?.length / itemsPerPage) || 1;
+
+    const allPaymentsMade = payments.length >= plan.quotas;
 
     const paginatedActions = actionsHistory.slice(
         (currentPage - 1) * itemsPerPage,
@@ -216,7 +257,7 @@ const DeviceDetailsView = ({
                     Volver
                 </button>
                 <h2 className="text-3xl font-extrabold text-gray-900">
-                    Detalles del Dispositivo: {device.name}
+                    Detalles del Dispositivo: {plan.device.name}
                 </h2>
                 <div className="w-24"></div>
             </div>
@@ -265,13 +306,26 @@ const DeviceDetailsView = ({
                                     ) : (
                                         <p className="mt-1 text-sm text-gray-900 font-semibold">
                                             {key === 'state' ? (
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(device.state)}`}>
-                                                    {device.state || 'N/A'}
+                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(plan.device.state)}`}>
+                                                    {plan.device.state || 'N/A'}
                                                 </span>
                                             ) : (
-                                                (key === 'purchase_date' || key === 'warranty_end_date' || key === 'created_at' || key === 'updated_at')
-                                                    ? formatDisplayDate(device[key])
-                                                    : (device[key] || 'N/A')
+                                                (key === 'purchase_date') ? plan.initial_date : 
+                                                (key === 'price') ? (new Intl.NumberFormat('es-CO', {
+                                                        style: 'currency',
+                                                        currency: 'COP',
+                                                        minimumFractionDigits: 0
+                                                    }).format(Number(plan.value))) :
+                                                (key === 'location') ? ( location
+                                                    ? `${location.latitude}, ${location.longitude}`
+                                                    : 'N/A') :
+                                                (key === 'vendor') ? ([plan.user?.first_name, plan.user?.middle_name, plan.user?.last_name, plan.user?.second_last_name]
+                                                            .filter(Boolean)
+                                                            .join(' ') || 'N/A'
+                                                    ) :
+                                                (key === 'created_at' || key === 'updated_at')
+                                                    ? 'N/A'
+                                                    : (plan.device[key] || 'N/A')
                                             )}
                                         </p>
                                     )}
@@ -312,6 +366,18 @@ const DeviceDetailsView = ({
                             </div>
                         )}
 
+                         {/* New: Mensaje button */}
+                        {!isEditing && isSuperAdmin && (
+                            <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
+                                <button
+                                    onClick={handleOpenNotifyModal}
+                                    className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
+                                >
+                                    Enviar mensaje
+                                </button>
+                            </div>
+                        )}
+
 
                         {isEditing && (
                             <>
@@ -329,18 +395,18 @@ const DeviceDetailsView = ({
                                         onClick={() => {
                                             setIsEditing(false);
                                             setFormData({
-                                                name: device.name || '', description: device.description || '',
-                                                imei: device.imei || '', imei2: device.imei2 || '',
-                                                serial_number: device.serial_number || '', model: device.model || '',
-                                                brand: device.brand || '', price: device.price || 0,
-                                                purchase_date: device.purchase_date ? device.purchase_date.split('T')[0] : '',
-                                                warranty_end_date: device.warranty_end_date ? device.warranty_end_date.split('T')[0] : '',
-                                                assigned_to_user_id: device.assigned_to_user_id || '',
-                                                state: device.state || 'Active', location: device.location || '',
-                                                notes: device.notes || '', created_at: device.created_at || '',
-                                                updated_at: device.updated_at || '',
-                                                last_location_latitude: device.last_location_latitude || '',
-                                                last_location_longitude: device.last_location_longitude || '',
+                                                name: plan.device.name || '', description: plan.device.description || '',
+                                                imei: plan.device.imei || '', imei2: plan.device.imei2 || '',
+                                                serial_number: plan.device.serial_number || '', model: plan.device.model || '',
+                                                brand: plan.device.brand || '', price: plan.device.price || 0,
+                                                purchase_date: plan.device.purchase_date ? plan.device.purchase_date.split('T')[0] : '',
+                                                warranty_end_date: plan.device.warranty_end_date ? plan.device.warranty_end_date.split('T')[0] : '',
+                                                assigned_to_user_id: plan.device.assigned_to_user_id || '',
+                                                state: plan.device.state || 'Active', location: plan.device.location || '',
+                                                notes: plan.device.notes || '', created_at: plan.device.created_at || '',
+                                                updated_at: plan.device.updated_at || '',
+                                                last_location_latitude: plan.device.last_location_latitude || '',
+                                                last_location_longitude: plan.device.last_location_longitude || '',
                                             });
                                         }}
                                         className="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
@@ -362,12 +428,12 @@ const DeviceDetailsView = ({
                         <DeviceMapComponent
                             latitude={location?.latitude ?? 0}
                             longitude={location?.longitude ?? 0}
-                            deviceSerial={device.serial_number || device.name} // Usar serial o nombre para el popup
+                            deviceSerial={plan.device.serial_number || plan.device.name} // Usar serial o nombre para el popup
                         />
                         {/* Botón Localizar: siempre habilitado */}
                         {isSuperAdmin && (
                             <button
-                                onClick={() => onLocate(device.device_id)}
+                                onClick={() => onLocate(plan.device.device_id)}
                                 className={`mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${isPolling ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 Notificar Ubicación
@@ -381,7 +447,7 @@ const DeviceDetailsView = ({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {isSuperAdmin && (
                                 <button
-                                    onClick={() => onBlock(device.device_id)}
+                                    onClick={() => onBlock(plan.device.device_id)}
                                     disabled={false}
                                     className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
                                 >
@@ -390,7 +456,7 @@ const DeviceDetailsView = ({
                             )}
                             {isSuperAdmin && (
                                 <button
-                                    onClick={() => onUnblock(device.device_id)}
+                                    onClick={() => onUnblock(plan.device.device_id)}
                                     disabled={false}
                                     className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
                                 >
@@ -399,7 +465,7 @@ const DeviceDetailsView = ({
                             )}
                             {isSuperAdmin && (
                                 <button
-                                    onClick={() => onMakePayment(device.device_id)}
+                                    onClick={handleOpenPaymentModal}
                                     className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full"
                                 >
                                     Registrar Pago
@@ -407,8 +473,7 @@ const DeviceDetailsView = ({
                             )}
                             {isSuperAdmin && (
                                 <button
-                                    onClick={() => onRelease(device.device_id)}
-                                    disabled={!allPaymentsMade || device.state === 'Released'}
+                                    onClick={() => onRelease(plan.device.device_id)}
                                     className={`bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(!allPaymentsMade || device.state === 'Released') ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Liberar
@@ -484,22 +549,24 @@ const DeviceDetailsView = ({
             {/* Historial de Pagos (debajo del historial de acciones) */}
             <div className="mt-8 bg-gray-50 p-6 rounded-lg shadow-inner">
                 <h3 className="text-2xl font-semibold text-gray-800 mb-4">Historial de Pagos</h3>
-                {dummyPaymentHistory.length > 0 ? (
+                {payments.length > 0 ? (
                     <div className="overflow-x-auto">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Metodo</th>
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                                {dummyPaymentHistory.map((payment) => (
-                                    <tr key={payment.id}>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${payment.amount.toFixed(2)}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.date}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.description}</td>
+                                {payments.map((payment, index) => (
+                                    <tr key={payment.payment_id}>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{getDescription(index)}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.date.split("T")[0]}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{payment.method}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${payment.value}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -516,7 +583,7 @@ const DeviceDetailsView = ({
                     sims={localSims}
                     isOpen={isSimModalOpen}
                     onClose={handleCloseSimModal}
-                    device={device}
+                    device={plan.device}
                     onApproveSim={handleApproveSim}
                     onRemoveSim={handleRemoveSim}
                 />
@@ -528,6 +595,28 @@ const DeviceDetailsView = ({
                     isOpen={isContractModalOpen}
                     onClose={handleCloseContractModal}
                     contractUrl={dummyContractUrl} // Pass the contract URL here
+                />
+            )}
+
+            {/* Modal para Ver Contrato */}
+            {isNotifyModalOpen && (
+                <NotifyModal
+                    isOpen={isNotifyModalOpen}
+                    onClose={handleCloseNotifyModal}
+                    onSubmit={onNotification}
+                    deviceId={plan.device_id}
+                />
+            )}
+
+             {/* Modal para Ver Contrato */}
+            {isPaymentModalOpen && (
+                <RegisterPaymentModal
+                    isOpen={isPaymentModalOpen}
+                    onClose={handleClosePaymentModal}
+                    quotaValue={quotaValue}
+                    onSubmit={onSubmitPayment}
+                    planId={plan.plan_id}
+                    deviceId={plan.device_id}
                 />
             )}
         </div>

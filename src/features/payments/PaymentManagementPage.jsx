@@ -74,11 +74,12 @@ const PaymentManagementPage = () => {
             const { customer, authenticatedUser, paymentPlan, initialPayment, contractBlob } = finalData;
 
             const deviceId = finalData.device.device_id;
-            console.log("DeviceId", deviceId);
+            console.log("DeviceId", paymentPlan);
 
             const planPayload = {
                 initial_date: paymentPlan.initial_date,
                 quotas: paymentPlan.quotas,
+                value: paymentPlan.value,
                 contract: "Contrato digital generado",
                 device_id: deviceId,
                 user_id: customer.user_id,

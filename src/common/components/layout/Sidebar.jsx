@@ -11,7 +11,8 @@ import {
     XMarkIcon,
     ArrowLeftOnRectangleIcon,
     UsersIcon,
-    ClipboardDocumentListIcon // Agregado para Planes, si lo usas
+    ClipboardDocumentListIcon,
+    Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import { FaHome } from 'react-icons/fa'; // Para el link a Landing Page
 
@@ -41,7 +42,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
         { name: 'Reportes y Análisis', icon: ChartBarIcon, href: '/reports' },
         { name: 'Gestión de Planes', icon: ClipboardDocumentListIcon, href: '/plans-management' }, // Agregado, ajusta la ruta si es diferente
-        { name: 'Configuración', icon: ClipboardDocumentListIcon, href: '/configuration' },
+        { name: 'Configuración', icon: Cog6ToothIcon, href: '/configuration' },
     ];
 
     const adminNavItems = [

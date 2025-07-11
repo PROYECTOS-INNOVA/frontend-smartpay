@@ -6,7 +6,8 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
     const [paymentPlan, setPaymentPlan] = useState(initialData.paymentPlan || {
         quotas: '',
         frecuencia_dias: '',
-        initial_date: ''
+        initial_date: '',
+        value: ''
     });
     const [initialPayment, setInitialPayment] = useState(initialData.initialPayment || {
         value: '',
@@ -14,20 +15,9 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
         date: new Date().toISOString().split('T')[0]
     });
 
-    const [devicePrice, setDevicePrice] = useState(initialData.device?.price_usd || '');
     const [errors, setErrors] = useState({});
 
-
-    useEffect(() => {
-        if (initialData.device?.price_usd) {
-            setDevicePrice(initialData.device.price_usd);
-        }
-    }, [initialData.device?.price_usd]);
-
-
-
-    const balanceToFinance = Number(devicePrice) - (Number(initialPayment.value) || 0);
-
+    const balanceToFinance = Number(paymentPlan.value) - (Number(initialPayment.value) || 0);
 
     const montoPorCuota = useMemo(() => {
         if (Number(paymentPlan.quotas) > 0 && balanceToFinance >= 0) {
@@ -67,7 +57,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
         let tempErrors = {};
 
 
-        if (!devicePrice || Number(devicePrice) <= 0) tempErrors.devicePrice = "El valor del dispositivo es requerido y debe ser mayor a 0.";
+        if (!paymentPlan.value || Number(paymentPlan.value) <= 0) tempErrors.devicePrice = "El valor del dispositivo es requerido y debe ser mayor a 0.";
 
 
         if (!initialPayment.value || Number(initialPayment.value) < 0) tempErrors.initialValue = "El valor del pago inicial es requerido y no puede ser negativo.";
@@ -124,11 +114,6 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
         setInitialPayment(prev => ({ ...prev, [name]: name === 'value' ? Number(value) : value }));
     };
 
-    const handleDevicePriceChange = (e) => {
-        setDevicePrice(e.target.value);
-    };
-
-
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Paso 3: Pago y Plan</h2>
@@ -140,10 +125,10 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                         <label htmlFor="devicePrice" className="block text-sm font-medium text-gray-700">Valor del Dispositivo (COP)</label>
                         <input
                             type="number"
-                            name="devicePrice"
+                            name="value"
                             id="devicePrice"
-                            value={devicePrice}
-                            onChange={handleDevicePriceChange}
+                            value={paymentPlan.value}
+                            onChange={handlePaymentPlanChange}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                             min="0"
                             step="0.01"

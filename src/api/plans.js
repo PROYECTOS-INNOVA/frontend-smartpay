@@ -75,6 +75,27 @@ export const getPlanById = async (planId) => {
 };
 
 /**
+ * Obtiene un plan de pago por su ID.
+ * @param {string} deviceId - El ID del dispositivo.
+ * @returns {Promise<object>} El plan de pago.
+ */
+export const getPlanByDeviceId = async (deviceId) => {
+    try {
+
+        const params = { device_id: deviceId };
+        const response = await axiosInstance.get(`/plans/`, {params});
+        if (Array.isArray(response.data)) {
+            return response.data[0]
+        }
+        return null
+    } catch (error) {
+        console.error(`Error al obtener plan de pago con ID ${planId}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+
+/**
  * Actualiza parcialmente un plan de pago.
  * @param {string} planId - El ID del plan de pago a actualizar.
  * @param {object} planData - Los datos a actualizar.

@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { getDevices, getDeviceById, getLastLocation, getActionsHistory, getSims, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice } from '../../api/devices'; // Remove approveDeviceSim, removeDeviceSim
+import { getDevices, getLastLocation, getActionsHistory, getSims, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice,  sendNotification} from '../../api/devices'; 
+import { getPayments, createPayment } from '../../api/payments';
+import { getPlanByDeviceId } from '../../api/plans';
 import DeviceTable from './components/DeviceTable';
 import DeviceDetailsView from './views/DeviceDetailsView';
 
 // Importaciones de react-toastify
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { last } from 'lodash';
 
 const DeviceManagementPage = () => {
     const [devices, setDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [selectedDevice, setSelectedDevice] = useState(null);
+    const [selectPlan, setSelectedPlan] = useState(null);
+    const [payments, setPayments] = useState([]);
     const [lastLocation, setLastLocation] = useState(null);
     const [sims, setSims] = useState(null);
     const [actionsHistory, setActionsHistory] = useState([]);
@@ -51,8 +53,11 @@ const DeviceManagementPage = () => {
     const handleViewDetails = async (deviceId) => {
         setLoading(true);
         try {
-            const deviceDetails = await getDeviceById(deviceId);
+            const planDevice = await getPlanByDeviceId(deviceId);
             const lastLocation = await getLastLocation(deviceId);
+            
+            const params = { device_id : deviceId, state : 'Approved' };
+            const paymentsResponse = await getPayments(params)
             const actions = await getActionsHistory(deviceId);
             const simsResponse = await getSims(deviceId);
 
@@ -61,7 +66,9 @@ const DeviceManagementPage = () => {
                 setActionsHistory(sortedActions);
             }
 
-            setSelectedDevice(deviceDetails);
+            console.log("data", planDevice);
+            setPayments(paymentsResponse);
+            setSelectedPlan(planDevice);
             setLastLocation(lastLocation);
             setSims(simsResponse);
         } catch (err) {
@@ -74,15 +81,16 @@ const DeviceManagementPage = () => {
     };
 
     const handleBackToList = () => {
-        setSelectedDevice(null);
+        setSelectedPlan(null);
         fetchDevices(); 
     };
 
     const handleUpdateDevice = async (deviceId, updatedData) => {
         try {
-            const updatedDeviceResponse = await updateDevice(deviceId, updatedData);
-            setSelectedDevice(updatedDeviceResponse);
-            fetchDevices(); 
+            await updateDevice(deviceId, updatedData);
+            const planDevice = await getPlanByDeviceId(deviceId);
+            setSelectedPlan(planDevice);
+
             toast.success('Dispositivo actualizado correctamente.');
         } catch (err) {
             console.error('Error al actualizar dispositivo:', err);
@@ -98,8 +106,8 @@ const DeviceManagementPage = () => {
         try {
             await blockDevice(deviceId);
             toast.success('Dispositivo bloqueado con éxito.');
-            fetchDevices();
-            if (selectedDevice && selectedDevice.device_id === deviceId) {
+    
+            if (selectPlan && selectPlan.device_id === deviceId) {
                 handleViewDetails(deviceId);
             }
         } catch (err) {
@@ -109,14 +117,47 @@ const DeviceManagementPage = () => {
         }
     };
 
+    const handleSubmitNotification = async (deviceId, notificationData) => {   
+            try {
+                await sendNotification(deviceId, notificationData);
+                toast.success('Notificación enviada.');
+
+                if (selectPlan && selectPlan.device_id === deviceId) {
+                    handleViewDetails(deviceId);
+                }
+            } catch (err) {
+                console.error("Error send notificacion:", err);
+                const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al enviar la notificacion.";
+                toast.error(`Error al enviar notificación: ${errorMessage}`);
+            }
+        };
+
+    const handleSubmitPayment = async (paymentData) => {
+        const confirmBlock = window.confirm('¿Estás seguro de que quieres registrar el pago?');
+        if (!confirmBlock) return;
+        try {
+            await createPayment(paymentData);
+            await unblockDevice(paymentData.device_id, { duration: 0});
+            toast.success('Pago registrado.');
+
+            if (selectPlan && selectPlan.device_id === paymentData.device_id) {
+                handleViewDetails(paymentData.device_id);
+            }
+        } catch (err) {
+            console.error('Error al registrar pago del dispositivo:', err);
+            const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
+            toast.error(`Error al registrar pago del dispositivo: ${errorMessage}`);
+        }
+    };
+
     const handleUnblock = async (deviceId) => {
-        const confirmUnblock = window.confirm('¿Estás seguro de que quieres desbloquear este dispositivo?');
+        const confirmUnblock = window.confirm('¿Estás seguro de que quieres desbloquear este dispositivo durante 15 minutos?');
         if (!confirmUnblock) return;
         try {
-            await unblockDevice(deviceId);
+            await unblockDevice(deviceId, { duration: 900});
             toast.success('Dispositivo desbloqueado con éxito.');
-            fetchDevices();
-            if (selectedDevice && selectedDevice.device_id === deviceId) {
+
+            if (selectPlan && selectPlan.device_id === deviceId) {
                 handleViewDetails(deviceId);
             }
         } catch (err) {
@@ -170,9 +211,9 @@ const DeviceManagementPage = () => {
         try {
             const response = await locateDevice(deviceId);
             toast.success(`Solicitud de ubicación enviada. ${response.message || ''}`);
-            fetchDevices();
-            if (selectedDevice && selectedDevice.device_id === deviceId) {
-                setTimeout(() => checkDeviceConnection(selectedDevice.device_id), 1000);
+            
+            if (selectPlan && selectPlan.device_id === deviceId) {
+                setTimeout(() => checkDeviceConnection(deviceId), 1000);
             }
         } catch (err) {
             console.error('Error al localizar dispositivo:', err);
@@ -196,11 +237,6 @@ const DeviceManagementPage = () => {
             const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
             toast.error(`Error al liberar dispositivo: ${errorMessage}`);
         }
-    };
-
-    const handleMakePayment = (deviceId) => {
-        toast.info('Funcionalidad de "Registrar Pago" pendiente.', { icon: 'ℹ️' });
-        console.log(`Registrar pago para dispositivo ID: ${deviceId}`);
     };
 
     const filteredDevices = devices.filter(device => {
@@ -244,21 +280,23 @@ const DeviceManagementPage = () => {
                 </div>
             )}
 
-            {selectedDevice ? (
+            {selectPlan ? (
                 <DeviceDetailsView
-                    device={selectedDevice}
+                    plan={selectPlan}
                     location={lastLocation}
                     actionsHistory={actionsHistory}
                     sims={sims}
+                    payments={payments}
                     onBackToList={handleBackToList}
                     onBlock={handleBlock}
+                    onNotification={handleSubmitNotification}
                     onUnblock={handleUnblock}
+                    onSubmitPayment={handleSubmitPayment}
                     onLocate={handleLocate}
                     onRelease={handleRelease}
-                    onMakePayment={handleMakePayment}
                     onUpdateDevice={handleUpdateDevice}
                     userRole={userRole}
-                    onDeviceUpdate={() => handleViewDetails(selectedDevice.device_id)}
+                    onDeviceUpdate={() => handleViewDetails(selectPlan.device_id)}
                     isPolling={isPolling}
                 />
             ) : (
