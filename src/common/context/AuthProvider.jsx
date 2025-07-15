@@ -7,7 +7,7 @@ import { jwtDecode } from 'jwt-decode'; // Asegúrate de haber instalado 'jwt-de
 
 const AuthContext = createContext(null);
 
-const API_BASE_URL = 'http://localhost:8000/api/v1'; // VERIFICA que esta URL sea la correcta de tu API Gateway
+const API_BASE_URL = 'https://smartpay-oficial.com:8000/api/v1'; // VERIFICA que esta URL sea la correcta de tu API Gateway
 
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem('token'));

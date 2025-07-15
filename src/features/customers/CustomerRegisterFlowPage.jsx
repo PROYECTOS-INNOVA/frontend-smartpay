@@ -1,9 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Step1_CustomerInfo from './components/Step1_CustomerInfo';
-import Step2_ContractUpload from './components/Step2_ContractUpload';
-import Step3_DeviceProvisioning from './components/Step3_DeviceProvisioning';
-import Step4_Summary from './components/Step4_Summary';
 import { v4 as uuidv4 } from 'uuid';
 import Swal from 'sweetalert2';
 
@@ -73,7 +69,7 @@ const CustomerRegisterFlowPage = () => {
     };
 
     const renderStep = () => {
-        switch (currentStep) {
+        /*switch (currentStep) {
             case 1:
                 return <Step1_CustomerInfo onNext={handleNext} initialData={registrationData.customerInfo} />;
             case 2:
@@ -82,9 +78,9 @@ const CustomerRegisterFlowPage = () => {
                 return <Step3_DeviceProvisioning onNext={handleNext} onBack={handleBack} initialData={registrationData.deviceInfo} customerId={registrationData.customerId} />;
             case 4:
                 return <Step4_Summary onFinalize={handleFinalizeRegistration} onBack={handleBack} registrationData={registrationData} />;
-            default:
+            default:*/
                 return <div>Paso no encontrado</div>;
-        }
+        //}
     };
 
     const stepNames = [
