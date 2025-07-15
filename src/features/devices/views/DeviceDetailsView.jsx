@@ -30,7 +30,6 @@ const DeviceDetailsView = ({
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [localSims, setLocalSims] = useState([]);
-    const [quotaValue, setQuotaValue] = useState(null);
 
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
     const [isContractModalOpen, setIsContractModalOpen] = useState(false);
@@ -58,16 +57,6 @@ const DeviceDetailsView = ({
             setFormData(newFormData);
         }
     }, [plan.device]);
-
-    useEffect(() => {
-        if (plan && payments && Array.isArray(payments)) {
-            const totalPagado = payments.reduce((acc, p) => acc + Number(p.value), 0);
-            const saldoPendiente = Number(plan.value) - totalPagado;
-            const valorCuota = plan.quotas > 0 ? Math.round(saldoPendiente / Number(plan.quotas)).toFixed(2) : 0;
-
-            setQuotaValue(valorCuota);
-        }
-    }, [plan, payments]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -621,10 +610,9 @@ const DeviceDetailsView = ({
                 <RegisterPaymentModal
                     isOpen={isPaymentModalOpen}
                     onClose={handleClosePaymentModal}
-                    quotaValue={quotaValue}
                     onSubmit={onSubmitPayment}
-                    planId={plan.plan_id}
-                    deviceId={plan.device_id}
+                    plan={plan}
+                    payments={payments}
                 />
             )}
         </div>

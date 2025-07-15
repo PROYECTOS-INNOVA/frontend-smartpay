@@ -4,17 +4,21 @@ import Swal from 'sweetalert2';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 
 
-const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, deviceId, quotaValue, planId }) => {
+const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, plan, payments }) => {
+    const date = getEffectivePaymentDate(payments, plan.initial_date, plan.period);
+    const quotaValue = getQuotaValue(payments, plan);
+
+    console.log("Value", quotaValue);
 
     const [formData, setFormData] = useState({
         value: quotaValue,
         method: '',
         state: 'Approved',
-        date: new Date().toISOString().split('T')[0],
+        date: date,
         reference: `PI-${Date.now()}`,
-        device_id: deviceId,
-        plan_id: planId
-    }, [quotaValue, deviceId, planId]);
+        device_id: plan.device_id,
+        plan_id: plan.plan_id
+    }, [quotaValue, plan]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -38,16 +42,67 @@ const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, deviceId, quotaValue,
                 return;
             }
         }
-
-        const dataToSubmit = { ...formData,
-            device_id: deviceId,
-            plan_id: planId 
-        };
-
-        console.log(dataToSubmit);
-        onSubmit(dataToSubmit);
+        console.log(formData);
+        onSubmit(formData);
         onClose();
     };
+
+    function getPaymentDates(startDateStr, periodDays) {
+        const startDate = new Date(startDateStr)
+        const today = new Date()
+
+        if (isNaN(startDate)) return null
+        if (today < startDate) return null
+
+        const diffTime = today.getTime() - startDate.getTime()
+        const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24))
+        const cyclesPassed = Math.floor(daysElapsed / periodDays)
+
+        // Fecha del último pago
+        const lastPaymentDate = new Date(startDate)
+        lastPaymentDate.setDate(startDate.getDate() + cyclesPassed * periodDays)
+
+        // Fecha del siguiente pago
+        const nextPaymentDate = new Date(lastPaymentDate)
+        nextPaymentDate.setDate(lastPaymentDate.getDate() + periodDays)
+
+        return {
+            lastPaymentDate: lastPaymentDate.toISOString().split('T')[0],
+            nextPaymentDate: nextPaymentDate.toISOString().split('T')[0]
+        }
+    }
+
+    function getEffectivePaymentDate(payments, startDateStr, periodDays) {
+        const { lastPaymentDate, nextPaymentDate } = getPaymentDates(startDateStr, periodDays)
+
+        if (!lastPaymentDate) return new Date().toISOString().split('T')[0]
+
+        const alreadyPaid = hasPaymentForDate(payments, lastPaymentDate)
+
+        if (alreadyPaid) {
+            return nextPaymentDate
+        } else {
+            return lastPaymentDate || new Date().toISOString().split('T')[0]
+        }
+    }
+
+
+    function hasPaymentForDate(payments, targetDateStr) {
+        return payments.some(payment => {
+            const paymentDate = new Date(payment.date)
+            const formattedPaymentDate = paymentDate.toISOString().split('T')[0] // 'yyyy-MM-dd'
+            return formattedPaymentDate === targetDateStr
+        })
+    }
+
+
+    function getQuotaValue(payments, plan) {
+        const initialPayment = payments[0].value;
+
+        const value = plan.value - initialPayment;
+        const valorCuota = plan.quotas > 0 ? Math.round(value / Number(plan.quotas)).toFixed(2) : 0;
+        return valorCuota;
+    }
 
     return (
         <Transition appear show={isOpen} as={Fragment}>
@@ -149,9 +204,10 @@ const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, deviceId, quotaValue,
                                 type="date"
                                 name="date"
                                 id="date"
+                                disabled
                                 value={formData.date}
                                 onChange={handleChange}
-                                className="mt-1 block w-72 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                className="mt-1 block w-72 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100 cursor-not-allowed"
                             />
                             </div>
 

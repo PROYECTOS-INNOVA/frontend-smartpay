@@ -79,6 +79,7 @@ const PaymentManagementPage = () => {
             const planPayload = {
                 initial_date: paymentPlan.initial_date,
                 quotas: paymentPlan.quotas,
+                period: paymentPlan.frecuencia_dias,
                 value: paymentPlan.value,
                 contract: "Contrato digital generado",
                 device_id: deviceId,
