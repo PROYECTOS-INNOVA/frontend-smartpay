@@ -156,15 +156,6 @@ const AppRoutes = () => {
                         </Route>
 
 
-
-                        {/* =========================================================
-
-                Rutas Protegidas para Clientes (PWA)
-
-                No usan el Layout principal del admin
-
-            ========================================================= */}
-
                         <Route element={<PrivateRoute allowedRoles={['Cliente']} />}>
 
                             <Route path="/client/dashboard" element={<ClientDashboardPage />} />
