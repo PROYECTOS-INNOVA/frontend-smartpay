@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { formatDisplayDate } from '../../../common/utils/helpers';
 import SimManagementModal from '../components/SimManagementModal';
 import ContractViewModal from '../components/ContractViewModal';
 import RegisterPaymentModal from '../components/RegisterPaymentModal';
@@ -7,7 +6,7 @@ import DeviceMapComponent from '../components/DeviceMapComponent';
 import { toast } from 'react-toastify';
 import Swal from 'sweetalert2';
 
-import { approveDeviceSim, removeDeviceSim } from '../../../api/devices';
+import { approveDeviceSim, removeDeviceSim, getSims } from '../../../api/devices';
 import NotifyModal from '../components/NotifyModal';
 
 const DeviceDetailsView = ({
@@ -15,7 +14,6 @@ const DeviceDetailsView = ({
     location,
     payments,
     actionsHistory,
-    sims,
     onBackToList,
     onBlock,
     onSubmitPayment,
@@ -31,7 +29,7 @@ const DeviceDetailsView = ({
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
     const [isSaving, setIsSaving] = useState(false);
-    const [localSims, setLocalSims] = useState(sims);
+    const [localSims, setLocalSims] = useState([]);
     const [quotaValue, setQuotaValue] = useState(null);
 
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
@@ -103,8 +101,18 @@ const DeviceDetailsView = ({
         }
     };
 
-    const handleOpenSimModal = () => {
-        setIsSimModalOpen(true);
+    const handleOpenSimModal = async () => {
+        const toasId = toast.loading(`Obteniendo sims.`);
+
+        try {
+            const simsResponse = await getSims(plan.device_id);
+            setLocalSims(simsResponse);
+            toast.dismiss(toasId);
+            setIsSimModalOpen(true);
+        } catch (err) {
+            console.error('Error al cargar detalles de la sim:', err);
+            setError('Error al cargar los detalles de la sim.');
+        }
     };
 
     const handleCloseSimModal = () => {
@@ -238,7 +246,7 @@ const DeviceDetailsView = ({
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // o cualquier cantidad que quieras mostrar
     const totalPages = Math.ceil(actionsHistory?.length / itemsPerPage) || 1;
-
+ 
     const allPaymentsMade = payments.length >= plan.quotas;
 
     const paginatedActions = actionsHistory.slice(

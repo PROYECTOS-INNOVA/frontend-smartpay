@@ -1,6 +1,12 @@
 import { TrashIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
 
-const AccountTable = ({ accounts }) => {
+const AccountTable = ({ accounts, onDelete }) => {
+
+    const handleDelete = (factory_reset_protection_id) => {
+            e.preventDefault();
+            onDelete(factory_reset_protection_id);
+        };
+
     return (
         <div className="overflow-x-auto shadow-lg sm:rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
@@ -51,7 +57,7 @@ const AccountTable = ({ accounts }) => {
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button
-                                            onClick={ () => {}}
+                                            onClick={  () => handleDelete(account.factory_reset_protection_id) }
                                             className="text-red-600 hover:text-red-900"
                                             title="Eliminar Cuenta"
                                         >

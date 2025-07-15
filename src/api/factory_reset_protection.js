@@ -18,3 +18,13 @@ export const getFactoryReset = async (params = {}) => {
         throw error;
     }
 };
+
+export const deleteAccount = async (factory_reset_protection_id) => {
+    try {
+        const response = await axiosInstance.delete(`/factoryResetProtection/${factory_reset_protection_id}`);
+        return response.data;
+    } catch (error) { 
+        console.error('Error fetching users:', error);
+        throw error;
+    }
+};

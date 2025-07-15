@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getDevices, getLastLocation, getActionsHistory, getSims, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice,  sendNotification} from '../../api/devices'; 
+import { getDevices, getLastLocation, getActionsHistory, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice,  sendNotification} from '../../api/devices'; 
 import { getPayments, createPayment } from '../../api/payments';
 import { getPlanByDeviceId } from '../../api/plans';
 import DeviceTable from './components/DeviceTable';
@@ -16,7 +16,6 @@ const DeviceManagementPage = () => {
     const [selectPlan, setSelectedPlan] = useState(null);
     const [payments, setPayments] = useState([]);
     const [lastLocation, setLastLocation] = useState(null);
-    const [sims, setSims] = useState(null);
     const [actionsHistory, setActionsHistory] = useState([]);
     const [isPolling, setIsPolling] = useState(false);
 
@@ -59,18 +58,16 @@ const DeviceManagementPage = () => {
             const params = { device_id : deviceId, state : 'Approved' };
             const paymentsResponse = await getPayments(params)
             const actions = await getActionsHistory(deviceId);
-            const simsResponse = await getSims(deviceId);
+           
 
             if (Array.isArray(actions) && actions.length > 0) {
                 const sortedActions = [...actions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 setActionsHistory(sortedActions);
             }
 
-            console.log("data", planDevice);
             setPayments(paymentsResponse);
             setSelectedPlan(planDevice);
             setLastLocation(lastLocation);
-            setSims(simsResponse);
         } catch (err) {
             console.error('Error al cargar detalles del dispositivo:', err);
             setError('Error al cargar los detalles del dispositivo.');
@@ -285,7 +282,6 @@ const DeviceManagementPage = () => {
                     plan={selectPlan}
                     location={lastLocation}
                     actionsHistory={actionsHistory}
-                    sims={sims}
                     payments={payments}
                     onBackToList={handleBackToList}
                     onBlock={handleBlock}

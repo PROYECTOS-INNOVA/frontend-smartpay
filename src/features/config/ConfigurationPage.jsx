@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { PlusIcon, LockClosedIcon, MagnifyingGlassIcon, InformationCircleIcon, ExclamationCircleIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 
-import { getFactoryReset } from '../../api/factory_reset_protection';
+import { getFactoryReset, deleteAccount } from '../../api/factory_reset_protection';
 import { getConfigurations, updateConfiguration } from '../../api/configuration';
 
 import AccountTable from './components/AccountTable';
@@ -13,7 +13,7 @@ import Swal from 'sweetalert2';
 
 function ConfigurationPage() {
   const CLIENT_ID = "631597337466-dt7qitq7tg2022rhje5ib5sk0eua6t79.apps.googleusercontent.com";
-  const REDIRECT_URI = "https://localhost:8000/api/v1/google/auth/callback";
+  const REDIRECT_URI = "https://smartpay-oficial.com:8000/api/v1/google/auth/callback";
   const SCOPE = "profile email https://www.googleapis.com/auth/userinfo.profile";
 
   const [accounts, setAccounts] = useState([]);
@@ -113,9 +113,27 @@ function ConfigurationPage() {
   };
 
   const login = () => {
+    console.log("Data", REDIRECT_URI);
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${encodeURIComponent(SCOPE)}&access_type=offline&prompt=consent`;
     window.location.href = authUrl;
   };
+
+  const onDeleteAccount = async (factory_reset_protection_id) => {
+    console.log("Llegue aqui");
+        const confirmUnblock = window.confirm('¿Estás seguro de que quieres eliminar esta cuenta para el factory reset?');
+        if (!confirmUnblock) return;
+        try {
+            await deleteAccount(factory_reset_protection_id);
+            toast.success('Cuenta eliminada correctamente.');
+
+            const newAccounts = accounts.filter(item => item.factory_reset_protection_id !== factory_reset_protection_id);
+            setAccounts(newAccounts);
+        } catch (err) {
+            console.error('Error al desbloquear dispositivo:', err);
+            const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
+            toast.error(`Error al desbloquear dispositivo: ${errorMessage}`);
+        }
+    };
 
   if (loading) {
         return (
@@ -219,6 +237,7 @@ function ConfigurationPage() {
             ) : (
                 <AccountTable
                     accounts={filteredAccounts}
+                    onDelete={onDeleteAccount}
                 />
             )}
 
