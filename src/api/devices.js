@@ -188,7 +188,14 @@ export const locateDevice = async (deviceId) => {
 
 export const releaseDevice = async (deviceId) => {
     try {
-        const response = await axiosInstance.patch(`/devices/${deviceId}/release`);
+        const userId = getUserId();
+
+        const data = {
+            applied_by_id: userId,
+            payload: null
+        };
+
+        const response = await axiosInstance.post(`/device-actions/${deviceId}/unenroll`, data);
         return response.data;
     } catch (error) {
         console.error(`Error releasing device with ID ${deviceId}:`, error);

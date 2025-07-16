@@ -17,18 +17,20 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
   const [qrProvisioningData, setQrProvisioningData] = useState(null);
   const [currentEnrolmentId, setCurrentEnrolmentId] = useState(null);
   const hasStartedProvisioning = useRef(false);
+  const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
   const [simulateDummyDevice, setSimulateDummyDevice] = useState(false);
 
   const generateProvisioningJson = (enrolmentId) => ({
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "iuScC5qrA6B33bViUuTQopY8FNza_y4yySYYUoiRLko=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "vno-LsuLqLMYe0lQ23LwNp8ORQTyo-bU7tCNPQabYRI=",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://appincdevs.com/enterprise/smartpay-google.apk",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "iuScC5qrA6B33bViUuTQopY8FNza_y4yySYYUoiRLko=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "vno-LsuLqLMYe0lQ23LwNp8ORQTyo-bU7tCNPQabYRI=",
     "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
     "android.app.extra.PROVISIONING_LOCALE": "es_ES",
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
-      "ENROLLMENT_ID": enrolmentId
+      "ENROLLMENT_ID": enrolmentId,
+      "BASE_URL": API_GATEWAY_URL
     }
   });
 

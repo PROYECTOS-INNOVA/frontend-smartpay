@@ -35,7 +35,7 @@ const DeviceDetailsView = ({
     const [isContractModalOpen, setIsContractModalOpen] = useState(false);
     const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-
+    const [isPaid, setIsPaid] = useState(false);
 
     const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf'; 
 
@@ -57,6 +57,20 @@ const DeviceDetailsView = ({
             setFormData(newFormData);
         }
     }, [plan.device]);
+
+    useEffect(() => {
+        const paymentsValue = payments
+            .filter(payment => payment.state === 'Approved')
+            .reduce((total, payment) => total + parseFloat(payment.value), 0);
+
+        // Redondear a 2 decimales por seguridad
+        const roundedPaymentsValue = parseFloat(paymentsValue.toFixed(2));
+        const planValue = parseFloat(plan.value);
+
+        console.log('Value', roundedPaymentsValue);
+
+        setIsPaid(roundedPaymentsValue >= planValue);   
+    }, [payments]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -235,8 +249,6 @@ const DeviceDetailsView = ({
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10; // o cualquier cantidad que quieras mostrar
     const totalPages = Math.ceil(actionsHistory?.length / itemsPerPage) || 1;
- 
-    const allPaymentsMade = payments.length >= plan.quotas;
 
     const paginatedActions = actionsHistory.slice(
         (currentPage - 1) * itemsPerPage,
@@ -321,7 +333,7 @@ const DeviceDetailsView = ({
                                                             .join(' ') || 'N/A'
                                                     ) :
                                                 (key === 'created_at' || key === 'updated_at')
-                                                    ? 'N/A'
+                                                    ? (new Date(plan.device[key]).toLocaleString() || 'N/A')
                                                     : (plan.device[key] || 'N/A')
                                             )}
                                         </p>
@@ -471,7 +483,8 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onRelease(plan.device.device_id)}
-                                    className={`bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(!allPaymentsMade || device.state === 'Released') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    disabled={!isPaid}
+                                    className={`bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(!isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Liberar
                                 </button>

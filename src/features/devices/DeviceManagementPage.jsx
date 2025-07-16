@@ -137,6 +137,10 @@ const DeviceManagementPage = () => {
             await unblockDevice(paymentData.device_id, { duration: 0});
             toast.success('Pago registrado.');
 
+            const params = { device_id : deviceId, state : 'Approved' };
+            const paymentsResponse = await getPayments(params)
+
+            setPayments(paymentsResponse);
             if (selectPlan && selectPlan.device_id === paymentData.device_id) {
                 handleViewDetails(paymentData.device_id);
             }
@@ -225,8 +229,7 @@ const DeviceManagementPage = () => {
         try {
             await releaseDevice(deviceId);
             toast.success('Dispositivo liberado con éxito.');
-            fetchDevices();
-            if (selectedDevice && selectedDevice.device_id === deviceId) {
+            if (selectPlan && selectPlan.device_id === deviceId) {
                 handleViewDetails(deviceId);
             }
         } catch (err) {
