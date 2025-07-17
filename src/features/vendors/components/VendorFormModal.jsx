@@ -35,6 +35,8 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
     useEffect(() => {
         if (isOpen) {
             if (initialData) {
+                console.log("Initial Data:", initialData);
+
                 // Modo edición
                 setIsNewVendor(false);
                 setFormData({

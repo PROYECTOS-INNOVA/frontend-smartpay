@@ -6,10 +6,10 @@ import { toast } from 'react-toastify';
 
 import { getUsers, createUser, deleteUser, updateUser } from '../../api/users';
 import { getRoles } from '../../api/roles';
-import { getCities } from '../../api/cities';
+import { getCountries } from '../../api/cities';
 import StoreTable from './components/StoreTable';
 import StoreFormModal from './components/StoreFormModal';
-import { getStores } from '../../api/store';
+import { createStore, deleteStore, getStores, updateStore } from '../../api/stores';
 
 const StoreManagementPage = () => {
     const [stores, setStores] = useState([]);
@@ -78,23 +78,23 @@ const StoreManagementPage = () => {
                     delete dataToUpdate.role_id;
                 }
 
-                await updateUser(editingStore.user_id, dataToUpdate);
+                await updateStore(editingStore.id, dataToUpdate);
                 Swal.close();
                 Swal.fire({
                     icon: 'success',
                     title: '¡Actualizado!',
-                    text: `El registro ${storeData.nombre || ''} ha sido actualizado.`,
+                    text: `La tienda ${storeData.nombre || ''} ha sido actualizada.`,
                     timer: 2500,
                     timerProgressBar: true,
                     showConfirmButton: false
                 });
             } else {
-                await createUser(storeData);
+                await createStore(storeData);
                 Swal.close();
                 Swal.fire({
                     icon: 'success',
                     title: '¡Creado!',
-                    text: `El registro ${storeData.first_name || ''} ${storeData.last_name || ''} ha sido añadido exitosamente.`,
+                    text: `La tienda ${storeData.nombre || ''} se ha sido añadido exitosamente.`,
                     timer: 2500,
                     timerProgressBar: true,
                     showConfirmButton: false
@@ -123,7 +123,7 @@ const StoreManagementPage = () => {
 
         const result = await Swal.fire({
             title: '¿Estás seguro?',
-            text: `Vas a eliminar al registro ${storeToDelete.first_name || ''} ${storeToDelete.last_name || ''}. ¡Esta acción no se puede deshacer!`,
+            html: `Vas a eliminar al registro <b>${storeToDelete.nombre || ''}</b>. ¡Esta acción no se puede deshacer!`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -143,7 +143,7 @@ const StoreManagementPage = () => {
             });
 
             try {
-                await deleteUser(storeId);
+                await deleteStore(storeId);
                 Swal.close();
                 Swal.fire({
                     icon: 'success',
@@ -334,7 +334,7 @@ const StoreManagementPage = () => {
                 initialData={editingStore}
                 onSubmit={handleSubmitstore}
                 roles={availableRoles}
-                getCitiesApi={getCities}
+                getCountriesApi={getCountries}
             />
         </div>
     );

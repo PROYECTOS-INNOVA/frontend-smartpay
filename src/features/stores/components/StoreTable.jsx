@@ -4,9 +4,7 @@ import { PAGE_SIZE } from '../../../common/utils/const';
 
 const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
     const [currentPage, setCurrentPage] = useState(1);
-    console.log("StoreTable data:", data);
     
-
     const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * PAGE_SIZE;
         return data.slice(start, start + PAGE_SIZE);
@@ -22,6 +20,8 @@ const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Limt. Dispositivos</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enlace Backend</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enalce Base Datos</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -33,9 +33,11 @@ const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
 
                             return (
                                 <tr key={item.user_id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.nombre || 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.plan || 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.tokens_disponibles || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.nombre || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.country.name || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.tokens_disponibles || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.back_link || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.db_link || '-'}</td>
                                     {/* <td className="px-6 py-4 whitespace-nowrap">
                                         <button
                                             onClick={() => onToggleStatus(item.id)}

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../common/context/AuthProvider';
 import { DeviceTabletIcon, CreditCardIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
+import { getPlans } from '../../api/plans';
 
 const ClientDashboardPage = () => {
     const { user } = useAuth();
@@ -9,47 +10,16 @@ const ClientDashboardPage = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const allDummyDevices = [
-        {
-            id: 'dev1', serial: 'SP-DVC-001', model: 'SmartTab M1', customerId: 'cust1',
-            mdmStatus: 'Activo', 
-            totalInstallments: 12, currentInstallment: 7,
-            nextPaymentDate: '2025-06-15', amountDue: 50.00,
-            lastPaymentDate: '2025-05-15', lastPaymentAmount: 50.00
-        },
-        {
-            id: 'dev2', serial: 'SP-DVC-002', model: 'SmartPhone X1', customerId: 'cust2',
-            mdmStatus: 'Bloqueado',
-            totalInstallments: 18, currentInstallment: 3,
-            nextPaymentDate: '2025-06-01', amountDue: 50.00,
-            lastPaymentDate: '2025-05-01', lastPaymentAmount: 50.00
-        },
-        {
-            id: 'dev3', serial: 'SP-DVC-003', model: 'SmartTab M1', customerId: 'cust1',
-            mdmStatus: 'Activo',
-            totalInstallments: 12, currentInstallment: 10,
-            nextPaymentDate: '2025-07-01', amountDue: 50.00,
-            lastPaymentDate: '2025-06-01', lastPaymentAmount: 50.00
-        },
-        {
-            id: 'dev4', serial: 'SP-DVC-004', model: 'SmartPhone X1', customerId: 'cust3',
-            mdmStatus: 'Liberado',
-            totalInstallments: 6, currentInstallment: 6,
-            nextPaymentDate: null, amountDue: 0.00,
-            lastPaymentDate: '2025-04-01', lastPaymentAmount: 100.00
-        },
-    ];
-
     useEffect(() => {
         setLoading(true);
         setError(null);
-        console.log('DATA USER: ', user);
-        
+
         setTimeout(() => {
             const currentCustomerId = user?.user_id;
             if (currentCustomerId) {
-                const filtered = allDummyDevices.filter(device => device.customerId === currentCustomerId);
-                setCustomerDevices(filtered);
+                // const filtered = allDummyDevices.filter(device => device.customerId === currentCustomerId);
+                /** Cargar dispositivos del cliente */
+                getPlantsInit();
             } else {
                 setError("No se pudo obtener el ID del cliente. Asegúrate de estar logueado.");
                 setCustomerDevices([]);
@@ -57,6 +27,16 @@ const ClientDashboardPage = () => {
             setLoading(false);
         }, 500);
     }, [user?.id]);
+
+    /**
+     * Función para obtener planes y sus dispositivos asociados.
+     */
+    const getPlantsInit = async () => {
+        const data = await getPlans({ user_id: user.user_id })
+        console.log('DATA PLANS: ', data);
+
+        setCustomerDevices(data);
+    }
 
     if (loading) {
         return (
@@ -91,20 +71,20 @@ const ClientDashboardPage = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {customerDevices.map(device => (
-                    <div key={device.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200">
+                    <div key={device.device.id} className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-200">
                         <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-xl font-semibold text-gray-800">{device.model}</h2>
-                            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${device.mdmStatus === 'Activo' ? 'bg-green-100 text-green-800' :
-                                    device.mdmStatus === 'Bloqueado' ? 'bg-red-100 text-red-800' :
-                                        'bg-gray-100 text-gray-800'
+                            <h2 className="text-xl font-semibold text-gray-800">{device.device.model}</h2>
+                            <span className={`px-3 py-1 text-sm font-semibold rounded-full ${device.device.state === 'Activo' ? 'bg-green-100 text-green-800' :
+                                device.device.state === 'Bloqueado' ? 'bg-red-100 text-red-800' :
+                                    'bg-gray-100 text-gray-800'
                                 }`}>
-                                {device.mdmStatus}
+                                {device.device.state}
                             </span>
                         </div>
                         <div className="space-y-2 text-gray-700 mb-4">
-                            <p><strong>Serial:</strong> {device.serial}</p>
-                            {device.totalInstallments && (
-                                <p><strong>Cuotas:</strong> {device.currentInstallment}/{device.totalInstallments}</p>
+                            <p><strong>Serial:</strong> {device.device.serial_number}</p>
+                            {device.period && (
+                                <p><strong>Cuotas:</strong> {device.quotas}/{device.period}</p>
                             )}
                             <p>
                                 <strong>Próximo Pago:</strong> {device.nextPaymentDate ?
@@ -114,9 +94,18 @@ const ClientDashboardPage = () => {
                                     : 'No aplica'}
                             </p>
                             <p>
-                                <strong>Monto Adeudado:</strong> {device.amountDue > 0 ?
-                                    <span className="text-red-600 font-bold">${device.amountDue.toFixed(2)}</span>
-                                    : '$0.00'}
+                                <strong>Monto Adeudado:</strong>{' '}
+                                {Number(device.value) > 0 ? (
+                                    <span className="text-red-600 font-bold">
+                                        {Number(device.value).toLocaleString('en-US', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2,
+                                            useGrouping: true,
+                                        })}
+                                    </span>
+                                ) : (
+                                    '0.00'
+                                )}
                             </p>
                         </div>
                         <div className="flex flex-col sm:flex-row gap-3">

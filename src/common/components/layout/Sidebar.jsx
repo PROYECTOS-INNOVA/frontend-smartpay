@@ -12,7 +12,8 @@ import {
     ArrowLeftOnRectangleIcon,
     UsersIcon,
     ClipboardDocumentListIcon,
-    Cog6ToothIcon
+    Cog6ToothIcon,
+    BuildingStorefrontIcon
 } from '@heroicons/react/24/outline';
 import { FaHome } from 'react-icons/fa'; // Para el link a Landing Page
 
@@ -37,7 +38,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { name: 'Dashboard', icon: Squares2X2Icon, href: '/dashboard' },
         { name: 'Gestión de Usuarios', icon: UsersIcon, href: '/user-management' },
         { name: 'Gestión de Clientes', icon: UserGroupIcon, href: '/customers-management' },
-        { name: 'Gestión de Tiendas', icon: UserGroupIcon, href: '/store-management' },
+        { name: 'Gestión de Tiendas', icon: BuildingStorefrontIcon, href: '/store-management' },
         { name: 'Gestión de Vendedores', icon: UserGroupIcon, href: '/vendors-management' },
         { name: 'Gestión de Dispositivos', icon: DevicePhoneMobileIcon, href: '/devices-management' },
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
