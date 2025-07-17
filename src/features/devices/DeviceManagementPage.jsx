@@ -152,10 +152,16 @@ const DeviceManagementPage = () => {
     };
 
     const handleUnblock = async (deviceId) => {
-        const confirmUnblock = window.confirm('¿Estás seguro de que quieres desbloquear este dispositivo durante 15 minutos?');
-        if (!confirmUnblock) return;
+        const minutos = window.prompt('¿Por cuántos minutos quieres desbloquear el dispositivo?');
+        let minutes = 0; 
+
+        // Validar que sea un número positivo
+        if (minutos !== null) {
+            minutes = parseInt(minutos, 10);
+        }
+
         try {
-            await unblockDevice(deviceId, { duration: 900});
+            await unblockDevice(deviceId, { duration: minutes * 60 });
             toast.success('Dispositivo desbloqueado con éxito.');
 
             if (selectPlan && selectPlan.device_id === deviceId) {

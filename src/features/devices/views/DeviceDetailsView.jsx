@@ -190,10 +190,24 @@ const DeviceDetailsView = ({
     }
 
     const getStatusClass = (status) => {
+        if (isPaid) {
+            return 'bg-green-100 text-blue-800';
+        }
         switch (status) {
             case 'Active': return 'bg-green-100 text-green-800';
             case 'Inactive': return 'bg-gray-100 text-gray-800';
             default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getStateName = (status) => {
+        if (isPaid) {
+            return 'Pagado';
+        }
+        switch (status) {
+            case 'Active': return 'Activo';
+            case 'Inactive': return 'Inactivo';
+            default: return '';
         }
     };
 
@@ -232,6 +246,10 @@ const DeviceDetailsView = ({
         'price',
         'vendor'
     ];
+
+    if (isPaid) {
+        fieldsToExcludeFromDirectEdit.push('state'); // reemplaza 'new_field_name' con el que quieras agregar
+    }
 
     const actionLabels = {
         block: "Bloqueo",
@@ -316,7 +334,7 @@ const DeviceDetailsView = ({
                                         <p className="mt-1 text-sm text-gray-900 font-semibold">
                                             {key === 'state' ? (
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(plan.device.state)}`}>
-                                                    {plan.device.state || 'N/A'}
+                                                    {getStateName(plan.device.state) || 'N/A'}
                                                 </span>
                                             ) : (
                                                 (key === 'purchase_date') ? plan.initial_date : 
@@ -380,7 +398,7 @@ const DeviceDetailsView = ({
                             <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
                                 <button
                                     onClick={handleOpenNotifyModal}
-                                    className="bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
+                                    className={`bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full  ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Enviar mensaje
                                 </button>
@@ -443,7 +461,8 @@ const DeviceDetailsView = ({
                         {isSuperAdmin && (
                             <button
                                 onClick={() => onLocate(plan.device.device_id)}
-                                className={`mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${isPolling ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                disabled={isPaid}
+                                className={`mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${isPolling || isPaid ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 Notificar Ubicación
                             </button>
@@ -457,8 +476,8 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onBlock(plan.device.device_id)}
-                                    disabled={false}
-                                    className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
+                                    disabled={isPaid}
+                                    className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Bloquear
                                 </button>
@@ -466,8 +485,8 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onUnblock(plan.device.device_id)}
-                                    disabled={false}
-                                    className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
+                                     disabled={isPaid}
+                                    className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Desbloquear
                                 </button>
@@ -475,7 +494,8 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={handleOpenPaymentModal}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full"
+                                    disabled={isPaid}
+                                    className={`bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Registrar Pago
                                 </button>
@@ -591,6 +611,7 @@ const DeviceDetailsView = ({
             {isSimModalOpen && (
                 <SimManagementModal
                     sims={localSims}
+                    isPaid={isPaid}
                     isOpen={isSimModalOpen}
                     onClose={handleCloseSimModal}
                     device={plan.device}
