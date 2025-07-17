@@ -21,6 +21,7 @@ const LoginPage = lazy(() => import('../features/auth/LoginPage'));
 const RegisterPage = lazy(() => import('../features/auth/Register'));
 
 const ForgotPasswordPage = lazy(() => import('../features/auth/ForgotPassword'));
+const ResetPassword = lazy(() => import('../features/auth/ResetPassword'));
 
 
 
@@ -44,8 +45,9 @@ const CustomerRegisterFlowPage = lazy(() => import('../features/customers/Custom
 
 
 
-// Rutas de Gestión de Dispositivos y Vendedores
+// Rutas de Gestión de Tienda Dispositivos y Vendedores
 
+const StoreManagementPage = lazy(() => import('../features/stores/StoreManagementPage'));
 const DeviceManagementPage = lazy(() => import('../features/devices/DeviceManagementPage'));
 
 const VendorManagementPage = lazy(() => import('../features/vendors/VendorManagementPage'));
@@ -103,6 +105,7 @@ const AppRoutes = () => {
                         <Route path="/register" element={<RegisterPage />} />
 
                         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                        <Route path="/reset-password" element={<ResetPassword />} />
 
 
 
@@ -141,6 +144,7 @@ const AppRoutes = () => {
 
                                 <Route path="profile" element={<UserProfilePage />} />
 
+                                <Route path="store-management" element={<StoreManagementPage />} />
 
 
                                 <Route path="configuration" element={<ConfigurationPage />} />

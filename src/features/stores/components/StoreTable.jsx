@@ -2,51 +2,43 @@ import React, { useState, useMemo } from 'react';
 import { PencilIcon, TrashIcon, LockClosedIcon, LockOpenIcon } from '@heroicons/react/24/outline';
 import { PAGE_SIZE } from '../../../common/utils/const';
 
-const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
+const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
     const [currentPage, setCurrentPage] = useState(1);
+    console.log("StoreTable data:", data);
+    
 
-    const paginatedUsers = useMemo(() => {
+    const paginatedData = useMemo(() => {
         const start = (currentPage - 1) * PAGE_SIZE;
-        return users.slice(start, start + PAGE_SIZE);
-    }, [users, currentPage]);
+        return data.slice(start, start + PAGE_SIZE);
+    }, [data, currentPage]);
 
-    const totalPages = Math.ceil(users.length / PAGE_SIZE);
+    const totalPages = Math.ceil(data.length / PAGE_SIZE);
 
     return (
         <div className="overflow-x-auto shadow-lg sm:rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">DNI</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre Completo</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rol</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciudad</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Limt. Dispositivos</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {paginatedUsers.length > 0 ? (
-                        paginatedUsers.map((user) => {
-                            const isActive = user.state?.toLowerCase() === 'active';
+                    {paginatedData.length > 0 ? (
+                        paginatedData.map((item) => {
+                            const isActive = item.state?.toLowerCase() === 'active';
                             const statusClasses = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
                             const statusText = isActive ? 'Activo' : 'Inactivo';
 
                             return (
-                                <tr key={user.user_id}>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.dni}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {`${user.first_name || ''} ${user.middle_name || ''} ${user.last_name || ''} ${user.second_last_name || ''}`.trim()}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.email}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.username}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.role?.name || 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.city?.name || 'N/A'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
+                                <tr key={item.user_id}>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.nombre || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.plan || 'N/A'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.tokens_disponibles || 'N/A'}</td>
+                                    {/* <td className="px-6 py-4 whitespace-nowrap">
                                         <button
-                                            onClick={() => onToggleStatus(user.user_id, user.state)}
+                                            onClick={() => onToggleStatus(item.id)}
                                             className={`inline-flex items-center px-2 py-1 text-xs leading-5 font-semibold rounded-full cursor-pointer transition-colors duration-200 ${statusClasses}`}
                                             title={`Cambiar a ${isActive ? 'Inactivo' : 'Activo'}`}
                                         >
@@ -57,19 +49,19 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                                                 <LockClosedIcon className="h-4 w-4 ml-1" />
                                             )}
                                         </button>
-                                    </td>
+                                    </td> */}
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button
-                                            onClick={() => onEdit(user)}
+                                            onClick={() => onEdit(item)}
                                             className="text-blue-600 hover:text-blue-900 mr-3"
-                                            title="Editar Usuario"
+                                            title="Editar Vendedor"
                                         >
                                             <PencilIcon className="h-5 w-5" />
                                         </button>
                                         <button
-                                            onClick={() => onDelete(user.user_id)}
+                                            onClick={() => onDelete(item.id)}
                                             className="text-red-600 hover:text-red-900"
-                                            title="Eliminar Usuario"
+                                            title="Eliminar Vendedor"
                                         >
                                             <TrashIcon className="h-5 w-5" />
                                         </button>
@@ -80,7 +72,7 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                     ) : (
                         <tr>
                             <td colSpan="8" className="px-6 py-4 text-center text-sm text-gray-500">
-                                No hay usuarios para mostrar.
+                                No hay tiendas para mostrar.
                             </td>
                         </tr>
                     )}
@@ -88,11 +80,11 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
             </table>
 
             {totalPages > 1 && (
-                <div className="flex justify-end items-center mt-4 space-x-4 m-2">
+                <div className="flex justify-center items-center space-x-2 p-4">
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded disabled:opacity-50"
+                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
                     >
                         Anterior
                     </button>
@@ -102,7 +94,7 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                     <button
                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded disabled:opacity-50"
+                        className="px-3 py-1 bg-gray-200 rounded disabled:opacity-50"
                     >
                         Siguiente
                     </button>
@@ -112,4 +104,4 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
     );
 };
 
-export default UserTable;
+export default StoreTable;

@@ -43,8 +43,10 @@ const ClientDashboardPage = () => {
     useEffect(() => {
         setLoading(true);
         setError(null);
+        console.log('DATA USER: ', user);
+        
         setTimeout(() => {
-            const currentCustomerId = user?.id;
+            const currentCustomerId = user?.user_id;
             if (currentCustomerId) {
                 const filtered = allDummyDevices.filter(device => device.customerId === currentCustomerId);
                 setCustomerDevices(filtered);

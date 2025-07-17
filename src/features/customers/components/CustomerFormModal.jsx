@@ -139,13 +139,26 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
         };
     }, []);
 
+    /**
+     * Capturar cambios en los campos del formulario
+     * @param {*} e 
+     */
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData((prev) => {
+            const updated = {
+                ...prev,
+                [name]: value,
+            };
+            // Solo si es nuevo cliente y se está editando el DNI, actualiza también el password
+            if (isNewCustomer && name === 'dni') {
+                updated.username = value;
+                updated.password = value;
+            }
+            return updated;
+        });
     };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -162,6 +175,8 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
         const requiredFields = ['first_name', 'last_name', 'email', 'username', 'dni'];
         for (const field of requiredFields) {
             if (!formData[field]) {
+                console.log('FORMDATRA: ', formData);
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Campos requeridos',
@@ -197,6 +212,8 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
         // Si no es un nuevo cliente y no se ingresó contraseña, no la enviamos
         if (!isNewCustomer && !dataToSubmit.password) {
             delete dataToSubmit.password;
+        }else if (isNewCustomer){
+            dataToSubmit.state = 'Inactive'
         }
 
         // Eliminamos el campo city_name_input que es solo para la UI
@@ -269,14 +286,14 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
                                         </div>
                                         <div>
                                             <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username *</label>
-                                            <input type="text" name="username" id="username" value={formData.username} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <input type="text" name="username" id="username" value={formData.dni} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                         </div>
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
                                             <input type="text" name="dni" id="dni" value={formData.dni} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                         </div>
                                         <div>
-                                            <label htmlFor="prefix" className="block text-sm font-medium text-gray-700">Prefijo Teléfono</label>
+                                            <label htmlFor="prefix" className="block text-sm font-medium text-gray-700">Prefijo Teléfono *</label>
                                             <input type="text" name="prefix" id="prefix" value={formData.prefix} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                         </div>
                                         <div>
@@ -322,7 +339,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
                                             )}
                                         </div>
 
-                                        <div>
+                                        {/* <div>
                                             <label htmlFor="role_name_display" className="block text-sm font-medium text-gray-700">Rol *</label>
                                             <input
                                                 type="text"
@@ -333,38 +350,38 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
                                                 title="Este campo está predefinido como 'Cliente' para este formulario."
                                             />
                                             <input type="hidden" name="role_id" value={formData.role_id} />
-                                        </div>
+                                        </div> */}
 
-                                        {isNewCustomer && (
+                                        {/* {isNewCustomer && (
                                             <div>
                                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña *</label>
                                                 <input
                                                     type="password"
                                                     name="password"
                                                     id="password"
-                                                    value={formData.password}
+                                                    value={formData.dni}
                                                     onChange={handleChange}
                                                     required={isNewCustomer}
                                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                                 />
                                             </div>
+                                        )} */}
+                                        {!isNewCustomer && (
+                                            <div>
+                                                <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
+                                                <select
+                                                    name="state"
+                                                    id="state"
+                                                    value={formData.state}
+                                                    onChange={handleChange}
+                                                    required
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                                                >
+                                                    <option value="Active">Activo</option>
+                                                    <option value="Inactive">Inactivo</option>
+                                                </select>
+                                            </div>
                                         )}
-
-                                        <div>
-                                            <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
-                                            <select
-                                                name="state"
-                                                id="state"
-                                                value={formData.state}
-                                                onChange={handleChange}
-                                                required
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                            >
-                                                <option value="Active">Activo</option>
-                                                <option value="Inactive">Inactivo</option>
-                                            </select>
-                                        </div>
-
                                         <div className="mt-6 col-span-full flex justify-end gap-3">
                                             <button
                                                 type="button"
