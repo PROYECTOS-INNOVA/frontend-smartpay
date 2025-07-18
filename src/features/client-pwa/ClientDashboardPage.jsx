@@ -78,7 +78,10 @@ const ClientDashboardPage = () => {
                     className="hidden sm:inline-block px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg shadow transition duration-150 ease-in-out"
                     onClick={() => logout()}
                 >
-                    Cerrar sesión
+                    <div className="flex items-center gap-1">
+                        <p>Cerrar sesión</p>
+                        <ArrowLeftStartOnRectangleIcon className="h-7 w-7" />
+                    </div>
                 </button>
             </div>
 

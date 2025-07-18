@@ -271,14 +271,13 @@ const LoginPage = () => {
                         >
                             {loading ? 'Iniciando Sesión...' : 'Iniciar Sesión'}
                         </button>
-
-                        <button
+                        {/* <button
                             type="button"
                             onClick={testFetchUsers}
                             className="w-full text-blue-700 border border-blue-700 font-semibold py-3 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-white hover:bg-blue-50 mt-4"
                         >
                             Probar Obtener Usuarios (Debug)
-                        </button>
+                        </button> */}
                     </form>
 
                     <p className="text-center text-sm text-gray-600 mt-6">
