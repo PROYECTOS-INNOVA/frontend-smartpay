@@ -164,9 +164,9 @@ const AppRoutes = () => {
 
                             <Route path="/client/dashboard" element={<ClientDashboardPage />} />
 
-                            <Route path="/client/devices/:deviceId" element={<ClientDeviceDetailsView />} />
+                            <Route path="/client/devices/:planId" element={<ClientDeviceDetailsView />} />
 
-                            <Route path="/client/make-payment" element={<ClientMakePaymentPage />} />
+                            <Route path="/client/make-payment/:planId" element={<ClientMakePaymentPage />} />
 
                         </Route>
 

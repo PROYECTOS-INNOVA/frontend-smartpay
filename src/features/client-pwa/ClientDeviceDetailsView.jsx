@@ -1,76 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { ArrowLeftIcon, DeviceTabletIcon, InformationCircleIcon, CreditCardIcon } from '@heroicons/react/24/outline';
+import { getDeviceById } from '../../api/devices';
+import { getPayments } from '../../api/payments';
+import { getMdmStatusClass } from './utils/shared-functions';
+import { getPlanById } from '../../api/plans';
 
 const ClientDeviceDetailsView = () => {
-    const { deviceId } = useParams();
-    const [device, setDevice] = useState(null);
+    const { planId } = useParams();
+    const location = useLocation();
+
+    const [plan, setPlan] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    const allDummyDevices = [
-        {
-            id: 'dev1', serial: 'SP-DVC-001', model: 'SmartTab M1', customerId: 'cust1',
-            mdmStatus: 'Activo',
-            totalInstallments: 12, currentInstallment: 7,
-            nextPaymentDate: '2025-06-15', amountDue: 50.00,
-            paymentHistory: [
-                { id: 1, date: '2025-05-15', amount: 50.00, status: 'Pagado' },
-                { id: 2, date: '2025-04-15', amount: 50.00, status: 'Pagado' },
-                { id: 3, date: '2025-03-15', amount: 50.00, status: 'Pagado' },
-            ]
-        },
-        {
-            id: 'dev2', serial: 'SP-DVC-002', model: 'SmartPhone X1', customerId: 'cust2',
-            mdmStatus: 'Bloqueado',
-            totalInstallments: 18, currentInstallment: 3,
-            nextPaymentDate: '2025-06-01', amountDue: 50.00,
-            paymentHistory: [
-                { id: 1, date: '2025-05-01', amount: 50.00, status: 'Pagado' },
-                { id: 2, date: '2025-04-01', amount: 50.00, status: 'Atrasado' },
-            ]
-        },
-        {
-            id: 'dev3', serial: 'SP-DVC-003', model: 'SmartTab M1', customerId: 'cust1',
-            mdmStatus: 'Activo',
-            totalInstallments: 12, currentInstallment: 10,
-            nextPaymentDate: '2025-07-01', amountDue: 50.00,
-            paymentHistory: [
-                { id: 1, date: '2025-06-01', amount: 50.00, status: 'Pagado' },
-                { id: 2, date: '2025-05-01', amount: 50.00, status: 'Pagado' },
-                { id: 3, date: '2025-04-01', amount: 50.00, status: 'Pagado' },
-                { id: 4, date: '2025-03-01', amount: 50.00, status: 'Pagado' },
-            ]
-        },
-        {
-            id: 'dev4', serial: 'SP-DVC-004', model: 'SmartPhone X1', customerId: 'cust3',
-            mdmStatus: 'Liberado',
-            totalInstallments: 6, currentInstallment: 6,
-            nextPaymentDate: null, amountDue: 0.00,
-            paymentHistory: [
-                { id: 1, date: '2025-04-01', amount: 100.00, status: 'Pagado' },
-                { id: 2, date: '2025-03-01', amount: 100.00, status: 'Pagado' },
-                { id: 3, date: '2025-02-01', amount: 100.00, status: 'Pagado' },
-                { id: 4, date: '2025-01-01', amount: 100.00, status: 'Pagado' },
-                { id: 5, date: '2024-12-01', amount: 100.00, status: 'Pagado' },
-                { id: 6, date: '2024-11-01', amount: 100.00, status: 'Pagado' },
-            ]
-        },
-    ];
-
     useEffect(() => {
-        setLoading(true);
-        setError(null);
-        setTimeout(() => {
-            const foundDevice = allDummyDevices.find(d => d.id === deviceId);
-            if (foundDevice) {
-                setDevice(foundDevice);
-            } else {
-                setError("Dispositivo no encontrado o no asociado a tu cuenta.");
+        const fetchData = async () => {
+            setLoading(true);
+            setError(null);
+
+            try {
+                let planData = location.state?.plan;
+
+                if (!planData) {
+                    planData = await getPlanById(planId);
+                }
+
+                const history = await getPayments({ device_id: planData.device_id });
+                setPlan({ ...planData, paymentHistory: history });
+
+            } catch (err) {
+                console.error('Error fetching plan or history:', err);
+                setError("No se pudo cargar la información del plan.");
+            } finally {
+                setLoading(false);
             }
-            setLoading(false);
-        }, 300);
-    }, [deviceId]);
+        };
+
+        fetchData();
+    }, [planId, location.state?.plan]);
+
 
     if (loading) {
         return (
@@ -89,7 +58,7 @@ const ClientDeviceDetailsView = () => {
         );
     }
 
-    if (!device) {
+    if (!plan) {
         return (
             <div className="bg-white p-6 rounded-lg shadow text-center mx-auto my-8 max-w-md">
                 <InformationCircleIcon className="h-12 w-12 text-blue-400 mx-auto mb-4" />
@@ -97,111 +66,167 @@ const ClientDeviceDetailsView = () => {
                 <Link to="/client/dashboard" className="text-indigo-600 hover:underline mt-4 inline-block">Volver al Dashboard</Link>
             </div>
         );
+    } else {
+        console.log('Plan details:', plan);
+
     }
 
-    const getMdmStatusClass = (status) => {
-        switch (status) {
-            case 'Activo': return 'bg-green-100 text-green-800';
-            case 'Bloqueado': return 'bg-red-100 text-red-800';
-            case 'Liberado': return 'bg-blue-100 text-blue-800';
-            default: return 'bg-gray-100 text-gray-800';
-        }
-    };
+    // console.log('Device details:', device);
 
     return (
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <div className="flex justify-between items-center mb-6 border-b pb-4">
-                <Link
-                    to="/client/dashboard"
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                >
-                    <ArrowLeftIcon className="-ml-0.5 mr-2 h-4 w-4" />
-                    Volver a Mis Dispositivos
-                </Link>
-                <h1 className="text-3xl font-bold text-gray-900">Detalles de {device.model} ({device.serial})</h1>
-                <div></div> 
-            </div>
+  <div className="container mx-auto px-4 sm:px-6 lg:px-10 py-14 space-y-20 min-h-[calc(100vh-160px)]">
+  {/* ENCABEZADO */}
+  <div className="flex flex-col lg:flex-row justify-between items-center gap-6 border-b border-gray-200 pb-6">
+    <Link
+      to="/client/dashboard"
+      className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-xl shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition"
+    >
+      <ArrowLeftIcon className="h-5 w-5 mr-2 text-gray-500" />
+      Volver a Mis Dispositivos
+    </Link>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                        <DeviceTabletIcon className="h-6 w-6 mr-2 text-indigo-600" />
-                        Información del Dispositivo
-                    </h2>
-                    <div className="space-y-3 text-gray-700">
-                        <p><strong>Serial:</strong> {device.serial}</p>
-                        <p><strong>Modelo:</strong> {device.model}</p>
-                        <p><strong>Estado MDM:</strong> <span className={`px-2 py-1 text-sm font-semibold rounded-full ${getMdmStatusClass(device.mdmStatus)}`}>{device.mdmStatus}</span></p>
-                        {device.totalInstallments && (
-                            <p><strong>Cuotas:</strong> {device.currentInstallment} de {device.totalInstallments}</p>
-                        )}
-                        <p>
-                            <strong>Próximo Pago:</strong> {device.nextPaymentDate ?
-                                <span className={new Date(device.nextPaymentDate) < new Date() ? 'text-red-600 font-bold' : 'text-gray-800'}>
-                                    {device.nextPaymentDate}
-                                </span>
-                                : 'No aplica'}
-                        </p>
-                        <p><strong>Monto Pendiente:</strong> ${device.amountDue ? device.amountDue.toFixed(2) : '0.00'}</p>
-                    </div>
-                </div>
+    <div className="text-center">
+      <h1 className="text-3xl lg:text-4xl font-extrabold text-gray-900 leading-tight">
+        Detalles de <span className="text-indigo-700">{plan.device.model}</span>
+      </h1>
+      <p className="text-sm text-gray-400 mt-1 tracking-wide font-normal">
+        ({plan.device.serial_number})
+      </p>
+    </div>
 
-                {/* Historial de Pagos */}
-                <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                        <CreditCardIcon className="h-6 w-6 mr-2 text-green-600" />
-                        Historial de Pagos
-                    </h2>
-                    <div className="overflow-x-auto">
-                        {device.paymentHistory && device.paymentHistory.length > 0 ? (
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Fecha
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Monto
-                                        </th>
-                                        <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Estado
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
-                                    {device.paymentHistory.map(payment => (
-                                        <tr key={payment.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{payment.date}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${payment.amount.toFixed(2)}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${payment.status === 'Pagado' ? 'bg-green-100 text-green-800' :
-                                                        payment.status === 'Atrasado' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'
-                                                    }`}>
-                                                    {payment.status}
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p className="text-center text-gray-500 py-4">No hay historial de pagos disponible para este dispositivo.</p>
-                        )}
-                    </div>
-                    {device.amountDue > 0 && (
-                        <div className="mt-6 text-center">
-                            <Link
-                                to={`/client/make-payment?deviceId=${device.id}&amount=${device.amountDue}`}
-                                className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                <CreditCardIcon className="h-6 w-6 mr-3" />
-                                Realizar Pago Ahora
-                            </Link>
-                        </div>
-                    )}
-                </div>
-            </div>
+    <div className="hidden lg:block w-40" />
+  </div>
+
+  {/* SECCIÓN INFORMACIÓN Y PAGOS */}
+  <div className="bg-white border border-gray-200 rounded-3xl shadow-2xl p-10 lg:p-14 grid grid-cols-1 lg:grid-cols-2 gap-16 relative min-h-[22rem]">
+    <div className="hidden lg:block absolute left-1/2 top-10 bottom-10 w-px bg-gray-100" />
+
+    {/* INFORMACIÓN DEL DISPOSITIVO */}
+    <div className="relative z-10">
+      <div className="absolute top-0 right-0 opacity-5 text-indigo-300 pointer-events-none">
+        <DeviceTabletIcon className="h-36 w-36 rotate-12" />
+      </div>
+
+      <div className="flex items-center gap-4 mb-10">
+        <div className="bg-indigo-100 text-indigo-600 p-4 rounded-xl shadow-sm">
+          <DeviceTabletIcon className="h-6 w-6" />
         </div>
+        <div>
+          <h2 className="text-lg font-semibold text-indigo-700 uppercase tracking-wide">Información del Dispositivo</h2>
+          <p className="text-sm text-gray-500">Detalles técnicos y estado actual</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm sm:text-base text-gray-700">
+        <div>
+          <p className="text-gray-500 font-medium">Serial</p>
+          <p className="font-semibold">{plan.device.serial_number}</p>
+        </div>
+        <div>
+          <p className="text-gray-500 font-medium">Modelo</p>
+          <p className="font-semibold">{plan.device.model}</p>
+        </div>
+        <div>
+          <p className="text-gray-500 font-medium">Estado MDM</p>
+          <span className={`mt-1 inline-block px-3 py-1 text-xs font-semibold rounded-full ${getMdmStatusClass(plan.device.state)}`}>
+            {plan.device.state}
+          </span>
+        </div>
+        {plan.period && (
+          <div>
+            <p className="text-gray-500 font-medium">Cuotas</p>
+            <p className="font-semibold">{plan.quotas} de {plan.period}</p>
+          </div>
+        )}
+        <div>
+          <p className="text-gray-500 font-medium">Próximo Pago</p>
+          <p className={`font-semibold ${new Date(plan.initial_date) < new Date() ? 'text-red-600' : 'text-gray-800'}`}>
+            {plan.initial_date || 'No aplica'}
+          </p>
+        </div>
+        <div>
+          <p className="text-gray-500 font-medium">Monto Pendiente</p>
+          <p className="text-red-600 font-bold text-xl">
+            ${plan?.value ? Number(plan.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    {/* HISTORIAL DE PAGOS */}
+    <div className="flex flex-col h-full relative z-10">
+      <div className="relative mb-10">
+        <div className="absolute top-0 right-0 opacity-5 text-green-300 pointer-events-none">
+          <CreditCardIcon className="h-36 w-36 -rotate-12" />
+        </div>
+
+        <div className="flex items-center gap-4">
+          <div className="bg-green-100 text-green-600 p-4 rounded-xl shadow-sm">
+            <CreditCardIcon className="h-6 w-6" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold text-green-700 uppercase tracking-wide">Historial de Pagos</h2>
+            <p className="text-sm text-gray-500">Movimientos realizados hasta la fecha</p>
+          </div>
+        </div>
+      </div>
+
+      {plan.paymentHistory && plan.paymentHistory.length > 0 ? (
+        <div className="flex-1 overflow-hidden rounded-xl border border-gray-200 shadow-sm">
+          <div className="overflow-y-auto max-h-[28rem]">
+            <table className="min-w-full text-sm text-gray-700 divide-y divide-gray-200">
+              <thead className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                <tr>
+                  <th className="px-6 py-3 text-left">Fecha</th>
+                  <th className="px-6 py-3 text-left">Monto</th>
+                  <th className="px-6 py-3 text-left">Estado</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-100">
+                {plan.paymentHistory.map(payment => (
+                  <tr key={payment.payment_id} className="hover:bg-gray-50 transition">
+                    <td className="px-6 py-4 whitespace-nowrap">{payment.date.split("T")[0]}</td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      ${Number(payment.value).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 inline-flex text-xs font-semibold rounded-full ${payment.state === 'Approved'
+                        ? 'bg-green-100 text-green-800'
+                        : payment.state === 'Atrasado'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-gray-100 text-gray-800'
+                        }`}>
+                        {payment.state}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        <div className="text-center text-gray-500 py-8">
+          No hay historial de pagos disponible para este dispositivo.
+        </div>
+      )}
+
+      {plan.device.amountDue > 0 && (
+        <div className="mt-10 text-center">
+          <Link
+            to={`/client/make-payment?planId=${plan.device.id}&amount=${plan.device.amountDue}`}
+            className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-br from-indigo-600 to-indigo-700 text-white text-base font-medium rounded-xl shadow-lg hover:brightness-110 transition"
+          >
+            <CreditCardIcon className="h-5 w-5 mr-2" />
+            Realizar Pago Ahora
+          </Link>
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+
     );
 };
 
