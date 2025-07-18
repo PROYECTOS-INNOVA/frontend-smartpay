@@ -39,9 +39,9 @@ const CustomerTable = ({ customers, onEdit, onDelete, onToggleStatus }) => {
                 <tbody className="bg-white divide-y divide-gray-200">
                     {paginatedCustomers.length > 0 ? (
                         paginatedCustomers.map((customer) => {
-                            const isActive = customer.state?.toLowerCase() === 'active';
-                            const statusClasses = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                            const statusText = isActive ? 'Activo' : 'Inactivo';
+                            const isActive = customer.state?.toLowerCase();
+                            const statusClasses = isActive == 'active' ? 'bg-green-100 text-green-800' : isActive == 'inactive' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800';
+                            const statusText = isActive == 'active' ? 'Activo' : isActive == 'inactive' ? 'Inactivo' : 'Nuevo';
 
                             return (
                                 <tr key={customer.user_id}>
@@ -60,7 +60,7 @@ const CustomerTable = ({ customers, onEdit, onDelete, onToggleStatus }) => {
                                             title={`Cambiar a ${isActive ? 'Inactivo' : 'Activo'}`}
                                         >
                                             {statusText}
-                                            {isActive ? (
+                                            {isActive == 'active' || isActive == 'initial' ? (
                                                 <LockOpenIcon className="h-4 w-4 ml-1" />
                                             ) : (
                                                 <LockClosedIcon className="h-4 w-4 ml-1" />

@@ -43,7 +43,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { name: 'Gestión de Dispositivos', icon: DevicePhoneMobileIcon, href: '/devices-management' },
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
         { name: 'Reportes y Análisis', icon: ChartBarIcon, href: '/reports' },
-        { name: 'Gestión de Planes', icon: ClipboardDocumentListIcon, href: '/plans-management' }, // Agregado, ajusta la ruta si es diferente
+        // { name: 'Gestión de Planes', icon: ClipboardDocumentListIcon, href: '/plans-management' }, // Agregado, ajusta la ruta si es diferente
         { name: 'Configuración', icon: Cog6ToothIcon, href: '/configuration' },
     ];
 
@@ -53,7 +53,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
         { name: 'Gestión de Vendedores', icon: UserGroupIcon, href: '/vendors-management' },
         { name: 'Gestión de Dispositivos', icon: DevicePhoneMobileIcon, href: '/devices-management' },
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
-        { name: 'Gestión de Planes', icon: ClipboardDocumentListIcon, href: '/plans-management' }, // Agregado, ajusta la ruta si es diferente
+        // { name: 'Gestión de Planes', icon: ClipboardDocumentListIcon, href: '/plans-management' }, // Agregado, ajusta la ruta si es diferente
     ];
 
     const vendedorNavItems = [

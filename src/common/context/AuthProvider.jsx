@@ -49,6 +49,7 @@ export const AuthProvider = ({ children }) => {
                     Authorization: `Bearer ${accessToken}` // ¡Muy importante! Enviar el token para autenticación
                 }
             });
+            
 
             const fullUserData = userResponse.data; // Aquí recibimos los datos completos del usuario desde /users/me
 
@@ -67,6 +68,7 @@ export const AuthProvider = ({ children }) => {
                     ? fullUserData.role.name
                     : fullUserData.role || roleNameFromToken,
                 dni: fullUserData.dni || null,
+                state: fullUserData.state || null,
                 // Si /users/me devuelve más campos que necesites, agrégalos aquí:
                 // city_id: fullUserData.city_id,
                 // phone: fullUserData.phone,

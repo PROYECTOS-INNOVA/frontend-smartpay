@@ -23,22 +23,31 @@ export default defineConfig({
         icons: [
           {
             src: '/pwa-192x192.png',
-            sizes: '353x330',
+            sizes: '192x192',
             type: 'image/png',
           },
           {
             src: '/pwa-512x512.png',
-            sizes: '353x330',
+            sizes: '512x512',
             type: 'image/png',
           },
           {
             src: '/pwa-512x512.png',
-            sizes: '353x330',
+            sizes: '512x512',
             type: 'image/png',
             purpose: 'any maskable', // Para iconos adaptables
           },
         ],
+        screenshots: [
+          {
+            src: "screenshots/wide-image.png",
+            sizes: "1280x720",
+            type: "image/png",
+            form_factor: "wide"
+          }
+        ]
       },
+      
       workbox: {
         // Estrategias de caché
         // Cacha los assets estáticos de la aplicación

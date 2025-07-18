@@ -49,7 +49,7 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
-                        {renderTh('name', 'Nombre')}
+                        {renderTh('product_name', 'Nombre')}
                         {renderTh('serial_number', 'Serial')}
                         {renderTh('model', 'Modelo')}
                         {renderTh('brand', 'Marca')}
@@ -68,7 +68,7 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
                     ) : (
                         paginatedDevices.map((device) => (
                             <tr key={device.device_id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.name || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.product_name || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.serial_number || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.model || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.brand || 'N/A'}</td>

@@ -23,7 +23,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
         city_id: '',
         city_name_input: '',
         role_id: '', // Se establecerá dinámicamente
-        state: 'Active',
+        state: 'Initial',
         password: '',
     });
     const [isNewCustomer, setIsNewCustomer] = useState(false);
@@ -77,7 +77,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
                     city_id: '',
                     city_name_input: '',
                     role_id: customerRoleId || '', // Asigna el ID de rol de cliente
-                    state: 'Active',
+                    state: 'Initial',
                     password: '',
                 });
             }
@@ -212,9 +212,10 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
         // Si no es un nuevo cliente y no se ingresó contraseña, no la enviamos
         if (!isNewCustomer && !dataToSubmit.password) {
             delete dataToSubmit.password;
-        }else if (isNewCustomer){
-            dataToSubmit.state = 'Inactive'
         }
+        // else if (isNewCustomer){
+        //     dataToSubmit.state = 'Inactive'
+        // }
 
         // Eliminamos el campo city_name_input que es solo para la UI
         delete dataToSubmit.city_name_input;
@@ -379,6 +380,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
                                                 >
                                                     <option value="Active">Activo</option>
                                                     <option value="Inactive">Inactivo</option>
+                                                    <option value="Initial">Nuevo</option>
                                                 </select>
                                             </div>
                                         )}

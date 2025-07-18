@@ -6,7 +6,7 @@ import { getPlans } from '../../api/plans';
 import { getMdmStatusClass } from './utils/shared-functions';
 
 const ClientDashboardPage = () => {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
     const [customerDevices, setCustomerDevices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -76,7 +76,7 @@ const ClientDashboardPage = () => {
                 {/* Visible solo en pantallas sm o más grandes */}
                 <button
                     className="hidden sm:inline-block px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg shadow transition duration-150 ease-in-out"
-                    onClick={() => console.log('Logout')}
+                    onClick={() => logout()}
                 >
                     Cerrar sesión
                 </button>
@@ -85,7 +85,7 @@ const ClientDashboardPage = () => {
             {/* Botón flotante solo visible en móviles */}
             <button
                 className="sm:hidden fixed bottom-4 right-4 z-50 w-14 h-14 flex items-center justify-center bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition duration-200 ease-in-out"
-                onClick={() => console.log('Logout')}
+                onClick={() => logout()}
                 title="Cerrar sesión"
             >
                 <ArrowLeftStartOnRectangleIcon className="h-7 w-7" />
