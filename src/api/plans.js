@@ -39,7 +39,7 @@ export const createPlan = async (planData) => {
         return response.data;
     } catch (error) {
         console.error('Error al crear plan de pago:', error.response?.data || error.message);
-        console.error('Detalle del error del plan:', error.response?.data?.detail); 
+        console.error('Detalle del error del plan:', error.response?.data?.detail);
         throw error;
     }
 };
@@ -83,7 +83,7 @@ export const getPlanByDeviceId = async (deviceId) => {
     try {
 
         const params = { device_id: deviceId };
-        const response = await axiosInstance.get(`/plans/`, {params});
+        const response = await axiosInstance.get(`/plans/`, { params });
         if (Array.isArray(response.data)) {
             return response.data[0]
         }
@@ -122,6 +122,21 @@ export const deletePlan = async (planId) => {
         return response.data;
     } catch (error) {
         console.error(`Error al eliminar plan de pago con ID ${planId}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Metodo para descargar contrato
+ */
+export const downloadContract = async (planId) => {
+    try {
+        const response = await axiosInstance.get(`/plans/download-pdf/${planId}`, {
+            responseType: 'blob', // <-- esto es lo importante
+        });
+        return response.data; // Esto será un Blob
+    } catch (error) {
+        console.error(`Error al descargar contrato con ID ${planId}:`, error.response?.data || error.message);
         throw error;
     }
 };

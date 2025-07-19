@@ -3,9 +3,11 @@ import { ChevronLeftIcon, DocumentArrowUpIcon } from '@heroicons/react/24/outlin
 import { toast } from 'react-toastify';
 // Importa tu nuevo componente generador de PDF
 import ContractPDFGenerator from '../contract/ContractPDFGenerator'; // ¡Asegúrate de que esta ruta sea correcta!
+import { PDF_SIZE_CONTRACT } from '../../../common/utils/const';
 
 const Step4Contract = ({ onNext, onBack, initialData }) => {
     const [contractFile, setContractFile] = useState(initialData.signedContractFile || null);
+    console.log("INITAL DATA USER 4: ", initialData)
     // Ya no necesitamos isLoadingContract ni contractUrl aquí, porque ContractPDFGenerator los manejará internamente.
     // Aunque, si quieres mostrar un loader o un link de descarga ANTES de que el usuario haga click en generar,
     // podríamos mantener un estado de URL aquí y pasar una prop para el link de descarga.
@@ -25,16 +27,21 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
     // ya que el botón de generar estará en el ContractPDFGenerator.
 
     const handleFileChange = (event) => {
+        console.log('SIS PDDF');
         const file = event.target.files[0];
         if (file && file.type === "application/pdf") {
-            if (file.size > 10 * 1024 * 1024) { // Límite de 10MB
+            console.log('MUCHO PESOS');
+            if (file.size > PDF_SIZE_CONTRACT) { // Límite de 10MB
                 toast.error("El archivo excede el tamaño máximo de 10MB.");
                 setContractFile(null);
             } else {
+                console.log('SELECCIONA CARGADP');
+
                 setContractFile(file);
                 toast.success(`Archivo "${file.name}" cargado correctamente.`);
             }
         } else {
+            console.log('ERROR PDF');
             setContractFile(null);
             toast.error("Por favor, selecciona un archivo PDF válido.");
         }
@@ -68,15 +75,15 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
                     // ...etc.
 
                     // Datos del cliente (borrower)
-                    borrowerName={`${customer.name} ${customer.lastName}`}
-                    borrowerDNI={customer.identificationNumber}
-                    borrowerPhone={customer.phoneNumber}
+                    borrowerName={`${customer.first_name || ''} ${customer.last_name || ''}`}
+                    borrowerDNI={customer.dni}
+                    borrowerPhone={customer.phone}
                     borrowerEmail={customer.email}
                     borrowerAddress={customer.address}
 
                     // Datos del dispositivo
                     equipment={{
-                        brand: device.brand,
+                        brand: device.product_name,
                         model: device.model,
                         imei: device.imei
                     }}
@@ -88,8 +95,8 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
                     generatedInstallments={initialData.generatedInstallments} // Las cuotas generadas del Paso 3
 
                     // Datos del vendedor (authenticatedUser)
-                    representativeName={`${authenticatedUser.name} ${authenticatedUser.lastName}`}
-                    representativeDNI={authenticatedUser.identificationNumber || 'N/A'} // Asumiendo que el usuario autenticado tiene DNI
+                    representativeName={`${authenticatedUser.first_name} ${authenticatedUser.last_name}`}
+                    representativeDNI={authenticatedUser.dni || 'N/A'} // Asumiendo que el usuario autenticado tiene DNI
                     representativePhone={authenticatedUser.phone || 'N/A'} // Asumiendo que tiene teléfono
                     representativeEmail={authenticatedUser.email}
                 // contractDate ya se usa en ContractPDFGenerator como new Date() por defecto

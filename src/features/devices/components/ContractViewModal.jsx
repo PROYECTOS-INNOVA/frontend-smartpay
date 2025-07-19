@@ -7,9 +7,9 @@ const ContractViewModal = ({ isOpen, onClose, contractUrl }) => {
     return (
         // Add a higher z-index here
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-11/12 h-5/6 max-w-4xl flex flex-col">
+            <div className="bg-white p-6 rounded-2xl shadow-2xl w-[90vw] h-[98vh] max-w-7xl flex flex-col">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-semibold text-gray-800">Ver Contrato</h2>
+                    <h2 className="text-2xl font-semibold text-gray-800">Contrato</h2>
                     <button
                         onClick={onClose}
                         className="text-gray-500 hover:text-gray-700 text-3xl leading-none"

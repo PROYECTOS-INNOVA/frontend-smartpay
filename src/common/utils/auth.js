@@ -18,6 +18,13 @@ export const getUserRoleFromToken = () => {
     return null;
 };
 
+/**
+ * FUnción para mostrar un alert si el usuario es nuevo y permitir  enviar enlace por correo para recuperar contraseña.   
+ * @param {*} user 
+ * @param {*} setIsNew 
+ * @param {*} logout 
+ * @param {*} navigate 
+ */
 export const showNewUserAlert = async (user, setIsNew, logout,  navigate) => {
     if (user.state === 'I' || user.state.toLowerCase() === 'initial') {
         setIsNew(true);
@@ -39,6 +46,15 @@ export const showNewUserAlert = async (user, setIsNew, logout,  navigate) => {
     }
 };
 
+/**
+ * Función para manejar el restablecimiento de contraseña.
+ * Muestra un alert, envía el correo y redirige al usuario a la página de login.
+ * @param {*} user 
+ * @param {*} setIsNew 
+ * @param {*} logout 
+ * @param {*} navigate 
+ * @returns 
+ */
 export const handlePasswordReset = async (user, setIsNew, logout, navigate) => {
     if (!user?.dni) return;
 

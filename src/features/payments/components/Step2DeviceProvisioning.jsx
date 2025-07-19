@@ -56,7 +56,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
     if (simulateDummyDevice) {
       toast.info('Simulando aprovisionamiento de dispositivo dummy...');
       const timer = setTimeout(() => {
-        const dummyDeviceId = uuidv4();
+        const dummyDeviceId = 'c49b53bc-d948-462b-bfa4-c76220228e2f';
         const dummyEnrolmentId = initialData.customer?.user_id ? `ENR-${initialData.customer.user_id.substring(0, 8)}-${Date.now()}` : `ENR-${uuidv4().substring(0, 8)}-${Date.now()}`;
 
         const dummyDevice = {

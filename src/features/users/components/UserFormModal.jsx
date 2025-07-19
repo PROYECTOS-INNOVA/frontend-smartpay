@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment, useRef, useCallback } from 'react
 import { Dialog, Transition } from '@headlessui/react';
 import Swal from 'sweetalert2';
 import { debounce } from 'lodash';
+import { handleChangeHelper } from '../../../common/utils/helpers';
 
 const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCountriesApi, getRegionsApi, getCitiesApi }) => {
     const [formData, setFormData] = useState({
@@ -106,7 +107,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                     setShowSuggestionsCountry(false);
                 }
             } else {
-                setCitySuggestions([]);
+                setCountrySuggestions([]);
                 setShowSuggestionsCountry(false);
             }
         }, 300),
@@ -140,7 +141,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
         debounce(async (searchTerm, selectedRegionId) => {
             if (searchTerm.length >= 0) {
                 try {
-                    const fetchedCities = await getCitiesApi({ name: searchTerm, region_id: selectedRegionId     });
+                    const fetchedCities = await getCitiesApi({ name: searchTerm, region_id: selectedRegionId });
                     // Filtrar ciudades por nombre único
                     const uniqueCities = Array.from(new Map(fetchedCities.map(city => [city.name, city])).values());
                     setCitySuggestions(uniqueCities);
@@ -163,16 +164,12 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
      * @param {*} e 
      */
     const handleCountryInputChange = (e) => {
-        console.log('handleCountryInputChange called');
-
         const { value } = e.target;
         setFormData((prev) => ({
             ...prev,
             country_name_input: value,
             country_id: '',
         }));
-        console.log('sss');
-
         debouncedFetchCountries(value);
     };
 
@@ -181,14 +178,13 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
      * @param {*} e 
      */
     const handleRegionInputChange = (e) => {
-        console.log('handleCountryInputChange AASASAS');
         const { value } = e.target;
         setFormData((prev) => ({
             ...prev,
             region_name_input: value,
             region_id: '',
         }));
-         debouncedFetchRegions(value, formData.country_id);
+        debouncedFetchRegions(value, formData.country_id);
     };
 
     /**
@@ -216,8 +212,10 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
             country_name_input: item.name,
         }));
 
-        // setCountryId(item.country_id);
-        // getRegionsApi({ country_id: item.country_id })
+        const data = await getRegionsApi({ country_id: item.country_id })
+        setRegionSuggestions(data);
+        setShowSuggestionsRegion(true);
+        
         setCountrySuggestions([]);
         setShowSuggestionsCountry(false);
     };
@@ -226,14 +224,17 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
      * Selector para selecciona region
      * @param {*} city 
      */
-    const handleRegionSelect = (item) => {
+    const handleRegionSelect = async (item) => {
         setFormData((prev) => ({
             ...prev,
             region_id: item.region_id,
             region_name_input: item.name,
         }));
-        setRegionId(item.region_id);
-        getCitiesApi({ region_id: item.region_id })
+
+        const data = await getCitiesApi({ region_id: item.region_id })
+        setCitySuggestions(data);
+        setShowSuggestions(true);
+
         setRegionSuggestions([]);
         setShowSuggestionsRegion(false);
     };
@@ -264,20 +265,12 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
         };
     }, []);
 
+    /**
+     * Cargar los cambis de formulario por medio del hepler
+     * @param {*} e 
+     */
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => {
-            const updated = {
-                ...prev,
-                [name]: value,
-            };
-            // Solo si es nuevo cliente y se está editando el DNI, actualiza también el password
-            if (isNewUser && name === 'dni') {
-                updated.username = value;
-                updated.password = value;
-            }
-            return updated;
-        });
+        handleChangeHelper(e, formData, setFormData, isNewUser);
     };
 
     const handleSubmit = (e) => {

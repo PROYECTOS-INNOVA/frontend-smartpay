@@ -32,7 +32,7 @@ const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
                             const statusText = isActive ? 'Activo' : 'Inactivo';
 
                             return (
-                                <tr key={item.user_id}>
+                                <tr key={item.id}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.nombre || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.country.name || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.tokens_disponibles || '-'}</td>

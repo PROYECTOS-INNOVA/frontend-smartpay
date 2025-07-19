@@ -8,6 +8,7 @@ import { toast } from 'react-toastify';
 // Importa tus funciones de API existentes
 import { getUsers, createUser, deleteUser, updateUser } from '../../api/users';
 import { getRoles } from '../../api/roles';
+import { getCities, getCountries, getRegions } from '../../api/cities';
 
 const CustomerManagementPage = () => {
     const [customers, setCustomers] = useState([]); // Lista completa de clientes obtenida del API
@@ -339,6 +340,9 @@ const CustomerManagementPage = () => {
                 initialData={editingCustomer}
                 onSubmit={handleSubmitCustomer}
                 roles={availableRoles}
+                getCitiesApi={getCities}
+                getRegionsApi={getRegions}
+                getCountriesApi={getCountries}
             />
         </div>
     );
