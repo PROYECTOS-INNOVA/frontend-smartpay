@@ -245,7 +245,7 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-sm">
+                        {/* <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center">
                                 <input
                                     id="remember-me"
@@ -262,7 +262,7 @@ const LoginPage = () => {
                             <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                                 ¿Olvidaste la contraseña?
                             </Link>
-                        </div>
+                        </div> */}
 
                         <button
                             type="submit"
@@ -279,13 +279,13 @@ const LoginPage = () => {
                             Probar Obtener Usuarios (Debug)
                         </button> */}
                     </form>
-
+{/* 
                     <p className="text-center text-sm text-gray-600 mt-6">
                         ¿Todavía no tienes una cuenta? {' '}
                         <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
                             Registrarse
                         </Link>
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </div>

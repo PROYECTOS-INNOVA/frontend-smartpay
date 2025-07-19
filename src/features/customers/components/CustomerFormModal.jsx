@@ -285,10 +285,10 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles }) =>
                                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email *</label>
                                             <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
                                         </div>
-                                        <div>
-                                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username *</label>
-                                            <input type="text" name="username" id="username" value={formData.dni} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-                                        </div>
+                                        {/* <div> */}
+                                            {/* <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username *</label> */}
+                                            <input type="hidden" name="username" id="username" value={formData.dni} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                        {/* </div> */}
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
                                             <input type="text" name="dni" id="dni" value={formData.dni} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />

@@ -36,10 +36,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     // (Tu lógica de navegación es buena, la mantengo igual)
     const superadminNavItems = [
         { name: 'Dashboard', icon: Squares2X2Icon, href: '/dashboard' },
-        { name: 'Gestión de Usuarios', icon: UsersIcon, href: '/user-management' },
-        { name: 'Gestión de Clientes', icon: UserGroupIcon, href: '/customers-management' },
         { name: 'Gestión de Tiendas', icon: BuildingStorefrontIcon, href: '/store-management' },
+        { name: 'Gestión de Usuarios', icon: UsersIcon, href: '/user-management' },
         { name: 'Gestión de Vendedores', icon: UserGroupIcon, href: '/vendors-management' },
+        { name: 'Gestión de Clientes', icon: UserGroupIcon, href: '/customers-management' },
         { name: 'Gestión de Dispositivos', icon: DevicePhoneMobileIcon, href: '/devices-management' },
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
         { name: 'Reportes y Análisis', icon: ChartBarIcon, href: '/reports' },
@@ -49,8 +49,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
 
     const adminNavItems = [
         { name: 'Dashboard', icon: Squares2X2Icon, href: '/dashboard' },
-        { name: 'Gestión de Clientes', icon: UserGroupIcon, href: '/customers-management' },
         { name: 'Gestión de Vendedores', icon: UserGroupIcon, href: '/vendors-management' },
+        { name: 'Gestión de Clientes', icon: UserGroupIcon, href: '/customers-management' },
         { name: 'Gestión de Dispositivos', icon: DevicePhoneMobileIcon, href: '/devices-management' },
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
         // { name: 'Gestión de Planes', icon: ClipboardDocumentListIcon, href: '/plans-management' }, // Agregado, ajusta la ruta si es diferente

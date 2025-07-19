@@ -6,7 +6,7 @@ import { useAuth } from '../../common/context/AuthProvider';
 import { toast } from 'react-toastify';
 import { getUsers, createUser, updateUser, deleteUser } from '../../api/users'; 
 import { getRoles } from '../../api/roles'; 
-import { getCities } from '../../api/cities'; 
+import { getCities, getCountries, getRegions } from '../../api/cities'; 
 import Swal from 'sweetalert2';
 
 const UserManagementPage = () => {
@@ -310,6 +310,8 @@ const UserManagementPage = () => {
                 onSubmit={handleSaveUser}
                 roles={roles}
                 getCitiesApi={getCities}
+                getRegionsApi={getRegions}
+                getCountriesApi={getCountries}
             />
         </div>
     );

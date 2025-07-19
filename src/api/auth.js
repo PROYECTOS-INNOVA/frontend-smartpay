@@ -41,9 +41,9 @@ export const resetPassword = async (data) => {
  * Enviar correo de restablecimiento de contraseña
  * @param {string} dni
  */
-export const requestPasswordReset = async (dni) => {
+export const requestPasswordReset = async (data) => {
     try {
-        const response = await axiosInstance.post(`/auth/password-reset/reset`, data);
+        const response = await axiosInstance.post(`/auth/password-reset/request`, data);
         return response.data;
     } catch (error) {
         console.error('Error en resetPassword:', error);

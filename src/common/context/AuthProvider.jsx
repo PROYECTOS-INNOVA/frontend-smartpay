@@ -139,6 +139,8 @@ export const AuthProvider = ({ children }) => {
             await fetchAndSetFullUserData(access_token);
 
             // Si todo fue bien, redirigimos al dashboard.
+            console.log("Login successful, redirecting to dashboard..." );
+            
             navigate('/dashboard');
 
         } catch (error) {

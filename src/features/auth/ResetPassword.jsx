@@ -6,7 +6,7 @@ import { EyeIcon, EyeSlashIcon, LockClosedIcon } from '@heroicons/react/24/outli
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { resetPassword } from '../../api/auth';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 // Crea una instancia de SweetAlert2 con capacidad para React
 const MySwal = withReactContent(Swal);
@@ -23,14 +23,14 @@ const ResetPassword = () => {
     const [passwordErrors, setPasswordErrors] = useState([]);
     const [searchParams] = useSearchParams();
     const token = searchParams.get('token');
-
+    const navigate = useNavigate();
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true); // Activate loading indicator
         try {
             const data = { new_password: password, token: token };
             await resetPassword(data);
-            window.location.href = '/login';
+            // navigate('/login');
         } catch (err) {
             // Errors from AuthProvider's login function are caught here.
             // AuthProvider already logs errors, but you can display a user-friendly message.
@@ -199,10 +199,10 @@ const ResetPassword = () => {
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPasswordTwo(!showPassword)}
+                                    onClick={() => setShowPasswordTwo(!showPasswordTwo)}
                                     className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
                                 >
-                                    {showPassword ? (
+                                    {showPasswordTwo ? (
                                         <EyeSlashIcon className="h-4 w-4" />
                                     ) : (
                                         <EyeIcon className="h-4 w-4" />

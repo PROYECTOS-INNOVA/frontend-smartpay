@@ -1,17 +1,82 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../common/context/AuthProvider';
 import { DeviceTabletIcon, CreditCardIcon, InformationCircleIcon, ArrowLeftStartOnRectangleIcon } from '@heroicons/react/24/outline';
 import { getPlans } from '../../api/plans';
 import { getMdmStatusClass } from './utils/shared-functions';
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+import { requestPasswordReset } from '../../api/auth';
+import { handlePasswordReset, showNewUserAlert } from '../../common/utils/auth';
+
+const MySwal = withReactContent(Swal);
 
 const ClientDashboardPage = () => {
     const { user, logout } = useAuth();
     const [customerDevices, setCustomerDevices] = useState([]);
+    const [isNew, setIsNew] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    /**
+     * Metodo para resetar password
+     */
+    // const handlePasswordReset = async () => {
+    //     if (user && user.dni) {
+    //         const data = { dni: user.dni };
+
+    //         // Mostrar alerta de "procesando..."
+    //         MySwal.fire({
+    //             title: 'Procesando...',
+    //             text: 'Enviando el correo para restablecer la contraseña.',
+    //             allowOutsideClick: false,
+    //             allowEscapeKey: false,
+    //             allowEnterKey: false,
+    //             showConfirmButton: false,
+    //             didOpen: () => {
+    //                 MySwal.showLoading(); // Muestra el spinner
+    //             },
+    //         });
+
+    //         try {
+    //             await requestPasswordReset(data);
+
+    //             // Luego de procesar, mostrar el de "Correo enviado"
+    //             await MySwal.fire({
+    //                 icon: 'success',
+    //                 title: '¡Correo enviado!',
+    //                 text: 'Vuelve a iniciar sesión cuando cambies tu contraseña.',
+    //                 showConfirmButton: true,
+    //                 allowOutsideClick: false,
+    //                 allowEscapeKey: false,
+    //                 allowEnterKey: false,
+    //                 backdrop: true,
+    //                 confirmButtonText: 'Ya he cambiado mi contraseña.',
+    //             }).then(async (result) => {
+    //                 if (result.isConfirmed) {
+    //                     await logout();
+    //                     setIsNew(false);
+    //                 }
+    //             });
+
+    //         } catch (error) {
+    //             await MySwal.fire({
+    //                 icon: 'error',
+    //                 title: 'Error',
+    //                 text: 'No se pudo enviar el correo. Intenta de nuevo más tarde.',
+    //                 confirmButtonText: 'Entendido',
+    //             });
+    //         }
+    //     }
+    // };
+
+    const navigate = useNavigate();
+    const fetchUserData = async () => {
+        await showNewUserAlert(user, setIsNew, logout, navigate);
+    }
+
     useEffect(() => {
+        fetchUserData()
         setLoading(true);
         setError(null);
 
@@ -43,12 +108,28 @@ const ClientDashboardPage = () => {
                 <p className="text-gray-600">Cargando tus dispositivos...</p>
             </div>
         );
-    } else if (customerDevices.length === 0) {
+    } else if (customerDevices.length === 0 && !isNew) {
         return (
-            <div className="bg-white p-6 rounded-lg shadow text-center mx-auto my-8 max-w-md">
-                <InformationCircleIcon className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">No tienes dispositivos asociados.</h2>
-                <p className="text-gray-600">Por favor, contacta al soporte de SmartPay si crees que esto es un error.</p>
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 p-4">
+                <div className="bg-white p-8 sm:p-10 rounded-2xl shadow-2xl max-w-xl w-full text-center border border-blue-200">
+                    <InformationCircleIcon className="h-16 w-16 text-blue-500 mx-auto mb-6 animate-pulse" />
+
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3">
+                        No tienes dispositivos asociados
+                    </h2>
+
+                    <p className="text-gray-600 mb-6 text-base sm:text-lg">
+                        Si crees que esto es un error, por favor contacta al soporte de <span className="font-semibold text-blue-600">SmartPay</span>.
+                    </p>
+
+                    <button
+                        className="mt-4 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm sm:text-base font-semibold text-white bg-red-500 hover:bg-red-600 rounded-full shadow-lg hover:shadow-xl transition duration-200 ease-in-out"
+                        onClick={() => logout()}
+                    >
+                        <ArrowLeftStartOnRectangleIcon className="h-6 w-6" />
+                        <span>Regresar</span>
+                    </button>
+                </div>
             </div>
         );
     }
