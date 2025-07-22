@@ -22,12 +22,17 @@
   --nav-inverse-alt: #ffffff;
 }
 
+
+
+html,
 body {
   font: 1rem/1.7 "Inter", sans-serif;
   background-color: var(--bs-body-bg);
   color: var(--bs-body-color);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .site-wrap {
@@ -62,9 +67,9 @@ h4,
 h5,
 h6 {
   color: var(--bs-heading-color);
-}´
+}
 
-p{
+´ p {
   font-size: 35px;
 }
 
@@ -884,7 +889,7 @@ p{
   font-weight: 700;
 }
 
-.hero-description{
+.hero-description {
   font-size: 20px;
 }
 
@@ -1369,13 +1374,17 @@ p{
   font-size: 13.5px;
 }
 
+/* --- Estilos del Botón Volver Arriba (ya existentes, solo para referencia) --- */
+/* --- BOTÓN VOLVER ARRIBA (#back-to-top) --- */
 #back-to-top {
   position: fixed;
   bottom: 0px;
+  /* Cuando está invisible */
   right: 20px;
   visibility: hidden;
   opacity: 0;
   background-color: var(--bs-primary);
+  /* Asumo que tienes esta variable de Bootstrap */
   color: white;
   border: none;
   border-radius: 50%;
@@ -1387,7 +1396,9 @@ p{
   transition: all 0.3s ease-in-out;
   z-index: 1000;
   width: 40px;
+  /* Ancho del botón */
   height: 40px;
+  /* Alto del botón */
 }
 
 #back-to-top i {
@@ -1401,6 +1412,285 @@ p{
 
 #back-to-top.show {
   bottom: 20px;
+  /* Cuando está visible */
   opacity: 1;
   visibility: visible;
+}
+
+/* --- CONTENEDOR FLOTANTE PARA EL BOTÓN DE WHATSAPP --- */
+/* Este contenedor manejará la posición fija y la transición de 'bottom' */
+.whatsapp-float-container {
+  position: fixed;
+  right: 20px;
+  /* Alineado con el botón de volver arriba */
+  z-index: 1001;
+  /* Ligeramente superior para que esté "encima" */
+
+  /* Importante: La propiedad 'bottom' será controlada por JavaScript */
+  /* Sin embargo, la inicializamos aquí con el valor que tendrá */
+  /* cuando el botón 'back-to-top' esté oculto */
+  bottom: 80px;
+  transition: bottom 0.3s ease-in-out;
+  /* Transición suave para el 'bottom' */
+}
+
+/* --- ESTILOS DEL BOTÓN DE WHATSAPP (Desde Uiverse.io) --- */
+.Btn {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  width: 40px;
+  /* Tamaño inicial, ajustado a 40px como en tus estilos anteriores */
+  height: 40px;
+  /* Tamaño inicial, ajustado a 40px como en tus estilos anteriores */
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition-duration: 0.3s;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+  background-color: #00d757;
+  /* Verde de WhatsApp */
+}
+
+.sign {
+  width: 100%;
+  transition-duration: 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sign svg {
+  width: 25px;
+  /* Tamaño del icono SVG */
+}
+
+.sign svg path {
+  fill: white;
+}
+
+.text.text-buttom {
+  position: absolute;
+  right: 0%;
+  width: 0%;
+  opacity: 0;
+  color: white;
+  font-size: 1em;
+  /* Ajustado para que quepa mejor en el ancho de expansión */
+  font-weight: 600;
+  transition-duration: 0.3s;
+  white-space: nowrap;
+  /* Evita que el texto se rompa */
+}
+
+.Btn:hover {
+  width: 150px;
+  /* Ancho de expansión al hacer hover, ajustado */
+  border-radius: 40px;
+  transition-duration: 0.3s;
+}
+
+.Btn:hover .sign {
+  width: 30%;
+  transition-duration: 0.3s;
+  padding-left: 10px;
+}
+
+.Btn:hover .text {
+  opacity: 1;
+  width: 70%;
+  transition-duration: 0.3s;
+  padding-right: 10px;
+}
+
+.Btn:active {
+  transform: translate(2px, 2px);
+}
+
+/* --- ESTILOS DEL TOOLTIP DE WHATSAPP (Personalizado con Bootstrap) --- */
+.whatsapp-tooltip {
+  --bs-tooltip-bg: white;
+  /* Fondo blanco */
+  --bs-tooltip-color: black;
+  /* Texto negro */
+  --bs-tooltip-opacity: 1;
+  /* Asegura que no sea transparente */
+}
+
+.whatsapp-tooltip .tooltip-inner {
+  border: 1px solid #ccc;
+  /* Borde suave */
+}
+
+/* Ajustar el color de la flecha si es necesario para el fondo blanco */
+.whatsapp-tooltip.bs-tooltip-start .tooltip-arrow::before {
+  border-left-color: white;
+  /* Flecha blanca para el fondo blanco */
+}
+
+/* --- MEDIA QUERIES PARA RESPONSIVIDAD --- */
+@media (max-width: 768px) {
+
+  /* Ajustes para el botón "volver arriba" en móviles */
+  #back-to-top {
+    right: 15px;
+    /* Ajusta para móviles */
+    width: 35px;
+    height: 35px;
+    padding: 8px;
+  }
+
+  #back-to-top i {
+    font-size: 20px;
+  }
+
+  #back-to-top.show {
+    bottom: 15px;
+    /* Ajusta para móviles */
+  }
+
+  /* Ajustes para el CONTENEDOR de WhatsApp en móviles */
+  .whatsapp-float-container {
+    right: 15px;
+    bottom: 15px;
+    /* Posición inicial para móviles (cuando back-to-top está oculto) */
+  }
+
+  /* Ajustes del tamaño inicial y de hover del botón .Btn en móviles */
+  .Btn {
+    width: 40px;
+    /* Tamaño inicial en móvil */
+    height: 40px;
+    /* Tamaño inicial en móvil */
+  }
+
+  .Btn .sign svg {
+    width: 20px;
+    /* Tamaño del icono SVG en móvil */
+  }
+
+  .Btn:hover {
+    width: 130px;
+    /* Ancho de expansión al hacer hover en móvil */
+  }
+}
+
+
+/* Estilos generales de la sección del banner */
+.work-with-us-banner {
+  padding: 60px 0;
+  /* Espaciado interno de la sección */
+  /* background-color: #f8f9fa; */
+  /* Un color de fondo si no quieres imagen */
+}
+
+.work-with-us-banner .content {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  /* Degradado de fondo azul, puedes cambiarlo */
+  padding: 30px;
+  /* Espaciado interno del contenido */
+  position: relative;
+  overflow: hidden;
+  /* Importante para los bordes redondeados internos */
+  color: white;
+  /* Color de texto predeterminado para el contenido */
+  justify-content: center;
+  /* Centra el contenido horizontalmente */
+  align-items: center;
+  /* Centra el contenido verticalmente */
+  flex-direction: column;
+  /* Apila el título y el botón verticalmente */
+  text-align: center;
+  /* Asegura que el texto esté centrado */
+}
+
+/* Estilos para los bordes redondeados "decorativos" */
+.work-with-us-banner .rounded-borders {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  /* Asegura que no interfiera con clics */
+}
+
+.work-with-us-banner .rounded-border-1,
+.work-with-us-banner .rounded-border-2,
+.work-with-us-banner .rounded-border-3 {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.1;
+  /* Transparencia para que sean sutiles */
+  background-color: rgba(255, 255, 255, 0.5);
+  /* Color de los bordes internos */
+}
+
+.work-with-us-banner .rounded-border-1 {
+  width: 150px;
+  height: 150px;
+  top: -50px;
+  left: -50px;
+}
+
+.work-with-us-banner .rounded-border-2 {
+  width: 200px;
+  height: 200px;
+  bottom: -80px;
+  right: -80px;
+}
+
+.work-with-us-banner .rounded-border-3 {
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  left: 10%;
+  transform: translateY(-50%);
+}
+
+/* Estilos para el botón personalizado */
+.work-with-us-banner .custom-banner-btn {
+  background-color: #ffffff;
+  /* Fondo blanco */
+  color: #007bff;
+  /* Texto azul para que contraste */
+  border-color: #ffffff;
+  /* Borde blanco */
+  font-weight: bold;
+  padding: 12px 30px;
+  border-radius: 50px;
+  /* Bordes más redondeados para un aspecto moderno */
+  transition: all 0.3s ease;
+}
+
+.work-with-us-banner .custom-banner-btn:hover {
+  background-color: #e2e6ea;
+  /* Un gris claro al pasar el ratón */
+  color: #e2e6ea;
+  /* Azul más oscuro al pasar el ratón */
+  border-color: #e2e6ea;
+  transform: translateY(-2px);
+  /* Pequeño efecto de elevación */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Media queries para adaptar el banner a diferentes tamaños de pantalla */
+@media (max-width: 768px) {
+  .work-with-us-banner .content {
+    padding: 20px;
+  }
+
+  .work-with-us-banner .fs-1 {
+    /* Ajuste para el tamaño de fuente del título en móviles */
+    font-size: 2.5rem !important;
+    /* Asegura que el tamaño de fuente se ajuste */
+  }
+
+  .work-with-us-banner .custom-banner-btn {
+    padding: 10px 25px;
+    font-size: 0.9em;
+  }
 }

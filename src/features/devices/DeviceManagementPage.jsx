@@ -307,9 +307,9 @@ const DeviceManagementPage = () => {
             ) : (
                 <>
                     <h1 className="text-3xl font-bold text-gray-900 mb-6">Gestión de Dispositivos</h1>
-                    <div className="bg-white p-4 rounded-lg shadow-md overflow-x-auto">
+                    <div className="bg-white  rounded-lg shadow-md overflow-x-auto">
                         {loading ? (
-                            <p className="text-center text-gray-500">Cargando dispositivos...</p>
+                            <p className="text-center p-4 text-gray-500">Cargando dispositivos...</p>
                         ) : (
                             <DeviceTable
                                 devices={filteredDevices}

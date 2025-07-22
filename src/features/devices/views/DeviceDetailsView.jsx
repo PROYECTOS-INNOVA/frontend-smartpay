@@ -8,6 +8,7 @@ import Swal from 'sweetalert2';
 
 import { approveDeviceSim, removeDeviceSim, getSims } from '../../../api/devices';
 import NotifyModal from '../components/NotifyModal';
+import { downloadContract } from '../../../api/plans';
 
 const DeviceDetailsView = ({
     plan,
@@ -36,8 +37,9 @@ const DeviceDetailsView = ({
     const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
     const [isPaid, setIsPaid] = useState(false);
+    const [contractUrl, setContractUrl] = useState(null);
 
-    const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf'; 
+    const dummyContractUrl = 'https://www.africau.edu/images/default/sample.pdf';
 
     useEffect(() => {
         if (plan.device) {
@@ -69,7 +71,7 @@ const DeviceDetailsView = ({
 
         console.log('Value', roundedPaymentsValue);
 
-        setIsPaid(roundedPaymentsValue >= planValue);   
+        setIsPaid(roundedPaymentsValue >= planValue);
     }, [payments]);
 
     const handleChange = (e) => {
@@ -125,9 +127,18 @@ const DeviceDetailsView = ({
         }
     };
 
-    const handleOpenContractModal = () => {
-        setIsContractModalOpen(true);
+    const handleOpenContractModal = async () => {
+        toast.success('Cargando contrato...')
+        try {
+            const blob = await downloadContract(plan.plan_id);
+            const blobUrl = URL.createObjectURL(blob);
+            setContractUrl(blobUrl);
+            setIsContractModalOpen(true);
+        } catch (error) {
+            toast.error('Error cargando contrato...')
+        }
     };
+
 
     const handleCloseContractModal = () => {
         setIsContractModalOpen(false);
@@ -183,7 +194,7 @@ const DeviceDetailsView = ({
         }
     };
 
-    
+
 
     if (!plan.device) {
         return <div className="text-center py-8">Cargando detalles del dispositivo...</div>;
@@ -215,13 +226,13 @@ const DeviceDetailsView = ({
         if (index == 0) {
             return `Cuota inicial`;
         }
-        return `Cuota ${index } de ${plan.quotas}`
+        return `Cuota ${index} de ${plan.quotas}`
     };
 
     const isSuperAdmin = userRole === 'superadmin';
 
     const generalInfoFields = [
-        { key: 'name', label: 'Nombre' }, { key: 'serial_number', label: 'Serial' },
+        { key: 'product_name', label: 'Nombre' }, { key: 'serial_number', label: 'Serial' },
         { key: 'model', label: 'Modelo' }, { key: 'brand', label: 'Marca' },
         { key: 'imei', label: 'IMEI 1' }, { key: 'imei2', label: 'IMEI 2' },
         { key: 'state', label: 'Estado' }, { key: 'price', label: 'Precio', type: 'number' },
@@ -232,15 +243,15 @@ const DeviceDetailsView = ({
     ];
 
     const fieldsToExcludeFromDirectEdit = [
-        'device_id', 
-        'serial_number', 
-        'model', 
-        'brand', 
-        'imei', 
-        'product_name' , 
-        'imei_two', 
-        'created_at', 
-        'updated_at', 
+        'device_id',
+        'serial_number',
+        'model',
+        'brand',
+        'imei',
+        'product_name',
+        'imei_two',
+        'created_at',
+        'updated_at',
         'location',
         'purchase_date',
         'price',
@@ -270,7 +281,7 @@ const DeviceDetailsView = ({
 
     const paginatedActions = actionsHistory.slice(
         (currentPage - 1) * itemsPerPage,
-     currentPage * itemsPerPage
+        currentPage * itemsPerPage
     );
 
     return (
@@ -337,22 +348,22 @@ const DeviceDetailsView = ({
                                                     {getStateName(plan.device.state) || 'N/A'}
                                                 </span>
                                             ) : (
-                                                (key === 'purchase_date') ? plan.initial_date : 
-                                                (key === 'price') ? (new Intl.NumberFormat('es-CO', {
+                                                (key === 'purchase_date') ? plan.initial_date :
+                                                    (key === 'price') ? (new Intl.NumberFormat('es-CO', {
                                                         style: 'currency',
                                                         currency: 'COP',
                                                         minimumFractionDigits: 0
                                                     }).format(Number(plan.value))) :
-                                                (key === 'location') ? ( location
-                                                    ? `${location.latitude}, ${location.longitude}`
-                                                    : 'N/A') :
-                                                (key === 'vendor') ? ([plan.user?.first_name, plan.user?.middle_name, plan.user?.last_name, plan.user?.second_last_name]
-                                                            .filter(Boolean)
-                                                            .join(' ') || 'N/A'
-                                                    ) :
-                                                (key === 'created_at' || key === 'updated_at')
-                                                    ? (new Date(plan.device[key]).toLocaleString() || 'N/A')
-                                                    : (plan.device[key] || 'N/A')
+                                                        (key === 'location') ? (location
+                                                            ? `${location.latitude}, ${location.longitude}`
+                                                            : 'N/A') :
+                                                            (key === 'vendor') ? ([plan.user?.first_name, plan.user?.middle_name, plan.user?.last_name, plan.user?.second_last_name]
+                                                                .filter(Boolean)
+                                                                .join(' ') || 'N/A'
+                                                            ) :
+                                                                (key === 'created_at' || key === 'updated_at')
+                                                                    ? (new Date(plan.device[key]).toLocaleString() || 'N/A')
+                                                                    : (plan.device[key] || 'N/A')
                                             )}
                                         </p>
                                     )}
@@ -393,7 +404,7 @@ const DeviceDetailsView = ({
                             </div>
                         )}
 
-                         {/* New: Mensaje button */}
+                        {/* New: Mensaje button */}
                         {!isEditing && isSuperAdmin && (
                             <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
                                 <button
@@ -449,7 +460,7 @@ const DeviceDetailsView = ({
                 {/* Columna Derecha: Ubicación y Acciones */}
                 <div className="flex flex-col gap-6">
                     {/* Ubicación del Dispositivo */}
-                    <div className="bg-gray-50 p-6 rounded-lg shadow-inner flex-grow">
+                    <div className="bg-gray-50 p-6 rounded-lg shadow-inner flex-grow z-0">
                         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Ubicación del Dispositivo</h3>
                         {/* Aquí integramos el DeviceMapComponent */}
                         <DeviceMapComponent
@@ -485,7 +496,7 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && (
                                 <button
                                     onClick={() => onUnblock(plan.device.device_id)}
-                                     disabled={isPaid}
+                                    disabled={isPaid}
                                     className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Desbloquear
@@ -518,61 +529,61 @@ const DeviceDetailsView = ({
             <div className="mt-8 bg-gray-50 p-6 rounded-lg shadow-inner">
                 <h3 className="text-2xl font-semibold text-gray-800 mb-4">Historial de Acciones</h3>
                 {Array.isArray(actionsHistory) && actionsHistory.length > 0 ? (
-                <>
-                    <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-100">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aplicado por</th>
-                        </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                        {paginatedActions.map((action) => (
-                            <tr key={action.id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{actionLabels[action.action] || action.action}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{stateLabels[action.state] || action.state}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(action.created_at).toLocaleString()}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                 {action.applied_by
-                                    ? [action.applied_by.first_name, action.applied_by.middle_name, action.applied_by.last_name, action.applied_by.second_last_name]
-                                        .filter(Boolean)
-                                        .join(' ')
-                                    : '—'}
-                            </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                    </div>
+                    <>
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full divide-y divide-gray-200">
+                                <thead className="bg-gray-100">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acción</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha/Hora</th>
+                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aplicado por</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="bg-white divide-y divide-gray-200">
+                                    {paginatedActions.map((action) => (
+                                        <tr key={action.id}>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{actionLabels[action.action] || action.action}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{stateLabels[action.state] || action.state}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(action.created_at).toLocaleString()}</td>
+                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {action.applied_by
+                                                    ? [action.applied_by.first_name, action.applied_by.middle_name, action.applied_by.last_name, action.applied_by.second_last_name]
+                                                        .filter(Boolean)
+                                                        .join(' ')
+                                                    : '—'}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                    {/* Paginación */}
-                    {totalPages > 1 && (
-                    <div className="flex justify-center items-center mt-4 space-x-2">
-                        <button
-                            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                            disabled={currentPage === 1}
-                            >
-                            Anterior
-                        </button>
-                        <span className="text-sm text-gray-700">
-                            Página {currentPage} de {totalPages}
-                        </span>
-                        <button
-                            className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
-                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                            disabled={currentPage === totalPages}
-                        >
-                            Siguiente
-                        </button>
-                    </div>
-                    )}
-                </>
+                        {/* Paginación */}
+                        {totalPages > 1 && (
+                            <div className="flex justify-center items-center mt-4 space-x-2">
+                                <button
+                                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                                    disabled={currentPage === 1}
+                                >
+                                    Anterior
+                                </button>
+                                <span className="text-sm text-gray-700">
+                                    Página {currentPage} de {totalPages}
+                                </span>
+                                <button
+                                    className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+                                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Siguiente
+                                </button>
+                            </div>
+                        )}
+                    </>
                 ) : (
-                <p className="text-gray-600">No hay historial de acciones disponible.</p>
+                    <p className="text-gray-600">No hay historial de acciones disponible.</p>
                 )}
             </div>
 
@@ -625,7 +636,7 @@ const DeviceDetailsView = ({
                 <ContractViewModal
                     isOpen={isContractModalOpen}
                     onClose={handleCloseContractModal}
-                    contractUrl={dummyContractUrl} // Pass the contract URL here
+                    contractUrl={contractUrl} // Pass the contract URL here
                 />
             )}
 
@@ -639,7 +650,7 @@ const DeviceDetailsView = ({
                 />
             )}
 
-             {/* Modal para Ver Contrato */}
+            {/* Modal para Ver Contrato */}
             {isPaymentModalOpen && (
                 <RegisterPaymentModal
                     isOpen={isPaymentModalOpen}

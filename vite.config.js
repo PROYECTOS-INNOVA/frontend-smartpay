@@ -38,7 +38,16 @@ export default defineConfig({
             purpose: 'any maskable', // Para iconos adaptables
           },
         ],
+        screenshots: [
+          {
+            src: "screenshots/wide-image.png",
+            sizes: "1280x720",
+            type: "image/png",
+            form_factor: "wide"
+          }
+        ]
       },
+      
       workbox: {
         // Estrategias de caché
         // Cacha los assets estáticos de la aplicación

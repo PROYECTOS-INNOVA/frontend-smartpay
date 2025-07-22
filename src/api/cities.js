@@ -32,3 +32,25 @@ export const getCities = async (params = {}) => {
         throw error;
     }
 };
+
+// getCountries ahora puede recibir un parámetro 'search_term'
+export const getCountries = async (params = {}) => {
+    try {
+        const response = await axiosInstance.get('/countries/', { params });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching cities:', error);
+        throw error;
+    }
+};
+
+// getCities ahora puede recibir un parámetro 'search_term'
+export const getRegions = async (params = {}) => {
+    try {
+        const response = await axiosInstance.get('/regions/', { params });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching cities:', error);
+        throw error;
+    }
+};

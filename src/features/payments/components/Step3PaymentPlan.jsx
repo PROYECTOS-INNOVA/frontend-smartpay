@@ -2,8 +2,10 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import { CURRENCIES } from '../../../common/utils/currencies'; // Asegúrate de que la ruta sea correcta
+import { formatDisplayDate } from '../../../common/utils/helpers';
 
 const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
+    console.log("INITAL DATA 3: ", { onNext, onBack, initialData });
     // Estados para los valores numéricos REALES (para cálculos y envío)
     // Se inicializan con Number(value || 0) para asegurar que sean números,
     // pero el valor inicial 0 NO se formatea en el input de inmediato.
@@ -486,7 +488,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                                             {installment.number}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {new Date(installment.dueDate).toLocaleDateString(CURRENCIES[selectedCurrency]?.locale || 'es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                            {formatDisplayDate(new Date(installment.dueDate))}
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {formatCurrency(installment.amount)}

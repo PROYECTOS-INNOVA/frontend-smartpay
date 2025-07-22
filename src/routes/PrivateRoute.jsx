@@ -6,8 +6,8 @@ const PrivateRoute = ({ allowedRoles }) => {
     const { user } = useAuth();
 
     if (!user) {
-        console.warn("Acceso denegado: Usuario no autenticado. Redirigiendo a /login.");
-        return <Navigate to="/login" replace />;
+        console.warn("Acceso denegado: Usuario no autenticado. Redirigiendo a /landing.");
+        return <Navigate to="/landing" replace />;
     }
 
     if (allowedRoles && !allowedRoles.includes(user.role)) {

@@ -1,8 +1,23 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Cards from '../../common/components/ui/Cards';
 import { PieChart, BarChart } from '../../common/components/ui/Charts';
+import { useAuth } from '../../common/context/AuthProvider';
+import { showNewUserAlert } from '../../common/utils/auth';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
+    const { user, logout } = useAuth();
+    const [isNew, setIsNew] = useState(false);
+    const navigate = useNavigate();
+
+    const fetchUserData = async () => {
+        await showNewUserAlert(user, setIsNew, logout, navigate);
+    }
+
+    useEffect(() => {
+        fetchUserData();
+    }, [])
+
     const stats = useMemo(() => ({
         activeDevices: 1245,
         blockedDevices: 87,

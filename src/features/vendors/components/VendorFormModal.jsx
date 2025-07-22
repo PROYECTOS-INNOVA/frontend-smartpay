@@ -3,8 +3,9 @@ import { Dialog, Transition } from '@headlessui/react';
 import Swal from 'sweetalert2';
 import { debounce } from 'lodash';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import { handleChangeHelper } from '../../../common/utils/helpers';
 
-const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCitiesApi }) => {
+const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCountriesApi, getRegionsApi, getCitiesApi }) => {
     const [formData, setFormData] = useState({
         first_name: '',
         middle_name: '',
@@ -23,7 +24,11 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
         password: '',
     });
     const [isNewVendor, setIsNewVendor] = useState(false);
+    const [countrySuggestions, setCountrySuggestions] = useState([]);
+    const [regionSuggestions, setRegionSuggestions] = useState([]);
     const [citySuggestions, setCitySuggestions] = useState([]);
+    const [showSuggestionsCountry, setShowSuggestionsCountry] = useState(false);
+    const [showSuggestionsRegion, setShowSuggestionsRegion] = useState(false);
     const [showSuggestions, setShowSuggestions] = useState(false);
     const cityInputRef = useRef(null);
 
@@ -35,6 +40,8 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
     useEffect(() => {
         if (isOpen) {
             if (initialData) {
+                console.log("Initial Data:", initialData);
+
                 // Modo edición
                 setIsNewVendor(false);
                 setFormData({
@@ -49,6 +56,11 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                     phone: initialData.phone || '',
                     address: initialData.address || '',
                     city_id: initialData.city?.city_id || '',
+                    country_id_id: initialData?.city?.region?.country?.country_id || '',
+                    region_id: initialData.city?.region?.region_id || '',
+                    city_name_input: initialData.city?.name || '',
+                    country_name_input: initialData.city.region.country?.name || '',
+                    region_name_input: initialData.city.region?.name || '',
                     city_name_input: initialData.city?.name || '',
                     role_id: initialData.role?.role_id || vendorRoleId || '',
                     state: initialData.state || 'Active',
@@ -71,25 +83,77 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                     city_id: '',
                     city_name_input: '',
                     role_id: vendorRoleId || '',
-                    state: 'Active',
+                    state: 'Inital',
                     password: '',
                 });
             }
+            setCountrySuggestions([]);
+            setRegionSuggestions([]);
             setCitySuggestions([]);
+            setShowSuggestionsCountry(false);
+            setShowSuggestionsRegion(false);
             setShowSuggestions(false);
         }
     }, [initialData, isOpen, vendorRoleId]);
-
-    const debouncedFetchCities = useCallback(
+    // Debounced function to fetch PAIS
+    const debouncedFetchCountries = useCallback(
         debounce(async (searchTerm) => {
-            if (searchTerm.length >= 2) {
+            if (searchTerm.length >= 0) {
                 try {
-                    const fetchedCities = await getCitiesApi({ search_term: searchTerm });
+                    const fetchedCities = await getCountriesApi({ name: searchTerm });
+                    console.log("Fetched countries:", fetchedCities); // Añadido para depuración
+
+                    // Filtrar ciudades por nombre único
+                    const uniqueCities = Array.from(new Map(fetchedCities.map(city => [city.name, city])).values());
+                    setCountrySuggestions(uniqueCities);
+                    setShowSuggestionsCountry(true);
+                } catch (error) {
+                    console.error("Error fetching cities:", error); // Añadido para depuración
+                    setCountrySuggestions([]);
+                    setShowSuggestionsCountry(false);
+                }
+            } else {
+                setCountrySuggestions([]);
+                setShowSuggestionsCountry(false);
+            }
+        }, 300),
+        [getCountriesApi]
+    );
+
+    // Debounced function to fetch Region
+    const debouncedFetchRegions = useCallback(
+        debounce(async (searchTerm, selectedCountryId) => {
+            if (searchTerm.length >= 0) {
+                try {
+                    const fetchedCities = await getRegionsApi({ name: searchTerm, country_id: selectedCountryId });
+                    // Filtrar ciudades por nombre único
+                    const uniqueCities = Array.from(new Map(fetchedCities.map(city => [city.name, city])).values());
+                    setRegionSuggestions(uniqueCities);
+                    setShowSuggestionsRegion(true);
+                } catch (error) {
+                    console.error("Error fetching cities:", error); // Añadido para depuración
+                    setRegionSuggestions([]);
+                    setShowSuggestionsRegion(false);
+                }
+            } else {
+                setRegionSuggestions([]);
+                setShowSuggestionsRegion(false);
+            }
+        }, 300),
+        [getRegionsApi]
+    );
+    // Debounced function to fetch cities
+    const debouncedFetchCities = useCallback(
+        debounce(async (searchTerm, selectedRegionId) => {
+            if (searchTerm.length >= 0) {
+                try {
+                    const fetchedCities = await getCitiesApi({ name: searchTerm, region_id: selectedRegionId });
+                    // Filtrar ciudades por nombre único
                     const uniqueCities = Array.from(new Map(fetchedCities.map(city => [city.name, city])).values());
                     setCitySuggestions(uniqueCities);
                     setShowSuggestions(true);
                 } catch (error) {
-                    console.error("Error fetching cities:", error);
+                    console.error("Error fetching cities:", error); // Añadido para depuración
                     setCitySuggestions([]);
                     setShowSuggestions(false);
                 }
@@ -101,16 +165,92 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
         [getCitiesApi]
     );
 
+    /**
+     * handle para PAIS
+     * @param {*} e 
+     */
+    const handleCountryInputChange = (e) => {
+        const { value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            country_name_input: value,
+            country_id: '',
+        }));
+        debouncedFetchCountries(value);
+    };
+
+    /**
+     * Handles para Region
+     * @param {*} e 
+     */
+    const handleRegionInputChange = (e) => {
+        const { value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            region_name_input: value,
+            region_id: '',
+        }));
+        debouncedFetchRegions(value, formData.country_id);
+    };
+
+    /**
+     * Handle City
+     * @param {*} e 
+     */
     const handleCityInputChange = (e) => {
         const { value } = e.target;
         setFormData((prev) => ({
             ...prev,
             city_name_input: value,
-            city_id: '',
+            city_id: '', // Reset city_id when user types
         }));
-        debouncedFetchCities(value);
+        debouncedFetchCities(value, formData.region_id);
     };
 
+
+    /**
+  * Selector para sleccionar pais
+  * @param {*} city 
+  */
+    const handleCountrySelect = async (item) => {
+        console.log(item);
+        setFormData((prev) => ({
+            ...prev,
+            country_id: item.country_id,
+            country_name_input: item.name,
+        }));
+
+        const data = await getRegionsApi({ country_id: item.country_id })
+        setRegionSuggestions(data);
+        setShowSuggestionsRegion(true);
+
+        setCountrySuggestions([]);
+        setShowSuggestionsCountry(false);
+    };
+
+    /**
+     * Selector para selecciona region
+     * @param {*} city 
+     */
+    const handleRegionSelect = async (item) => {
+        setFormData((prev) => ({
+            ...prev,
+            region_id: item.region_id,
+            region_name_input: item.name,
+        }));
+
+        const data = await getCitiesApi({ region_id: item.region_id })
+        setCitySuggestions(data);
+        setShowSuggestions(true);
+
+        setRegionSuggestions([]);
+        setShowSuggestionsRegion(false);
+    };
+
+    /**
+     * Selector para seleccionar ciudad
+     * @param {*} city 
+     */
     const handleCitySelect = (city) => {
         setFormData((prev) => ({
             ...prev,
@@ -133,12 +273,12 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
         };
     }, []);
 
+    /**
+     * Capturar cambios en los campos del formulario
+     * @param {*} e 
+     */
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData((prev) => ({
-            ...prev,
-            [name]: value,
-        }));
+        handleChangeHelper(e, formData, setFormData, isNewVendor);
     };
 
     const handleSubmit = (e) => {
@@ -258,10 +398,10 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                                             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email *</label>
                                             <input type="email" name="email" id="email" value={formData.email} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm" />
                                         </div>
-                                        <div>
-                                            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username *</label>
-                                            <input type="text" name="username" id="username" value={formData.username} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm" />
-                                        </div>
+                                        {/* <div> */}
+                                        {/* <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username *</label> */}
+                                        <input type="hidden" name="username" id="username" value={formData.username} onChange={handleChange} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm" />
+                                        {/* </div> */}
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
                                             <input type="text" name="dni" id="dni" value={formData.dni} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm" />
@@ -281,6 +421,81 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                                         </div>
 
                                         <div className="relative" ref={cityInputRef}>
+                                            <label htmlFor="country_name_input" className="block text-sm font-medium text-gray-700">País *</label>
+                                            <input
+                                                type="text"
+                                                name="country_name_input"
+                                                id="country_name_input"
+                                                value={formData.country_name_input}
+                                                onChange={handleCountryInputChange}
+                                                onFocus={() => {
+                                                    if (formData.country_name_input.length >= 2) {
+                                                        setShowSuggestionsCountry(true);
+                                                    }
+                                                }}
+                                                autoComplete='off'
+                                                placeholder="Busca y selecciona una ciudad"
+                                                required
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                            />
+                                            {showSuggestionsCountry && countrySuggestions.length > 0 && (
+                                                < ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {countrySuggestions.map((item) => (
+                                                        <li
+                                                            key={item.country_id}
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                            onClick={() => handleCountrySelect(item)}
+                                                        >
+                                                            {item.name}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                            {!formData.country_id && formData.country_input_name && !showSuggestionsCountry && (
+                                                <p className="mt-1 text-xs text-red-500">
+                                                    Por favor, selecciona un país de las sugerencias.
+                                                </p>
+                                            )}
+                                        </div>
+                                        <div className="relative" ref={cityInputRef}>
+                                            <label htmlFor="region_name_input" className="block text-sm font-medium text-gray-700">Región *</label>
+                                            <input
+                                                type="text"
+                                                name="region_name_input"
+                                                id="region_name_input"
+                                                value={formData.region_name_input}
+                                                onChange={handleRegionInputChange}
+                                                onFocus={() => {
+                                                    if (formData.region_name_input.length >= 2) {
+                                                        setShowSuggestionsRegion(true);
+                                                    }
+                                                }}
+                                                autoComplete='off'
+                                                placeholder="Busca y selecciona una ciudad"
+                                                required
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+                                            />
+                                            {showSuggestionsRegion && regionSuggestions.length > 0 && (
+                                                < ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                                    {regionSuggestions.map((item) => (
+                                                        <li
+                                                            key={item.region_id}
+                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                            onClick={() => handleRegionSelect(item)}
+                                                        >
+                                                            {item.name}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            )}
+                                            {!formData.region_id && formData.region_name_input && !showSuggestionsRegion && (
+                                                <p className="mt-1 text-xs text-red-500">
+                                                    Por favor, selecciona una region de las sugerencias.
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className="relative" ref={cityInputRef}>
                                             <label htmlFor="city_name_input" className="block text-sm font-medium text-gray-700">Ciudad *</label>
                                             <input
                                                 type="text"
@@ -296,7 +511,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                                                 autoComplete='off'
                                                 placeholder="Busca y selecciona una ciudad"
                                                 required
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm"
+                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />
                                             {showSuggestions && citySuggestions.length > 0 && (
                                                 <ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
@@ -312,21 +527,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                                                 </ul>
                                             )}
                                         </div>
-
-                                        <div>
-                                            <label htmlFor="role_name_display" className="block text-sm font-medium text-gray-700">Rol *</label>
-                                            <input
-                                                type="text"
-                                                id="role_name_display"
-                                                value="Vendedor"
-                                                disabled
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm bg-gray-100 text-gray-500 sm:text-sm cursor-not-allowed"
-                                                title="Este campo está predefinido como 'Vendedor' para este formulario."
-                                            />
-                                            <input type="hidden" name="role_id" value={formData.role_id} />
-                                        </div>
-
-                                        {isNewVendor && (
+                                        {/* {isNewVendor && (
                                             <div>
                                                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña *</label>
                                                 <input
@@ -339,23 +540,24 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCit
                                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm"
                                                 />
                                             </div>
+                                        )} */}
+                                        {!isNewVendor && (
+                                            <div>
+                                                <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
+                                                <select
+                                                    name="state"
+                                                    id="state"
+                                                    value={formData.state}
+                                                    onChange={handleChange}
+                                                    required
+                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm"
+                                                >
+                                                    <option value="Active">Activo</option>
+                                                    <option value="Inactive">Inactivo</option>
+                                                    <option value="Initial">Nuevo</option>
+                                                </select>
+                                            </div>
                                         )}
-
-                                        <div>
-                                            <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
-                                            <select
-                                                name="state"
-                                                id="state"
-                                                value={formData.state}
-                                                onChange={handleChange}
-                                                required
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm"
-                                            >
-                                                <option value="Active">Activo</option>
-                                                <option value="Inactive">Inactivo</option>
-                                            </select>
-                                        </div>
-
                                         <div className="mt-6 col-span-full flex justify-end gap-3">
                                             <button
                                                 type="button"

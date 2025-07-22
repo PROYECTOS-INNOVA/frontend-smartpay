@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { PAGE_SIZE } from '../../../common/utils/const';
 
-const DeviceTable = ({ devices, onViewDetails, columnFilters, onColumnFilterChange }) => {
+const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilterChange }) => {
+    const [currentPage, setCurrentPage] = useState(1);
+
+    const paginatedDevices = useMemo(() => {
+        const start = (currentPage - 1) * PAGE_SIZE;
+        return devices.slice(start, start + PAGE_SIZE);
+    }, [devices, currentPage]);
+
+    const totalPages = Math.ceil(devices.length / PAGE_SIZE);
+
     const getStatusClass = (status) => {
         switch (status) {
             case 'Active':
@@ -35,51 +45,75 @@ const DeviceTable = ({ devices, onViewDetails, columnFilters, onColumnFilterChan
     );
 
     return (
-        <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-                <tr>
-                    {renderTh('name', 'Nombre')}
-                    {renderTh('serial_number', 'Serial')}
-                    {renderTh('model', 'Modelo')}
-                    {renderTh('brand', 'Marca')}
-                    {renderTh('imei', 'IMEI 1')}
-                    {renderTh('state', 'Estado')}
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-                </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-                {devices.length === 0 ? (
+        <div className="overflow-x-auto shadow-lg sm:rounded-lg">
+            <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
                     <tr>
-                        <td colSpan="7" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
-                            No hay dispositivos para mostrar.
-                        </td>
+                        {renderTh('product_name', 'Nombre')}
+                        {renderTh('serial_number', 'Serial')}
+                        {renderTh('model', 'Modelo')}
+                        {renderTh('brand', 'Marca')}
+                        {renderTh('imei', 'IMEI 1')}
+                        {renderTh('state', 'Estado')}
+                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
-                ) : (
-                    devices.map((device) => (
-                        <tr key={device.device_id}>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.name || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.serial_number || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.model || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.brand || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.imei || 'N/A'}</td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(device.state)}`}>
-                                    {device.state || 'N/A'}
-                                </span>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <button
-                                    onClick={() => onViewDetails(device.device_id)}
-                                    className="text-blue-600 hover:text-blue-900 ml-4"
-                                >
-                                    Ver Detalles
-                                </button>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedDevices.length === 0 ? (
+                        <tr>
+                            <td colSpan="7" className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                                No hay dispositivos para mostrar.
                             </td>
                         </tr>
-                    ))
-                )}
-            </tbody>
-        </table>
+                    ) : (
+                        paginatedDevices.map((device) => (
+                            <tr key={device.device_id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.product_name || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.serial_number || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.model || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.brand || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.imei || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(device.state)}`}>
+                                        {device.state || 'N/A'}
+                                    </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button
+                                        onClick={() => onViewDetails(device.device_id)}
+                                        className="text-blue-600 hover:text-blue-900 ml-4"
+                                    >
+                                        Ver Detalles
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                </tbody>
+            </table>
+
+            {totalPages > 1 && (
+                <div className="flex justify-end items-center mt-4 space-x-4 m-2">
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                        disabled={currentPage === 1}
+                        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded disabled:opacity-50"
+                    >
+                        Anterior
+                    </button>
+                    <span className="text-sm text-gray-700">
+                        Página {currentPage} de {totalPages}
+                    </span>
+                    <button
+                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                        disabled={currentPage === totalPages}
+                        className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded disabled:opacity-50"
+                    >
+                        Siguiente
+                    </button>
+                </div>
+            )}
+        </div>
     );
 };
 

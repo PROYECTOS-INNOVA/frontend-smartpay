@@ -3,7 +3,10 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { DocumentArrowDownIcon } from '@heroicons/react/24/outline';
 import { CURRENCIES } from '../../../common/utils/currencies'; // Importa las divisas
+import { formatDisplayDate } from '../../../common/utils/helpers';
+import './styles/contract-style.css';
 
+import html2pdf from 'html2pdf.js';
 
 const formatNumberToWords = (number) => {
   const units = ['', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
@@ -51,7 +54,7 @@ const ContractPDFGenerator = ({
   borrowerEmail = '',
   borrowerAddress = '',
 
-  interestRate = 0, 
+  interestRate = 0,
 
   devicePrice = 0,
   paymentPlan = {
@@ -67,7 +70,7 @@ const ContractPDFGenerator = ({
     method: '',
     date: ''
   },
-  generatedInstallments = [], 
+  generatedInstallments = [],
 
   equipment = {
     brand: '',
@@ -105,80 +108,104 @@ const ContractPDFGenerator = ({
       maximumFractionDigits: 2
     }).format(numericAmount);
   }, [contractCurrency]);
+  // const generatePDF1 = async () => {
+  //   if (!contractRef.current) return;
 
+  //   setIsLoadingContract(true);
+  //   try {
+  //     const originalPadding = contractRef.current.style.padding;
+  //     const originalMargin = contractRef.current.style.margin;
+  //     const originalWidth = contractRef.current.style.width;
+  //     const originalBoxSizing = contractRef.current.style.boxSizing;
+
+  //     const margin = 25;
+
+
+  //     contractRef.current.style.padding = `${margin}mm`;
+  //     contractRef.current.style.margin = '0';
+  //     contractRef.current.style.width = '210mm';
+  //     contractRef.current.style.boxSizing = 'border-box';
+
+  //     const canvas = await html2canvas(contractRef.current, {
+  //       scale: 1.8,
+  //       useCORS: true,
+  //       allowTaint: true,
+  //       scrollX: 0,
+  //       scrollY: 0,
+  //     });
+
+  //     const imgData = canvas.toDataURL('image/jpeg');
+
+  //     const pdf = new jsPDF('p', 'mm', 'a4');
+
+  //     const pdfWidth = pdf.internal.pageSize.getWidth();
+  //     const pdfHeight = pdf.internal.pageSize.getHeight();
+
+  //     const imgWidth = canvas.width;
+  //     const imgHeight = canvas.height;
+
+  //     const ratio = pdfWidth / imgWidth;
+  //     const scaledImgHeight = imgHeight * ratio;
+
+  //     let heightLeft = scaledImgHeight;
+  //     let position = 0;
+
+  //     let pageNum = 1;
+
+  //     while (heightLeft > -1) {
+  //       if (pageNum > 1) {
+  //         pdf.addPage();
+  //       }
+
+  //       pdf.addImage(imgData, 'JPEG', 0, position, pdfWidth, scaledImgHeight);
+
+  //       pdf.setFillColor(255, 255, 255);
+  //       pdf.rect(0, 0, pdfWidth, margin, 'F');
+  //       pdf.rect(0, pdfHeight - margin, pdfWidth, margin, 'F');
+
+  //       heightLeft -= pdfHeight;
+  //       position -= pdfHeight;
+  //       pageNum++;
+  //     }
+
+  //     contractRef.current.style.padding = originalPadding;
+  //     contractRef.current.style.margin = originalMargin;
+  //     contractRef.current.style.width = originalWidth;
+  //     contractRef.current.style.boxSizing = originalBoxSizing;
+
+  //     const dateStr = contractDate.toISOString().split('T')[0];
+  //     const filename = `contrato_${borrowerDNI}_${dateStr}.pdf`;
+
+  //     pdf.save(filename);
+
+  //   } catch (error) {
+  //     console.error('Error generating PDF:', error);
+  //     alert('Error al generar el PDF. Por favor, intente nuevamente.');
+  //   } finally {
+  //     setIsLoadingContract(false);
+  //   }
+  // };
 
   const generatePDF = async () => {
     if (!contractRef.current) return;
 
     setIsLoadingContract(true);
+
     try {
-      const originalPadding = contractRef.current.style.padding;
-      const originalMargin = contractRef.current.style.margin;
-      const originalWidth = contractRef.current.style.width;
-      const originalBoxSizing = contractRef.current.style.boxSizing;
+      const element = contractRef.current;
 
-      const margin = 25; 
+      const opt = {
+        margin: [10, 7, 10, 7], // top, left, bottom, right
+        filename: `contrato_${borrowerDNI}_${contractDate.toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 1.5, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+      };
 
-
-      contractRef.current.style.padding = `${margin}mm`;
-      contractRef.current.style.margin = '0';
-      contractRef.current.style.width = '210mm';
-      contractRef.current.style.boxSizing = 'border-box';
-
-      const canvas = await html2canvas(contractRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        scrollX: 0,
-        scrollY: 0,
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-
-      const ratio = pdfWidth / imgWidth;
-      const scaledImgHeight = imgHeight * ratio;
-
-      let heightLeft = scaledImgHeight;
-      let position = 0;
-
-      let pageNum = 1;
-
-      while (heightLeft > -1) {
-        if (pageNum > 1) {
-          pdf.addPage();
-        }
-
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, scaledImgHeight);
-
-        pdf.setFillColor(255, 255, 255);
-        pdf.rect(0, 0, pdfWidth, margin, 'F');
-        pdf.rect(0, pdfHeight - margin, pdfWidth, margin, 'F');
-
-        heightLeft -= pdfHeight;
-        position -= pdfHeight;
-        pageNum++;
-      }
-
-      contractRef.current.style.padding = originalPadding;
-      contractRef.current.style.margin = originalMargin;
-      contractRef.current.style.width = originalWidth;
-      contractRef.current.style.boxSizing = originalBoxSizing;
-
-      const dateStr = contractDate.toISOString().split('T')[0];
-      const filename = `contrato_${borrowerDNI}_${dateStr}.pdf`;
-
-      pdf.save(filename);
-
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      alert('Error al generar el PDF. Por favor, intente nuevamente.');
+      await html2pdf().set(opt).from(element).save();
+    } catch (err) {
+      console.error('Error al generar PDF', err);
+      alert('Ocurrió un error al generar el PDF.');
     } finally {
       setIsLoadingContract(false);
     }
@@ -187,7 +214,7 @@ const ContractPDFGenerator = ({
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      return ''; 
+      return '';
     }
     return date.toLocaleDateString(CURRENCIES[contractCurrency]?.locale || 'es-ES', {
       day: '2-digit',
@@ -233,7 +260,7 @@ const ContractPDFGenerator = ({
 
       <div
         ref={contractRef}
-        className="bg-white border border-gray-300 shadow-lg p-8 text-sm leading-relaxed"
+        className="bg-white shadow-lg p-8 text-sm leading-relaxed"
         style={{ fontFamily: 'Times New Roman, serif' }}
       >
 
@@ -296,7 +323,8 @@ const ContractPDFGenerator = ({
         </div>
 
         {/* Main Contract */}
-        <div className="mb-8 section-to-print" style={{ pageBreakBefore: 'always' }}>
+        {/* <div className="mb-8 section-to-print" style={{ pageBreakBefore: 'always' }}> */}
+        <div className="mb-8 section-to-print" >
           <h1 className="text-xl font-bold text-center mb-6">CONTRATO DE PRÉSTAMO</h1>
           <div className="text-justify mb-6">
             <p>
@@ -408,7 +436,7 @@ const ContractPDFGenerator = ({
                   {generatedInstallments.map((row, index) => (
                     <tr key={index}>
                       <td className="border border-gray-300 p-2 text-center">{row.number}</td>
-                      <td className="border border-gray-300 p-2 text-center">{formatDate(row.dueDate)}</td>
+                      <td className="border border-gray-300 p-2 text-center">{formatDisplayDate(new Date(row.dueDate), false, false)}</td>
                       <td className="border border-gray-300 p-2 text-right">{formatCurrency(row.amount)}</td>
                     </tr>
                   ))}
@@ -445,7 +473,8 @@ const ContractPDFGenerator = ({
         </div>
 
         {/* Promissory Note */}
-        <div className="mb-8 section-to-print" style={{ pageBreakBefore: 'always' }}>
+        {/* <div className="mb-8 section-to-print" style={{ pageBreakBefore: 'always' }}> */}
+        <div className="mb-8 section-to-print" >
           <h3 className="font-bold text-center mb-4">ANEXO 2 - MODELO DE PAGARÉ</h3>
           <div className="text-center mb-4">
             <p><strong>NUMERO:</strong> 20221102989886</p>

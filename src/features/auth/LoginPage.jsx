@@ -245,7 +245,7 @@ const LoginPage = () => {
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between text-sm">
+                        {/* <div className="flex items-center justify-between text-sm">
                             <div className="flex items-center">
                                 <input
                                     id="remember-me"
@@ -262,7 +262,7 @@ const LoginPage = () => {
                             <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                                 ¿Olvidaste la contraseña?
                             </Link>
-                        </div>
+                        </div> */}
 
                         <button
                             type="submit"
@@ -271,22 +271,21 @@ const LoginPage = () => {
                         >
                             {loading ? 'Iniciando Sesión...' : 'Iniciar Sesión'}
                         </button>
-
-                        <button
+                        {/* <button
                             type="button"
                             onClick={testFetchUsers}
                             className="w-full text-blue-700 border border-blue-700 font-semibold py-3 rounded-lg shadow-md transition duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 bg-white hover:bg-blue-50 mt-4"
                         >
                             Probar Obtener Usuarios (Debug)
-                        </button>
+                        </button> */}
                     </form>
-
+{/* 
                     <p className="text-center text-sm text-gray-600 mt-6">
                         ¿Todavía no tienes una cuenta? {' '}
                         <Link to="/register" className="font-medium text-blue-600 hover:text-blue-500">
                             Registrarse
                         </Link>
-                    </p>
+                    </p> */}
                 </div>
             </div>
         </div>
