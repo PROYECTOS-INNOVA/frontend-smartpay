@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 
 import { getUsers, createUser, deleteUser, updateUser } from '../../api/users';
 import { getRoles } from '../../api/roles';
-import { getCities } from '../../api/cities';
+import { getCities, getCountries, getRegions } from '../../api/cities';
 
 const VendorManagementPage = () => {
     const [vendors, setVendors] = useState([]);
@@ -59,7 +59,7 @@ const VendorManagementPage = () => {
         setEditingVendor(null);
     };
 
-    const handleSubmitVendor = async (vendorData) => { 
+    const handleSubmitVendor = async (vendorData) => {
         Swal.fire({
             title: editingVendor ? 'Actualizando vendedor...' : 'Creando vendedor...',
             text: 'Por favor espera',
@@ -168,8 +168,9 @@ const VendorManagementPage = () => {
     };
 
     const handleToggleVendorStatus = async (vendorId, currentStatus) => {
+
         const vendorToToggle = vendors.find(vendor => vendor.user_id === vendorId);
-        if (!vendorToToggle) return;
+        if (!vendorToToggle || currentStatus.toLowerCase() == 'initial') return;
 
         const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
         const actionText = newStatus === 'Active' ? 'activar' : 'desactivar';
@@ -334,10 +335,12 @@ const VendorManagementPage = () => {
             <VendorFormModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                initialData={editingVendor} 
+                initialData={editingVendor}
                 onSubmit={handleSubmitVendor}
                 roles={availableRoles}
                 getCitiesApi={getCities}
+                getRegionsApi={getRegions}
+                getCountriesApi={getCountries}
             />
         </div>
     );

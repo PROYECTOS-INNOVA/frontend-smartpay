@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import UserTable from './components/UserTable';
-import UserFormModal from './components/UserFormModal'; 
+import UserFormModal from './components/UserFormModal';
 import { PlusIcon, UserGroupIcon, MagnifyingGlassIcon, InformationCircleIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../../common/context/AuthProvider'; 
+import { useAuth } from '../../common/context/AuthProvider';
 import { toast } from 'react-toastify';
-import { getUsers, createUser, updateUser, deleteUser } from '../../api/users'; 
-import { getRoles } from '../../api/roles'; 
-import { getCities, getCountries, getRegions } from '../../api/cities'; 
+import { getUsers, createUser, updateUser, deleteUser } from '../../api/users';
+import { getRoles } from '../../api/roles';
+import { getCities, getCountries, getRegions } from '../../api/cities';
 import Swal from 'sweetalert2';
 
 const UserManagementPage = () => {
@@ -57,7 +57,7 @@ const UserManagementPage = () => {
     }, [token, fetchUsers, fetchRoles]);
 
     const handleOpenModal = (user = null) => {
-        setEditingUser(user); 
+        setEditingUser(user);
         setIsModalOpen(true);
     };
 
@@ -115,7 +115,7 @@ const UserManagementPage = () => {
                 } else {
                     errorMessage = `Error ${status}: ${error.response.statusText || 'Error del servidor'}`;
                     if (data) {
-                        errorDetails = JSON.stringify(data, null, 2); 
+                        errorDetails = JSON.stringify(data, null, 2);
                     }
                 }
             } else if (error.request) {
@@ -130,7 +130,7 @@ const UserManagementPage = () => {
                 text: errorMessage + (errorDetails ? '\n\nDetalles:\n' + errorDetails : ''),
                 customClass: {
                     popup: 'max-w-xl',
-                    content: 'whitespace-pre-wrap' 
+                    content: 'whitespace-pre-wrap'
                 },
             });
         }
@@ -175,6 +175,8 @@ const UserManagementPage = () => {
     };
 
     const handleToggleUserStatus = async (userId, currentStatus) => {
+        if (currentStatus.toLowerCase() == 'initial') { return };
+
         const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
         const actionText = newStatus === 'Active' ? 'activar' : 'desactivar';
 

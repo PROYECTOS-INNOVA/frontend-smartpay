@@ -5,6 +5,7 @@ import { Bar, Pie } from 'react-chartjs-2';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { ArrowDownTrayIcon, FunnelIcon, CalendarDaysIcon, ChartBarIcon } from '@heroicons/react/24/outline';
+import { downloadReport, getAnalytics } from '../../api/reports';
 
 
 ChartJS.register(
@@ -18,73 +19,57 @@ ChartJS.register(
 );
 
 const ReportsPage = () => {
-    const [reportType, setReportType] = useState('weekly'); 
+    const [reportType, setReportType] = useState('weekly');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [data, setData] = useState([]);
+    const [filteredData, setFilteredDataData] = useState([]);
+    let queryFilters = {
+        start_date: startDate,
+        end_date: endDate,
+    }
 
+    /**
+     * Cargar rango de fechas iniciales
+     */
     useEffect(() => {
-
-        const generateDummyData = () => {
-            const dummyData = [];
-            const today = new Date();
-
-            for (let i = 0; i < 30; i++) { 
-                const date = new Date(today);
-                date.setDate(today.getDate() - i);
-                dummyData.push({
-                    date: date.toISOString().split('T')[0],
-                    customers: Math.floor(Math.random() * 50) + 10,
-                    devices: Math.floor(Math.random() * 30) + 5,
-                    payments: parseFloat((Math.random() * 500 + 100).toFixed(2)),
-                    vendors: Math.floor(Math.random() * 5) + 1,
-                });
-            }
-            return dummyData.reverse();
-        };
-
-        setData(generateDummyData());
-    }, []);
-
-
-    const getFilteredData = () => {
-        if (!data.length) return [];
-
-        let filtered = [...data];
+        const now = new Date();
+        let fromDate = new Date();
 
         if (reportType === 'weekly') {
-            const oneWeekAgo = new Date();
-            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-            filtered = data.filter(item => new Date(item.date) >= oneWeekAgo);
+            fromDate.setDate(now.getDate() - 7);
         } else if (reportType === 'monthly') {
-            const oneMonthAgo = new Date();
-            oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
-            filtered = data.filter(item => new Date(item.date) >= oneMonthAgo);
+            fromDate.setMonth(now.getMonth() - 1);
         } else if (reportType === 'annual') {
-            const oneYearAgo = new Date();
-            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-            filtered = data.filter(item => new Date(item.date) >= oneYearAgo);
+            fromDate.setFullYear(now.getFullYear() - 1);
         }
 
+        setStartDate(fromDate.toISOString().split('T')[0]);
+        setEndDate(now.toISOString().split('T')[0]);
+    }, [reportType]);
 
-        if (startDate && endDate) {
-            const start = new Date(startDate);
-            const end = new Date(endDate);
-            filtered = filtered.filter(item => {
-                const itemDate = new Date(item.date);
-                return itemDate >= start && itemDate <= end;
-            });
-        }
-        return filtered;
-    };
+    /**
+     * Cargar estado según fecha inicial y final
+     */
+    useEffect(() => {
+        if (!startDate || !endDate) return;
 
-    const filteredData = getFilteredData();
+        const fetchData = async () => {
+            const result = await getAnalytics(queryFilters);
+            setData(result);
+            setFilteredDataData(result.daily_data);
+        };
 
+        fetchData();
+    }, [startDate, endDate]);
 
-    const chartLabels = filteredData.map(item => item.date);
-    const totalCustomers = filteredData.reduce((sum, item) => sum + item.customers, 0);
-    const totalDevices = filteredData.reduce((sum, item) => sum + item.devices, 0);
-    const totalPayments = filteredData.reduce((sum, item) => sum + item.payments, 0);
+    const chartLabels = filteredData.map(item => item.date)
+    const totalCustomers = data.total_customers
+    const totalDevices =  data.total_devices
+    const totalPayments = data.total_payments
+
+    console.log('aaa: ', chartLabels);
+
 
     const barChartData = {
         labels: chartLabels,
@@ -152,29 +137,46 @@ const ReportsPage = () => {
         },
     };
 
-    const exportToExcel = () => {
-        const dataToExport = filteredData.map(item => ({
-            Fecha: item.date,
-            'Nuevos Clientes': item.customers,
-            'Dispositivos Activados': item.devices,
-            'Pagos Realizados (USD)': item.payments,
-            'Vendedores Activos': item.vendors,
-        }));
+    const exportToExcel = async () => {
+        // const dataToExport = filteredData.map(item => ({
+        //     Fecha: item.date,
+        //     'Nuevos Clientes': item.customers,
+        //     'Dispositivos Activados': item.devices,
+        //     'Pagos Realizados (USD)': item.payments,
+        //     'Vendedores Activos': item.vendors,
+        // }));
 
-        if (dataToExport.length === 0) {
-            alert("No hay datos para exportar.");
-            return;
+        // if (dataToExport.length === 0) {
+        //     alert("No hay datos para exportar.");
+        //     return;
+        // }
+
+        // const ws = XLSX.utils.json_to_sheet(dataToExport);
+        // const wb = XLSX.utils.book_new();
+        // XLSX.utils.book_append_sheet(wb, ws, "Reporte");
+
+        // const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        // const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
+
+        // const fileName = `reporte_${reportType}_${new Date().toISOString().split('T')[0]}.xlsx`;
+        // saveAs(dataBlob, fileName);
+
+        try {
+            const response = await downloadReport(queryFilters);
+
+            const blob = new Blob([response.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+
+            // Obtener nombre de archivo desde headers si está presente
+            const disposition = response.headers['content-disposition'];
+            const match = disposition?.match(/filename="?(.+)"?/);
+            const filename = match?.[1] || `reporte_${startDate}_${endDate}.xlsx`;
+
+            saveAs(blob, filename);
+        } catch (err) {
+            console.error('Error al exportar:', err);
         }
-
-        const ws = XLSX.utils.json_to_sheet(dataToExport);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Reporte");
-
-        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-        const dataBlob = new Blob([excelBuffer], { type: 'application/octet-stream' });
-
-        const fileName = `reporte_${reportType}_${new Date().toISOString().split('T')[0]}.xlsx`;
-        saveAs(dataBlob, fileName);
     };
 
 
@@ -251,7 +253,7 @@ const ReportsPage = () => {
                     <Bar options={barChartOptions} data={barChartData} />
                 </div>
                 <div className="bg-white shadow sm:rounded-lg p-6 flex justify-center items-center">
-                    <div style={{ maxWidth: '400px', width: '100%' }}> 
+                    <div style={{ maxWidth: '400px', width: '100%' }}>
                         <Pie options={pieChartOptions} data={pieChartData} />
                     </div>
                 </div>

@@ -132,9 +132,9 @@ export const deletePlan = async (planId) => {
 export const downloadContract = async (planId) => {
     try {
         const response = await axiosInstance.get(`/plans/download-pdf/${planId}`, {
-            responseType: 'blob', // <-- esto es lo importante
+            responseType: 'blob',
         });
-        return response.data; // Esto será un Blob
+        return response.data; //blob pdf
     } catch (error) {
         console.error(`Error al descargar contrato con ID ${planId}:`, error.response?.data || error.message);
         throw error;

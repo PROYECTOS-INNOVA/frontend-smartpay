@@ -130,9 +130,7 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
         const validationRules = {
             nombre: buildField(['required']),
             tokens_disponibles: buildField(['required', 'number', { min: 13 }]),
-            country_id: buildField(['required']),
-            back_link: buildField(['required']),
-            db_link: buildField(['required'])
+            country_id: buildField(['required'])
         };
         const { valid, errors } = await validateFields(formData, validationRules);
         
@@ -239,7 +237,7 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                                 <p className="text-red-500 text-xs mt-1">{formErrors.tokens_disponibles}</p>
                                             )}
                                         </div>
-                                        <div>
+                                        {/* <div>
                                             <label htmlFor="back_link" className="block text-sm font-medium text-gray-700">Enlace Back *</label>
                                             <input type="text" name="back_link" id="back_link" value={formData.back_link} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm" />
                                             {formErrors.back_link && (
@@ -252,7 +250,7 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                             {formErrors.db_link && (
                                                 <p className="text-red-500 text-xs mt-1">{formErrors.db_link}</p>
                                             )}
-                                        </div>
+                                        </div> */}
 
                                         {/* <div>
                                             <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>

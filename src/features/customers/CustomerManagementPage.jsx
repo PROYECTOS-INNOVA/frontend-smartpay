@@ -168,7 +168,7 @@ const CustomerManagementPage = () => {
 
     const handleToggleCustomerStatus = async (customerId, currentStatus) => {
         const customerToToggle = customers.find(customer => customer.user_id === customerId);
-        if (!customerToToggle) return;
+        if (!customerToToggle || currentStatus.toLowerCase() == 'initial' ) return;
 
         const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
         const actionText = newStatus === 'Active' ? 'activar' : 'desactivar';

@@ -30,9 +30,9 @@ const VendorTable = ({ vendors, onEdit, onDelete, onToggleStatus }) => {
                 <tbody className="bg-white divide-y divide-gray-200">
                     {paginatedVendors.length > 0 ? (
                         paginatedVendors.map((vendor) => {
-                            const isActive = vendor.state?.toLowerCase() === 'active';
-                            const statusClasses = isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800';
-                            const statusText = isActive ? 'Activo' : 'Inactivo';
+                            const isActive = vendor.state?.toLowerCase();
+                            const statusClasses = isActive == 'active' ? 'bg-green-100 text-green-800' : isActive == 'inactive' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800';
+                            const statusText = isActive == 'active' ? 'Activo' : isActive == 'inactive' ? 'Inactivo' : 'Nuevo';
 
                             return (
                                 <tr key={vendor.user_id}>
@@ -51,7 +51,7 @@ const VendorTable = ({ vendors, onEdit, onDelete, onToggleStatus }) => {
                                             title={`Cambiar a ${isActive ? 'Inactivo' : 'Activo'}`}
                                         >
                                             {statusText}
-                                            {isActive ? (
+                                            {isActive == 'active' || isActive == 'initial' ? (
                                                 <LockOpenIcon className="h-4 w-4 ml-1" />
                                             ) : (
                                                 <LockClosedIcon className="h-4 w-4 ml-1" />

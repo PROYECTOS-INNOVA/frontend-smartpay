@@ -51,8 +51,11 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                 phone: initialData.phone || '',
                 address: initialData.address || '',
                 city_id: initialData.city?.city_id || '',
-                country_name_input: initialData.country?.name || '',
-                region_name_input: initialData.region?.name || '',
+                country_id_id: initialData?.city?.region?.country?.country_id || '',
+                region_id: initialData.city?.region?.region_id || '',
+                city_name_input: initialData.city?.name || '',
+                country_name_input: initialData.city.region.country?.name || '',
+                region_name_input: initialData.city.region?.name || '',
                 city_name_input: initialData.city?.name || '',
                 role_id: initialData.role?.role_id || '',
                 state: initialData.state || 'Active',
@@ -215,7 +218,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
         const data = await getRegionsApi({ country_id: item.country_id })
         setRegionSuggestions(data);
         setShowSuggestionsRegion(true);
-        
+
         setCountrySuggestions([]);
         setShowSuggestionsCountry(false);
     };

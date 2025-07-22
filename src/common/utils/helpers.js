@@ -66,7 +66,7 @@ export const formatDisplayDate = (
 
 
 /**
- * Handle para inputs de texto PARA USUARIOS y CLIENTES
+ * Handle para inputs de texto PARA USUARIOS - CLIENTES y VENDEDORES 
  */
 export const handleChangeHelper = (e, formData, setFormData, isNewCustomer) => {
     const { name, value } = e.target;
