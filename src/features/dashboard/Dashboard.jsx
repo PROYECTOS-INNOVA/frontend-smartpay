@@ -4,6 +4,7 @@ import { PieChart, BarChart } from '../../common/components/ui/Charts';
 import { useAuth } from '../../common/context/AuthProvider';
 import { showNewUserAlert } from '../../common/utils/auth';
 import { useNavigate } from 'react-router-dom';
+import ReportsPage from '../reports/ReportsPage.jsx';
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
@@ -74,7 +75,9 @@ const Dashboard = () => {
                     <p className="text-lg sm:text-xl opacity-90">Gestión eficiente de tus dispositivos con SmartPay.</p>
                 </div>
 
-                <header className="mb-6">
+                <ReportsPage />
+
+                {/* <header className="mb-6">
                     <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Dashboard SmartPay</h1>
                 </header>
 
@@ -124,7 +127,7 @@ const Dashboard = () => {
                         barColorsMap={barColors}
                         groupMode="grouped"
                     />
-                </section>
+                </section> */}
             </main>
         </div>
     );

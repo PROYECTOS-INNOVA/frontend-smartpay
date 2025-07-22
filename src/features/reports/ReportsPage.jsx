@@ -67,6 +67,7 @@ const ReportsPage = () => {
     const totalCustomers = data.total_customers
     const totalDevices =  data.total_devices
     const totalPayments = data.total_payments
+    const totalVendor = data.total_vendors
 
     console.log('aaa: ', chartLabels);
 
@@ -92,10 +93,10 @@ const ReportsPage = () => {
     };
 
     const pieChartData = {
-        labels: ['Clientes', 'Dispositivos', 'Pagos (USD)'],
+        labels: ['Clientes', 'Dispositivos', 'Vendedores'],
         datasets: [
             {
-                data: [totalCustomers, totalDevices, totalPayments],
+                data: [totalCustomers, totalDevices, totalVendor],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.6)',
                     'rgba(54, 162, 235, 0.6)',
@@ -185,7 +186,7 @@ const ReportsPage = () => {
             <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                     <ChartBarIcon className="h-8 w-8 mr-2 text-indigo-600" />
-                    Módulo de Reportes
+                    Dashboard Smartpay
                 </h1>
                 <button
                     onClick={exportToExcel}
