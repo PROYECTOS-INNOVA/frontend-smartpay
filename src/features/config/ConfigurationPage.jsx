@@ -13,7 +13,7 @@ import Swal from 'sweetalert2';
 
 function ConfigurationPage() {
   const CLIENT_ID = "631597337466-dt7qitq7tg2022rhje5ib5sk0eua6t79.apps.googleusercontent.com";
-  const REDIRECT_URI = "https://smartpay-oficial.com:8000/api/v1/google/auth/callback";
+  const REDIRECT_URI = "https://smartpay-oficial.com:9443/api/v1/google/auth/callback";
   const SCOPE = "profile email https://www.googleapis.com/auth/userinfo.profile";
 
   const [accounts, setAccounts] = useState([]);
