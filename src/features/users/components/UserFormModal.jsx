@@ -3,6 +3,7 @@ import { Dialog, Transition } from '@headlessui/react';
 import Swal from 'sweetalert2';
 import { debounce } from 'lodash';
 import { handleChangeHelper } from '../../../common/utils/helpers';
+import { DniInput } from '../../../common/forms/inputs/dniInput';
 
 const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCountriesApi, getRegionsApi, getCitiesApi }) => {
     const [formData, setFormData] = useState({
@@ -90,7 +91,6 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
         setShowSuggestionsRegion(false);
         setShowSuggestions(false);
     }, [initialData, isOpen]);
-
 
     // Debounced function to fetch PAIS
     const debouncedFetchCountries = useCallback(
@@ -369,7 +369,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                                         {/* </div> */}
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
-                                            <input type="text" name="dni" id="dni" value={formData.dni} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                                            <DniInput handleChange={handleChangeHelper} formData={formData} setFormData={setFormData} isNewCustomer={true} />
                                         </div>
                                         <div>
                                             <label htmlFor="prefix" className="block text-sm font-medium text-gray-700">Prefijo Teléfono * </label>
@@ -377,7 +377,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                                         </div>
                                         <div>
                                             <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Teléfono *</label>
-                                            <input type="number" name="phone" id="phone" value={formData.phone} onChange={handleChange} autoComplete='off' className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
+                                            <input type="number" name="phone" id="phone" value={formData.phone} onChange={handleChange} autoComplete='off' className="no-spin mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm" />
                                         </div>
 
                                         <div className="col-span-3">

@@ -7,9 +7,9 @@ const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 // Crear una instancia de Axios con la URL base de tu API Gateway
 const axiosInstance = axios.create({
     baseURL: `${API_GATEWAY_URL}/api/v1`, // Asume que los endpoints de planes están bajo /api/v1
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    // headers: {
+    //     'Content-Type': 'application/json',
+    // },
 });
 
 // Interceptor para agregar el token de autorización
@@ -122,6 +122,19 @@ export const deletePlan = async (planId) => {
         return response.data;
     } catch (error) {
         console.error(`Error al eliminar plan de pago con ID ${planId}:`, error.response?.data || error.message);
+        throw error;
+    }
+};
+
+/**
+ * Metodo para cargar contrato
+ */
+export const uploadContract = async (planId) => {
+    try {
+        const response = await axiosInstance.post(`/plans/uplad-pdf/`);
+        return response.data; //blob pdf
+    } catch (error) {
+        console.error(`Error al cargar contrato con ID ${planId}:`, error.response?.data || error.message);
         throw error;
     }
 };

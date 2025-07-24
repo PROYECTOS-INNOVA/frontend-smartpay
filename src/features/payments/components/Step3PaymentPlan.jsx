@@ -333,9 +333,9 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="devicePrice" className="block text-sm font-medium text-gray-700">Valor del Dispositivo</label>
-                        <div className="mt-1 relative rounded-md shadow-sm">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span className="text-gray-500 sm:text-sm">
+                        <div className="relative rounded-md shadow-sm">
+                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 w-14 pointer-events-none">
+                                <span className="text-gray-500 sm:text-sm truncate">
                                     {formattedDevicePrice !== '' ? (CURRENCIES[selectedCurrency]?.symbol || '') : ''}
                                 </span>
                             </div>
@@ -346,7 +346,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                                 value={formattedDevicePrice} // Usamos el estado del string
                                 onChange={handleDevicePriceInputChange}
                                 onBlur={handleDevicePriceInputBlur}
-                                className="block w-full pl-9 pr-3 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-2"
+                                className="block w-full pl-16 pr-3 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-2"
                                 placeholder="0.00" // El placeholder ayuda visualmente cuando está vacío
                             />
                         </div>
@@ -367,7 +367,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                                 value={formattedInitialPaymentValue} // Usamos el estado del string
                                 onChange={handleInitialPaymentValueInputChange}
                                 onBlur={handleInitialPaymentValueInputBlur}
-                                className="block w-full pl-9 pr-3 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-2"
+                                className="block w-full pl-16 pr-3 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm py-2"
                                 placeholder="0.00" // El placeholder ayuda visualmente cuando está vacío
                             />
                         </div>
@@ -412,18 +412,15 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                         />
                         {errors.frecuencia_dias && <p className="mt-1 text-sm text-red-600">{errors.frecuencia_dias}</p>}
                     </div>
-                    <div>
-                        <label htmlFor="initial_date" className="block text-sm font-medium text-gray-700">Fecha de Inicio del Plan</label>
-                        <input
-                            type="date"
-                            name="initial_date"
-                            id="initial_date"
-                            value={paymentPlan.initial_date}
-                            onChange={handlePaymentPlanChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                        />
-                        {errors.initial_date && <p className="mt-1 text-sm text-red-600">{errors.initial_date}</p>}
-                    </div>
+                    <input
+                        type="date"
+                        name="initial_date"
+                        id="initial_date"
+                        value={paymentPlan.initial_date}
+                        onChange={handlePaymentPlanChange}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
                 </div>
             </div>
 
@@ -456,6 +453,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                             id="initialDate"
                             value={initialPayment.date}
                             onChange={handleInitialPaymentMethodChange}
+                             min={new Date().toISOString().split('T')[0]}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         />
                         {errors.initialDate && <p className="mt-1 text-sm text-red-600">{errors.initialDate}</p>}

@@ -16,6 +16,7 @@ const PaymentTable = ({ payments = [] }) => {
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dispositivo</th>
@@ -27,6 +28,7 @@ const PaymentTable = ({ payments = [] }) => {
                     {paginatedPayments.length > 0 ? (
                         paginatedPayments.map((payment) => (
                             <tr key={payment.payment_id}>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{`${payment.plan.user.first_name} ${payment.plan.user.middle_name} ${payment.plan.user.last_name} ${payment.plan.user.second_last_name}` || ''}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(payment.date).toLocaleDateString()}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                     {(() => {

@@ -5,6 +5,7 @@ import Swal from 'sweetalert2';
 import { debounce, set } from 'lodash';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { handleChangeHelper } from '../../../common/utils/helpers';
+import { DniInput } from '../../../common/forms/inputs/dniInput';
 
 const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCountriesApi, getRegionsApi, getCitiesApi }) => {
     const [formData, setFormData] = useState({
@@ -418,7 +419,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getC
                                         {/* </div> */}
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
-                                            <input type="text" name="dni" id="dni" value={formData.dni} onChange={handleChange} autoComplete='off' required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                            <DniInput handleChange={handleChangeHelper} formData={formData} setFormData={setFormData} isNewCustomer={true} />
                                         </div>
                                         <div>
                                             <label htmlFor="prefix" className="block text-sm font-medium text-gray-700">Prefijo Teléfono *</label>

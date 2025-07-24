@@ -108,3 +108,10 @@ export const handleChangeHelper = (e, formData, setFormData, isNewCustomer) => {
         return updated;
     });
 };
+
+/**
+ * Acceder a claves anidads para filtrado
+ */
+export const getValueByPath = (obj, path) => {
+  return path.split('.').reduce((acc, part) => acc?.[part], obj) || '';
+};

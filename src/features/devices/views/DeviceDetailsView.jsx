@@ -9,6 +9,7 @@ import Swal from 'sweetalert2';
 import { approveDeviceSim, removeDeviceSim, getSims } from '../../../api/devices';
 import NotifyModal from '../components/NotifyModal';
 import { downloadContract } from '../../../api/plans';
+import { formatDisplayDate } from '../../../common/utils/helpers';
 
 const DeviceDetailsView = ({
     plan,
@@ -55,7 +56,6 @@ const DeviceDetailsView = ({
                 purchase_date: plan.initial_date || '',
                 state: plan.device.state || 'Active'
             };
-
             setFormData(newFormData);
         }
     }, [plan.device]);
@@ -68,11 +68,33 @@ const DeviceDetailsView = ({
         // Redondear a 2 decimales por seguridad
         const roundedPaymentsValue = parseFloat(paymentsValue.toFixed(2));
         const planValue = parseFloat(plan.value);
-
-        console.log('Value', roundedPaymentsValue);
-
         setIsPaid(roundedPaymentsValue >= planValue);
     }, [payments]);
+
+
+    /**
+     * Metodo para obtener el ultimo estado de la acción ejecutada al dispositivo
+     * @param {*} e 
+     */
+    const getLastBlockState = () => {
+        if (!Array.isArray(actionsHistory)) return null;
+
+        const filtered = actionsHistory.filter(action =>
+            action.action === 'block' || action.action === 'unblock'
+        );
+
+        if (filtered.length === 0) return null;
+
+        const sorted = filtered.sort(
+            (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+
+        console.log('ESTADO: ', sorted[0].action);
+
+        return sorted[0].action; // devuelve "block" o "unblock"
+    };
+
+
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -237,7 +259,7 @@ const DeviceDetailsView = ({
         { key: 'imei', label: 'IMEI 1' }, { key: 'imei2', label: 'IMEI 2' },
         { key: 'state', label: 'Estado' }, { key: 'price', label: 'Precio', type: 'number' },
         { key: 'purchase_date', label: 'Fecha de Compra', type: 'date' },
-        { key: 'vendor', label: 'Vendedor' },
+        { key: 'user', label: 'Cliente' },
         { key: 'location', label: 'Ubicación' },
         { key: 'created_at', label: 'Creado el' }, { key: 'updated_at', label: 'Última Actualización' },
     ];
@@ -254,8 +276,8 @@ const DeviceDetailsView = ({
         'updated_at',
         'location',
         'purchase_date',
-        'price',
-        'vendor'
+        'vendor',
+        'user'
     ];
 
     if (isPaid) {
@@ -357,7 +379,7 @@ const DeviceDetailsView = ({
                                                         (key === 'location') ? (location
                                                             ? `${location.latitude}, ${location.longitude}`
                                                             : 'N/A') :
-                                                            (key === 'vendor') ? ([plan.user?.first_name, plan.user?.middle_name, plan.user?.last_name, plan.user?.second_last_name]
+                                                            (key === 'user') ? ([plan.user?.first_name, plan.user?.middle_name, plan.user?.last_name, plan.user?.second_last_name]
                                                                 .filter(Boolean)
                                                                 .join(' ') || 'N/A'
                                                             ) :
@@ -483,8 +505,8 @@ const DeviceDetailsView = ({
                     {/* Acciones del Dispositivo */}
                     <div className="bg-gray-50 p-6 rounded-lg shadow-inner flex-grow">
                         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Acciones del Dispositivo</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            {isSuperAdmin && (
+                        <div className="mb-4">
+                            {isSuperAdmin && getLastBlockState() == 'unblock' && (
                                 <button
                                     onClick={() => onBlock(plan.device.device_id)}
                                     disabled={isPaid}
@@ -493,7 +515,7 @@ const DeviceDetailsView = ({
                                     Bloquear
                                 </button>
                             )}
-                            {isSuperAdmin && (
+                            {isSuperAdmin && getLastBlockState() == 'block' && (
                                 <button
                                     onClick={() => onUnblock(plan.device.device_id)}
                                     disabled={isPaid}
@@ -502,6 +524,9 @@ const DeviceDetailsView = ({
                                     Desbloquear
                                 </button>
                             )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
                             {isSuperAdmin && (
                                 <button
                                     onClick={handleOpenPaymentModal}
@@ -541,20 +566,35 @@ const DeviceDetailsView = ({
                                     </tr>
                                 </thead>
                                 <tbody className="bg-white divide-y divide-gray-200">
-                                    {paginatedActions.map((action) => (
-                                        <tr key={action.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{actionLabels[action.action] || action.action}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{stateLabels[action.state] || action.state}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(action.created_at).toLocaleString()}</td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {action.applied_by
-                                                    ? [action.applied_by.first_name, action.applied_by.middle_name, action.applied_by.last_name, action.applied_by.second_last_name]
-                                                        .filter(Boolean)
-                                                        .join(' ')
-                                                    : '—'}
-                                            </td>
-                                        </tr>
-                                    ))}
+                                    {paginatedActions.map((action, index) => {
+                                        const key = action.id || `${action.action}-${action.created_at}-${index}`;
+
+                                        return (
+                                            <tr key={key}>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {actionLabels[action.action] || action.action}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {stateLabels[action.state] || action.state}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {formatDisplayDate(action.created_at, true, false)}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {action.applied_by
+                                                        ? [
+                                                            action.applied_by.first_name,
+                                                            action.applied_by.middle_name,
+                                                            action.applied_by.last_name,
+                                                            action.applied_by.second_last_name,
+                                                        ]
+                                                            .filter(Boolean)
+                                                            .join(' ')
+                                                        : '—'}
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>

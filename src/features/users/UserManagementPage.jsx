@@ -37,7 +37,7 @@ const UserManagementPage = () => {
     const fetchRoles = useCallback(async () => {
         try {
             const fetchedRoles = await getRoles();
-            const predefinedRoleNames = ['Superadmin', 'Admin', 'Vendedor', 'Cliente'];
+            const predefinedRoleNames = ['Superadmin', 'Admin', 'Vendedor', 'Cliente', 'Store Admin'];
             const filteredRoles = fetchedRoles.filter(role => predefinedRoleNames.includes(role.name));
             setRoles(filteredRoles);
         } catch (err) {

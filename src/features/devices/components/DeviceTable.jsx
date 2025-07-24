@@ -49,12 +49,13 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
             <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                     <tr>
-                        {renderTh('product_name', 'Nombre')}
-                        {renderTh('serial_number', 'Serial')}
-                        {renderTh('model', 'Modelo')}
-                        {renderTh('brand', 'Marca')}
-                        {renderTh('imei', 'IMEI 1')}
-                        {renderTh('state', 'Estado')}
+                        {renderTh('user.first_name', 'Cliente')}
+                        {renderTh('device.product_name', 'Nombre')}
+                        {renderTh('device.serial_number', 'Serial')}
+                        {renderTh('device.model', 'Modelo')}
+                        {renderTh('device.brand', 'Marca')}
+                        {renderTh('device.imei', 'IMEI 1')}
+                        {renderTh('device.state', 'Estado')}
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
@@ -68,14 +69,15 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
                     ) : (
                         paginatedDevices.map((device) => (
                             <tr key={device.device_id}>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.product_name || 'N/A'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.serial_number || 'N/A'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.model || 'N/A'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.brand || 'N/A'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.imei || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{`${device.user.first_name} ${device.user.middle_name} ${device.user.last_name} ${device.user.second_last_name}` || ''}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.device.product_name || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.serial_number || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.model || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.brand || 'N/A'}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.imei || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(device.state)}`}>
-                                        {device.state || 'N/A'}
+                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(device.device.state)}`}>
+                                        {device.device.state || 'N/A'}
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

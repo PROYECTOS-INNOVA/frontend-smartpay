@@ -10,7 +10,7 @@ import { getPayments, createPayment } from '../../api/payments';
 import { getUsers } from '../../api/users';
 import { createEnrolment } from '../../api/enrolments';
 import { createDevice } from '../../api/devices';
-import { createPlan } from '../../api/plans';
+import { createPlan, uploadContract } from '../../api/plans';
 
 const PaymentManagementPage = () => {
     const [payments, setPayments] = useState([]);
@@ -61,6 +61,8 @@ const PaymentManagementPage = () => {
     };
 
     const handlePaymentsFlowFinalize = async (finalData) => {
+        console.log('FINAL DATA:;', finalData);
+
         Swal.fire({
             title: 'Registrando venta completa...',
             text: 'Por favor espera, esto puede tardar unos segundos.',
@@ -71,7 +73,7 @@ const PaymentManagementPage = () => {
         });
 
         try {
-            const { customer, authenticatedUser, paymentPlan, initialPayment, contractBlob } = finalData;
+            const { customer, authenticatedUser, paymentPlan, initialPayment, signedContractFile } = finalData;
 
             const deviceId = finalData.device.device_id;
             console.log("DeviceId", paymentPlan);
@@ -87,8 +89,16 @@ const PaymentManagementPage = () => {
                 vendor_id: authenticatedUser.user_id
             };
             console.log('Sending Plan Payload:', JSON.stringify(planPayload, null, 2)); // <-- AGREGAR ESTO
+
             const planResponse = await createPlan(planPayload);
             const planId = planResponse.plan_id;
+            if (planResponse && planId) {
+                const formData = new FormData();
+                formData.append('plan_id', planResponse.plan_id);
+                formData.append('file', signedContractFile); 
+
+                await uploadContract(formData); 
+            }
             console.log('Plan created with ID:', planId); // <-- AGREGAR ESTO
 
             // --- Initial Payment Payload ---

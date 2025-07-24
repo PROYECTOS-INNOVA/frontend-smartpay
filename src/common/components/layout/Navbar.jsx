@@ -42,7 +42,7 @@ const Navbar = ({ setSidebarOpen }) => {
                 </div>
 
                 {/* Center Section: Search Bar (Hidden on extra small screens, centered on medium/large) */}
-                <div className="flex-1 max-w-xl mx-auto hidden sm:flex justify-center"> {/* sm:flex para que aparezca en sm y en adelante */}
+                {/* <div className="flex-1 max-w-xl mx-auto hidden sm:flex justify-center">
                     <div className="relative w-full">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
@@ -53,22 +53,22 @@ const Navbar = ({ setSidebarOpen }) => {
                             className="block w-full pl-10 pr-4 py-2 text-sm border rounded-full bg-gray-50 border-gray-300 focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500 transition duration-150 ease-in-out"
                         />
                     </div>
-                </div>
+                </div> */}
 
                 {/* Right Section: Notifications and User Profile */}
                 <div className="flex items-center space-x-4 ml-auto"> {/* ml-auto empuja los elementos a la derecha */}
 
                     {/* Notificaciones (solo para roles específicos) */}
-                    {(user && (user.role === 'Superadmin' || user.role === 'Vendedor')) && (
+                    {/* {(user && (user.role === 'Superadmin' || user.role === 'Vendedor')) && (
                         <button
                             className={`p-2 rounded-full text-gray-500 ${buttonHoverBg} ${primaryBlueText} focus:outline-none focus:ring-2 focus:ring-offset-2 ${primaryRingBlue} relative transition-colors duration-150 ease-in-out`}
                             aria-label="Notificaciones"
                         >
                             <BellIcon className="h-6 w-6" />
-                            {/* Indicador de nuevas notificaciones */}
+                            
                             <span className="absolute top-1 right-1 block h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                         </button>
-                    )}
+                    )} */}
 
                     {/* User Profile / Dropdown */}
                     <div className="relative">
@@ -83,7 +83,7 @@ const Navbar = ({ setSidebarOpen }) => {
                             {/* O la imagen de perfil si tienes una URL */}
                             <img
                                 className="h-9 w-9 rounded-full object-cover"
-                                src={user?.profile_picture_url || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'} // Fallback a una imagen genérica
+                                src={user?.profile_picture_url || '../assets/default-user.svg'} // Fallback a una imagen genérica
                                 alt="Foto de perfil"
                             />
                             <div className="hidden sm:block text-left mr-2"> {/* Agregado mr-2 para un poco de espacio */}

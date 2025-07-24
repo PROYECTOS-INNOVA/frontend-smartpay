@@ -386,14 +386,14 @@ const ContractPDFGenerator = ({
         {/* Contract Signatures and Details */}
         <div className="grid grid-cols-2 gap-8 mb-8 section-to-print">
           <div>
-            <h3 className="font-bold mb-4">ADELANTOS COMPRADOR</h3>
+            <h3 className="font-bold mb-4">DATOS DEL PRESTATARIO</h3>
             <p><strong>CONTACTO:</strong> {representativeName}</p>
             <p><strong>TELEFONO:</strong> {representativePhone}</p>
             <p><strong>CORREO:</strong> {representativeEmail}</p>
             <p><strong>DIRECCION:</strong> {companyAddress}</p>
           </div>
           <div>
-            <h3 className="font-bold mb-4">DATOS DEL PRESTATARIO</h3>
+            <h3 className="font-bold mb-4">ADELANTOS COMPRADOR</h3>
             <p><strong>NOMBRE COMPLETO:</strong> {borrowerName}</p>
             <p><strong>DNI:</strong> {borrowerDNI}</p>
             <p><strong>TELEFONO CELULAR:</strong> {borrowerPhone}</p>

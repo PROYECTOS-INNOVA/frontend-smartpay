@@ -25,5 +25,24 @@ export default {
       },
     },
   },
-  plugins: [forms],
+  plugins: [
+    forms,
+    function ({ addUtilities }) {
+      addUtilities({
+        '.no-spin': {
+          /* Chrome, Safari, Edge */
+          '&::-webkit-inner-spin-button': {
+            '-webkit-appearance': 'none',
+            margin: '0',
+          },
+          '&::-webkit-outer-spin-button': {
+            '-webkit-appearance': 'none',
+            margin: '0',
+          },
+          /* Firefox */
+          '-moz-appearance': 'textfield',
+        },
+      });
+    },
+  ],
 };

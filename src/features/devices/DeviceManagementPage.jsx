@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { getDevices, getLastLocation, getActionsHistory, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice,  sendNotification} from '../../api/devices'; 
+import React, { useState, useEffect, useRef } from 'react';
+import { getDevices, getLastLocation, getActionsHistory, updateDevice, blockDevice, unblockDevice, locateDevice, releaseDevice, sendNotification } from '../../api/devices';
 import { getPayments, createPayment } from '../../api/payments';
-import { getPlanByDeviceId } from '../../api/plans';
+import { getPlanByDeviceId, getPlans } from '../../api/plans';
 import DeviceTable from './components/DeviceTable';
 import DeviceDetailsView from './views/DeviceDetailsView';
 
 // Importaciones de react-toastify
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { getValueByPath } from '../../common/utils/helpers';
+import { useSearchParams } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const DeviceManagementPage = () => {
     const [devices, setDevices] = useState([]);
@@ -18,6 +21,8 @@ const DeviceManagementPage = () => {
     const [lastLocation, setLastLocation] = useState(null);
     const [actionsHistory, setActionsHistory] = useState([]);
     const [isPolling, setIsPolling] = useState(false);
+    const [searchParams, setSearchParams] = useSearchParams()
+    const didMount = useRef(false);
 
     const [columnFilters, setColumnFilters] = useState({
         name: '',
@@ -31,14 +36,23 @@ const DeviceManagementPage = () => {
     const userRole = 'superadmin';
 
     useEffect(() => {
-        fetchDevices();
+        //Desmontar componente para evitar doble aplicación
+        if (didMount.current) return;
+        didMount.current = true;
+
+        const deviceId = searchParams.get('deviceId');
+        if (deviceId) {
+            handleViewDetails(deviceId)
+        } else {
+            fetchDevices();
+        }
     }, []);
 
     const fetchDevices = async () => {
         setLoading(true);
         setError(null);
         try {
-            const data = await getDevices();
+            const data = await getPlans();
             setDevices(data);
         } catch (err) {
             console.error('Error al cargar dispositivos:', err);
@@ -50,20 +64,24 @@ const DeviceManagementPage = () => {
     };
 
     const handleViewDetails = async (deviceId) => {
+
         setLoading(true);
         try {
             const planDevice = await getPlanByDeviceId(deviceId);
             const lastLocation = await getLastLocation(deviceId);
-            
-            const params = { device_id : deviceId, state : 'Approved' };
+
+            const params = { device_id: deviceId, state: 'Approved' };
             const paymentsResponse = await getPayments(params)
             const actions = await getActionsHistory(deviceId);
-           
+
 
             if (Array.isArray(actions) && actions.length > 0) {
                 const sortedActions = [...actions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 setActionsHistory(sortedActions);
             }
+            //Setear el Id del device como URL param para menter persistencia
+            searchParams.set('deviceId', deviceId)
+            setSearchParams(searchParams)
 
             setPayments(paymentsResponse);
             setSelectedPlan(planDevice);
@@ -78,8 +96,12 @@ const DeviceManagementPage = () => {
     };
 
     const handleBackToList = () => {
+        //Limpiar param
+        searchParams.delete('deviceId')
+        setSearchParams(searchParams)
+
         setSelectedPlan(null);
-        fetchDevices(); 
+        fetchDevices();
     };
 
     const handleUpdateDevice = async (deviceId, updatedData) => {
@@ -97,13 +119,29 @@ const DeviceManagementPage = () => {
         }
     };
 
+    /**
+     * Metodo para bloqeuar dispositvo von alerta de confirmación
+     * @param {*} deviceId 
+     * @returns 
+     */
     const handleBlock = async (deviceId) => {
-        const confirmBlock = window.confirm('¿Estás seguro de que quieres bloquear este dispositivo?');
-        if (!confirmBlock) return;
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto bloqueará el dispositivo y no podrá ser usado.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#e3342f', // rojo
+            cancelButtonColor: '#6c757d', // gris
+            confirmButtonText: 'Sí, bloquear',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!result.isConfirmed) return;
+
         try {
             await blockDevice(deviceId);
             toast.success('Dispositivo bloqueado con éxito.');
-    
+
             if (selectPlan && selectPlan.device_id === deviceId) {
                 handleViewDetails(deviceId);
             }
@@ -114,33 +152,49 @@ const DeviceManagementPage = () => {
         }
     };
 
-    const handleSubmitNotification = async (deviceId, notificationData) => {   
-            try {
-                await sendNotification(deviceId, notificationData);
-                toast.success('Notificación enviada.');
+    const handleSubmitNotification = async (deviceId, notificationData) => {
+        try {
+            await sendNotification(deviceId, notificationData);
+            toast.success('Notificación enviada.');
 
-                if (selectPlan && selectPlan.device_id === deviceId) {
-                    handleViewDetails(deviceId);
-                }
-            } catch (err) {
-                console.error("Error send notificacion:", err);
-                const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al enviar la notificacion.";
-                toast.error(`Error al enviar notificación: ${errorMessage}`);
+            if (selectPlan && selectPlan.device_id === deviceId) {
+                handleViewDetails(deviceId);
             }
-        };
+        } catch (err) {
+            console.error("Error send notificacion:", err);
+            const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al enviar la notificacion.";
+            toast.error(`Error al enviar notificación: ${errorMessage}`);
+        }
+    };
 
+    /**
+     * Método para registrrar pago con alerta confirmación
+     * @param {*} paymentData 
+     * @returns 
+     */
     const handleSubmitPayment = async (paymentData) => {
-        const confirmBlock = window.confirm('¿Estás seguro de que quieres registrar el pago?');
-        if (!confirmBlock) return;
+        const result = await Swal.fire({
+            title: '¿Registrar pago?',
+            text: '¿Estás seguro de que quieres registrar el pago?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#16a34a', // verde
+            cancelButtonColor: '#6b7280', // gris neutro
+            confirmButtonText: 'Sí, registrar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!result.isConfirmed) return;
+
         try {
             await createPayment(paymentData);
-            await unblockDevice(paymentData.device_id, { duration: 0});
+            await unblockDevice(paymentData.device_id, { duration: 0 });
             toast.success('Pago registrado.');
 
-            const params = { device_id : deviceId, state : 'Approved' };
-            const paymentsResponse = await getPayments(params)
-
+            const params = { device_id: paymentData.device_id, state: 'Approved' };
+            const paymentsResponse = await getPayments(params);
             setPayments(paymentsResponse);
+
             if (selectPlan && selectPlan.device_id === paymentData.device_id) {
                 handleViewDetails(paymentData.device_id);
             }
@@ -151,14 +205,29 @@ const DeviceManagementPage = () => {
         }
     };
 
+    /**
+     * Metodo para desbloquear dispositivo alerta con input para ingresar minutos
+     * @param {*} deviceId 
+     * @returns 
+     */
     const handleUnblock = async (deviceId) => {
-        const minutos = window.prompt('¿Por cuántos minutos quieres desbloquear el dispositivo?');
-        let minutes = 0; 
+        const { value: minutos } = await Swal.fire({
+            title: 'Desbloquear dispositivo',
+            input: 'number',
+            inputLabel: '¿Por cuántos minutos deseas desbloquear el dispositivo?',
+            inputPlaceholder: 'Ingresa el tiempo en minutos',
+            inputAttributes: {
+                min: 0,
+                step: 1
+            },
+            showCancelButton: true,
+            confirmButtonText: 'Desbloquear',
+            cancelButtonText: 'Cancelar',
+        });
 
-        // Validar que sea un número positivo
-        if (minutos !== null) {
-            minutes = parseInt(minutos, 10);
-        }
+        if (minutos === undefined) return; // cancelado
+
+        const minutes = parseInt(minutos, 10);
 
         try {
             await unblockDevice(deviceId, { duration: minutes * 60 });
@@ -174,13 +243,13 @@ const DeviceManagementPage = () => {
         }
     };
 
-     // 5. Iniciar polling
+    // 5. Iniciar polling
     const checkDeviceConnection = async (deviceId) => {
         let connected = false;
         let attempts = 0;
         const maxAttempts = 100;
         const delayMs = 3000;
-    
+
         setIsPolling(true);
         const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -192,33 +261,33 @@ const DeviceManagementPage = () => {
                 await delay(5000)
                 const lastLocation = await getLastLocation(deviceId);
                 if (lastLocation) {
-                  setLastLocation(lastLocation)
-                  connected = true
-                  setIsPolling(false);
-                  break;
+                    setLastLocation(lastLocation)
+                    connected = true
+                    setIsPolling(false);
+                    break;
                 }
             } catch (error) {
                 if (error.response?.status !== 404) {
-                  console.error(`Error en polling:`, error);
-                  }
+                    console.error(`Error en polling:`, error);
+                }
             }
-            
+
             if (!connected) {
                 await new Promise((resolve) => setTimeout(resolve, delayMs));
             }
         }
-    
+
         if (!connected) {
             toast.error('Tiempo de espera agotado. El dispositivo no se conectó.');
         }
     };
-    
+
 
     const handleLocate = async (deviceId) => {
         try {
             const response = await locateDevice(deviceId);
             toast.success(`Solicitud de ubicación enviada. ${response.message || ''}`);
-            
+
             if (selectPlan && selectPlan.device_id === deviceId) {
                 setTimeout(() => checkDeviceConnection(deviceId), 1000);
             }
@@ -228,13 +297,24 @@ const DeviceManagementPage = () => {
             toast.error(`Error al localizar dispositivo: ${errorMessage}`);
         }
     };
-
     const handleRelease = async (deviceId) => {
-        const confirmRelease = window.confirm('¿Estás seguro de que quieres liberar este dispositivo? Esto lo dejará sin asignación.');
-        if (!confirmRelease) return;
+        const result = await Swal.fire({
+            title: '¿Estás seguro?',
+            text: 'Esto liberará el dispositivo y lo dejará sin asignación.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, liberar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (!result.isConfirmed) return;
+
         try {
             await releaseDevice(deviceId);
             toast.success('Dispositivo liberado con éxito.');
+
             if (selectPlan && selectPlan.device_id === deviceId) {
                 handleViewDetails(deviceId);
             }
@@ -245,11 +325,16 @@ const DeviceManagementPage = () => {
         }
     };
 
+    /**
+     * Filtrar por columnas y valor de la tabla 
+     * uso de helper para clave anidadas 
+     * @helper getValueByPath
+     */
     const filteredDevices = devices.filter(device => {
         for (const key in columnFilters) {
             const filterValue = columnFilters[key];
             if (filterValue) {
-                const deviceValue = String(device[key] || '').toLowerCase();
+                const deviceValue = String(getValueByPath(device, key)).toLowerCase();
                 if (!deviceValue.includes(filterValue.toLowerCase())) {
                     return false;
                 }
@@ -258,7 +343,10 @@ const DeviceManagementPage = () => {
         return true;
     });
 
+
     const handleColumnFilterChange = (columnKey, value) => {
+        console.log("Colum keuy; ", columnKey, value);
+
         setColumnFilters(prevFilters => ({
             ...prevFilters,
             [columnKey]: value,

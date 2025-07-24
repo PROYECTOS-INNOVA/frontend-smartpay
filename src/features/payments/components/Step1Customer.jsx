@@ -85,9 +85,9 @@ const Step1Customer = ({ onNext, initialData = {}, customers }) => {
     };
 
     const InfoField = ({ label, value }) => (
-        <div>
-            <label className="block text-sm font-medium text-gray-700">{label}</label>
-            <p className="mt-1 block w-full text-gray-900 bg-gray-50 border border-gray-200 rounded-md shadow-sm p-2">
+        <div className="min-w-0">
+            <label className="block text-sm font-medium text-gray-700 truncate">{label}</label>
+            <p className="mt-1 block w-full text-gray-900 bg-gray-50 border border-gray-200 rounded-md shadow-sm p-2 overflow-hidden text-ellipsis whitespace-nowrap">
                 {value || 'N/A'}
             </p>
         </div>

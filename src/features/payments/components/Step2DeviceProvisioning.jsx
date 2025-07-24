@@ -189,6 +189,7 @@ const generateProvisioningJson = (enrolmentId) => ({
     <div className="space-y-6">
       <h2 className="text-2xl font-semibold text-gray-900 mb-6">Paso 2: Aprovisionamiento de Dispositivo</h2>
 
+      {/* DEBUG DUMMY SIMULATOR */}
       <div className="flex items-center justify-end mb-4">
         <span className="mr-3 text-sm font-medium text-gray-900">Modo de Simulación Dummy</span>
         <label htmlFor="toggle-dummy" className="relative inline-flex items-center cursor-pointer">
@@ -264,7 +265,7 @@ const generateProvisioningJson = (enrolmentId) => ({
               <p><strong>IMEI (Principal):</strong> {deviceDetails.imei}</p>
               {deviceDetails.imei_two && <p><strong>IMEI (Secundario):</strong> {deviceDetails.imei_two}</p>}
               <p><strong>Estado:</strong> {deviceDetails.state}</p>
-              <p><strong>Precio del Dispositivo:</strong> {deviceDetails.currency} {deviceDetails.price_usd?.toFixed(2)}</p>
+              {/* <p><strong>Precio del Dispositivo:</strong> {deviceDetails.currency} {deviceDetails.price_usd?.toFixed(2)}</p> */}
             </div>
           </div>
         )}
