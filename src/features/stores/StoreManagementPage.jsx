@@ -335,6 +335,7 @@ const StoreManagementPage = () => {
                 onSubmit={handleSubmitstore}
                 roles={availableRoles}
                 getCountriesApi={getCountries}
+                getAdminsApis={getUsers}
             />
         </div>
     );

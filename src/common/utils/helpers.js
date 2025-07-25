@@ -113,5 +113,19 @@ export const handleChangeHelper = (e, formData, setFormData, isNewCustomer) => {
  * Acceder a claves anidads para filtrado
  */
 export const getValueByPath = (obj, path) => {
-  return path.split('.').reduce((acc, part) => acc?.[part], obj) || '';
+    return path.split('.').reduce((acc, part) => acc?.[part], obj) || '';
 };
+
+
+
+/**
+ * hora local
+ */
+export const localDate = () => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    const localDate = `${yyyy}-${mm}-${dd}`;
+    return localDate;
+}

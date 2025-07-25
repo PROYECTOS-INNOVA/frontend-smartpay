@@ -57,9 +57,11 @@ const DeviceDetailsView = ({
                 state: plan.device.state || 'Active'
             };
             setFormData(newFormData);
+            console.log('AAA')
+            getLastBlockState();
         }
     }, [plan.device]);
-
+    
     useEffect(() => {
         const paymentsValue = payments
             .filter(payment => payment.state === 'Approved')
@@ -83,7 +85,7 @@ const DeviceDetailsView = ({
             action.action === 'block' || action.action === 'unblock'
         );
 
-        if (filtered.length === 0) return null;
+        if (filtered.length === 0) return 'block';
 
         const sorted = filtered.sort(
             (a, b) => new Date(b.created_at) - new Date(a.created_at)

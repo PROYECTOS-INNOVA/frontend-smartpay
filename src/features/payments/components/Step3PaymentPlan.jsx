@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ChevronLeftIcon } from '@heroicons/react/24/outline';
 import { toast } from 'react-toastify';
 import { CURRENCIES } from '../../../common/utils/currencies'; // Asegúrate de que la ruta sea correcta
-import { formatDisplayDate } from '../../../common/utils/helpers';
+import { formatDisplayDate, localDate } from '../../../common/utils/helpers';
 
 const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
     console.log("INITAL DATA 3: ", { onNext, onBack, initialData });
@@ -28,7 +28,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
 
     const [initialPayment, setInitialPayment] = useState(initialData.initialPayment || {
         method: '',
-        date: new Date().toISOString().split('T')[0]
+        date: localDate()
     });
 
     const [errors, setErrors] = useState({});
@@ -421,7 +421,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                         id="initial_date"
                         value={paymentPlan.initial_date}
                         onChange={handlePaymentPlanChange}
-                        min={new Date().toISOString().split('T')[0]}
+                        min={localDate()}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     />
                     </div>
@@ -456,7 +456,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                             id="initialDate"
                             value={initialPayment.date}
                             onChange={handleInitialPaymentMethodChange}
-                             min={new Date().toISOString().split('T')[0]}
+                             min={localDate()}
                             className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         />
                         {errors.initialDate && <p className="mt-1 text-sm text-red-600">{errors.initialDate}</p>}

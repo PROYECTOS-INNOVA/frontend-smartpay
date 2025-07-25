@@ -555,9 +555,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const asunto = document.getElementById('subject').value.trim();
       const mensaje = document.getElementById('message').value.trim();
 
-      const texto = `Hola, soy ${nombre} (${email})%0AAsunto: ${asunto}%0A${mensaje}`;
+    const texto = 
+        `Hola, soy ${nombre}\n` +
+        `Correo: ${email}\n\n` +
+        `Asunto: ${asunto}\n\n` +
+        `Mensaje:\n${mensaje}`;
 
-      const numeroWhatsApp = '573222455334'; // código de Perú +51
+      const numeroWhatsApp = '51933392072'; // código de Perú +51
 
       const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(texto)}`;
 

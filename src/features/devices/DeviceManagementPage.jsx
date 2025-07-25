@@ -356,17 +356,7 @@ const DeviceManagementPage = () => {
 
     return (
         <div className="container bg-white rounded-xl mx-auto p-4 sm:p-6 lg:p-8">
-            <ToastContainer
-                position="top-right"
-                autoClose={5000}
-                hideProgressBar={false}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                pauseOnFocusLoss
-                draggable
-                pauseOnHover
-            />
+        
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <strong className="font-bold">¡Error!</strong>

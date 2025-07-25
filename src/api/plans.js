@@ -129,12 +129,12 @@ export const deletePlan = async (planId) => {
 /**
  * Metodo para cargar contrato
  */
-export const uploadContract = async (planId) => {
+export const uploadContract = async (data) => {
     try {
-        const response = await axiosInstance.post(`/plans/uplad-pdf/`);
+        const response = await axiosInstance.post(`/plans/upload-pdf/`, data);
         return response.data; //blob pdf
     } catch (error) {
-        console.error(`Error al cargar contrato con ID ${planId}:`, error.response?.data || error.message);
+        console.error(`Error al subir el contrato:`, error.response?.data || error.message);
         throw error;
     }
 };
