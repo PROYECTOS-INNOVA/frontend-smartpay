@@ -97,6 +97,9 @@ const PaymentManagementPage = () => {
                 formData.append('plan_id', planResponse.plan_id);
                 formData.append('file', signedContractFile); 
 
+                console.log(formData);
+                
+
                 await uploadContract(formData); 
             }
             console.log('Plan created with ID:', planId); // <-- AGREGAR ESTO

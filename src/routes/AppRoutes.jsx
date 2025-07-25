@@ -11,6 +11,7 @@ import PrivateRoute from './PrivateRoute';
 
 
 import Layout from '../common/components/layout/Layout';
+import { ToastContainer } from 'react-toastify';
 
 
 
@@ -177,6 +178,18 @@ const AppRoutes = () => {
                         <Route path="*" element={<div className="flex justify-center items-center h-screen text-xl text-white">404 - Página no encontrada</div>} />
 
                     </Routes>
+
+                    <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        newestOnTop={false}
+                        closeOnClick
+                        rtl={false}
+                        pauseOnFocusLoss
+                        draggable
+                        pauseOnHover
+                    />
 
                 </Suspense>
 
