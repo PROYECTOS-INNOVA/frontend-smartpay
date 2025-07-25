@@ -108,7 +108,10 @@ const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, plan, payments }) => 
 
 
     function getQuotaValue(payments, plan) {
-        const initialPayment = payments[0].value;
+        var initialPayment = 0;
+        if (Array.isArray(payments) && payments.length > 0) {
+            initialPayment = payments[0].value;
+        }
 
         const value = plan.value - initialPayment;
         const valorCuota = plan.quotas > 0 ? Math.round(value / Number(plan.quotas)).toFixed(2) : 0;

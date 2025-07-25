@@ -169,12 +169,14 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
             tempErrors.devicePrice = "El valor del dispositivo es requerido y debe ser mayor a 0.";
         }
 
-        // Validación para initialPaymentValue: debe ser numérico
-        if (initialPaymentValue < 0) tempErrors.initialValue = "El valor del pago inicial no puede ser negativo.";
-        if (initialPaymentValue > devicePrice) tempErrors.initialValue = "El pago inicial no puede ser mayor que el valor del dispositivo.";
-        if (!initialPayment.method) tempErrors.initialMethod = "El método de pago inicial es requerido.";
-        if (!initialPayment.date) tempErrors.initialDate = "La fecha del pago inicial es requerida.";
-
+        if (initialPaymentValue != 0) {
+            // Validación para initialPaymentValue: debe ser numérico
+            if (initialPaymentValue < 0) tempErrors.initialValue = "El valor del pago inicial no puede ser negativo.";
+            if (initialPaymentValue > devicePrice) tempErrors.initialValue = "El pago inicial no puede ser mayor que el valor del dispositivo.";
+            if (!initialPayment.method) tempErrors.initialMethod = "El método de pago inicial es requerido.";
+            if (!initialPayment.date) tempErrors.initialDate = "La fecha del pago inicial es requerida.";
+        }
+        
         if (balanceToFinance < 0) {
             tempErrors.balance = "El saldo a financiar no puede ser negativo. Ajusta el pago inicial.";
         } else if (balanceToFinance > 0) {
@@ -383,32 +385,33 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                 </div>
             </div>
 
-            <div className="bg-white shadow-md rounded-lg p-6 mt-6">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">Detalles del Plan de Pagos</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+                <div className="bg-white shadow-md rounded-lg p-6 mt-6">
+                    <h3 className="text-xl font-semibold text-gray-800 mb-4">Detalles del Plan de Pagos</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="quotas" className="block text-sm font-medium text-gray-700">Número de Cuotas</label>
                         <input
-                            type="number"
-                            name="quotas"
-                            id="quotas"
-                            value={paymentPlan.quotas}
-                            onChange={handlePaymentPlanChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            min="0"
+                        type="number"
+                        name="quotas"
+                        id="quotas"
+                        value={paymentPlan.quotas}
+                        onChange={handlePaymentPlanChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        min="0"
                         />
                         {errors.quotas && <p className="mt-1 text-sm text-red-600">{errors.quotas}</p>}
                     </div>
                     <div>
                         <label htmlFor="frecuencia_dias" className="block text-sm font-medium text-gray-700">Frecuencia (días)</label>
                         <input
-                            type="number"
-                            name="frecuencia_dias"
-                            id="frecuencia_dias"
-                            value={paymentPlan.frecuencia_dias}
-                            onChange={handlePaymentPlanChange}
-                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            min="1"
+                        type="number"
+                        name="frecuencia_dias"
+                        id="frecuencia_dias"
+                        value={paymentPlan.frecuencia_dias}
+                        onChange={handlePaymentPlanChange}
+                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        min="1"
                         />
                         {errors.frecuencia_dias && <p className="mt-1 text-sm text-red-600">{errors.frecuencia_dias}</p>}
                     </div>
@@ -421,10 +424,10 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                         min={new Date().toISOString().split('T')[0]}
                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                     />
+                    </div>
                 </div>
-            </div>
 
-            <div className="bg-white shadow-md rounded-lg p-6 mt-6">
+            {initialPayment.value > 0 && (<div className="bg-white shadow-md rounded-lg p-6 mt-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Detalles del Pago Inicial</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -459,7 +462,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                         {errors.initialDate && <p className="mt-1 text-sm text-red-600">{errors.initialDate}</p>}
                     </div>
                 </div>
-            </div>
+            </div>)}
 
             {generatedInstallments.length > 0 && (
                 <div className="bg-white shadow-md rounded-lg p-6 mt-6">

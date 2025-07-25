@@ -102,18 +102,21 @@ const PaymentManagementPage = () => {
             console.log('Plan created with ID:', planId); // <-- AGREGAR ESTO
 
             // --- Initial Payment Payload ---
-            const initialPaymentPayload = {
-                value: initialPayment.value,
-                method: initialPayment.method,
-                state: initialPayment.state || 'Approved',
-                date: initialPayment.date,
-                reference: initialPayment.reference || `PI-${Date.now()}`,
-                device_id: deviceId,
-                plan_id: planId
-            };
-            console.log('Sending Initial Payment Payload:', JSON.stringify(initialPaymentPayload, null, 2)); // <-- AGREGAR ESTO
-            const paymentResponse = await createPayment(initialPaymentPayload);
-            console.log('Initial Payment created:', paymentResponse); // <-- AGREGAR ESTO
+            if (initialPayment.value !== null && initialPayment.value !== undefined && initialPayment.value !== '') {
+                const initialPaymentPayload = {
+                    value: initialPayment.value,
+                    method: initialPayment.method,
+                    state: initialPayment.state || 'Approved',
+                    date: initialPayment.date,
+                    reference: initialPayment.reference || `PI-${Date.now()}`,
+                    device_id: deviceId,
+                    plan_id: planId
+                };
+                
+                console.log('Sending Initial Payment Payload:', JSON.stringify(initialPaymentPayload, null, 2)); // <-- AGREGAR ESTO
+                const paymentResponse = await createPayment(initialPaymentPayload);
+                console.log('Initial Payment created:', paymentResponse); // <-- AGREGAR ESTO
+            }
 
             Swal.close();
             Swal.fire({
