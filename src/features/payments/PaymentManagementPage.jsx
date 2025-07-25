@@ -105,7 +105,7 @@ const PaymentManagementPage = () => {
             console.log('Plan created with ID:', planId); // <-- AGREGAR ESTO
 
             // --- Initial Payment Payload ---
-            if (initialPayment.value !== null && initialPayment.value !== undefined && initialPayment.value !== '' && initialPayment.value > 0) {
+              if (initialPayment.value !== null && initialPayment.value !== undefined && initialPayment.value !== '' && initialPayment.value > 0) {
                 const initialPaymentPayload = {
                     value: initialPayment.value,
                     method: initialPayment.method,

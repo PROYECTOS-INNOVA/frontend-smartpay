@@ -427,7 +427,7 @@ const Step3PaymentPlan = ({ onNext, onBack, initialData }) => {
                     </div>
                 </div>
 
-            {initialPayment.value > 0 && (<div className="bg-white shadow-md rounded-lg p-6 mt-6">
+            {formattedInitialPaymentValue != '' && (<div className="bg-white shadow-md rounded-lg p-6 mt-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Detalles del Pago Inicial</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
