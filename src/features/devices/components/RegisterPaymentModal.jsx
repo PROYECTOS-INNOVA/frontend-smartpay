@@ -73,16 +73,27 @@ const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, plan, payments }) => 
     }
 
     function getEffectivePaymentDate(payments, startDateStr, periodDays) {
-        const { lastPaymentDate, nextPaymentDate } = getPaymentDates(startDateStr, periodDays)
+        const paidDates = payments
+            .filter(p => p.state === 'Approved')
+            .map(p => new Date(p.date).toISOString().split('T')[0]);
 
-        if (!lastPaymentDate) return new Date().toISOString().split('T')[0]
+        const startDate = new Date(startDateStr);
+        let currentDate = new Date(startDate);
+        const todayStr = new Date().toISOString().split('T')[0];
 
-        const alreadyPaid = hasPaymentForDate(payments, lastPaymentDate)
+        // Iterar hasta encontrar la primera fecha no pagada
+        while (true) {
+            const currentDateStr = currentDate.toISOString().split('T')[0];
+            if (!paidDates.includes(currentDateStr)) {
+                return currentDateStr;
+            }
+            // Sumar periodo
+            currentDate.setDate(currentDate.getDate() + periodDays);
 
-        if (alreadyPaid) {
-            return nextPaymentDate
-        } else {
-            return lastPaymentDate || new Date().toISOString().split('T')[0]
+            // Si llegamos muy lejos en el futuro, cortamos (evita loops infinitos)
+            if (currentDateStr > todayStr && (currentDate - startDate) / (1000 * 60 * 60 * 24) > 365) {
+                throw new Error("No se encontró una fecha válida en el rango esperado.");
+            }
         }
     }
 

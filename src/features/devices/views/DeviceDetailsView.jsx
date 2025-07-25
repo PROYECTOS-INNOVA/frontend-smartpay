@@ -259,6 +259,7 @@ const DeviceDetailsView = ({
         { key: 'imei', label: 'IMEI 1' }, { key: 'imei2', label: 'IMEI 2' },
         { key: 'state', label: 'Estado' }, { key: 'price', label: 'Precio', type: 'number' },
         { key: 'purchase_date', label: 'Fecha de Compra', type: 'date' },
+        { key: 'period', label: 'Periodo (días)', type: 'number' },
         { key: 'user', label: 'Cliente' },
         { key: 'location', label: 'Ubicación' },
         { key: 'created_at', label: 'Creado el' }, { key: 'updated_at', label: 'Última Actualización' },
@@ -277,6 +278,7 @@ const DeviceDetailsView = ({
         'location',
         'purchase_date',
         'vendor',
+        'period',
         'user'
     ];
 
@@ -288,7 +290,8 @@ const DeviceDetailsView = ({
         block: "Bloqueo",
         unblock: "Desbloqueo",
         locate: "Ubicación",
-        notify: "Notificación"
+        notify: "Notificación",
+        unenroll: "Liberado"
     };
 
     const stateLabels = {
@@ -385,7 +388,7 @@ const DeviceDetailsView = ({
                                                             ) :
                                                                 (key === 'created_at' || key === 'updated_at')
                                                                     ? (new Date(plan.device[key]).toLocaleString() || 'N/A')
-                                                                    : (plan.device[key] || 'N/A')
+                                                                    : (plan.device[key] || plan[key] || 'N/A')
                                             )}
                                         </p>
                                     )}
@@ -410,18 +413,7 @@ const DeviceDetailsView = ({
                                     onClick={handleOpenSimModal}
                                     className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
                                 >
-                                    SIM
-                                </button>
-                            </div>
-                        )}
-                        {/* Edit/Save/Cancel buttons */}
-                        {!isEditing && isSuperAdmin && (
-                            <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
-                                <button
-                                    onClick={() => setIsEditing(true)}
-                                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full"
-                                >
-                                    Editar
+                                    Ver SIM
                                 </button>
                             </div>
                         )}
@@ -431,6 +423,7 @@ const DeviceDetailsView = ({
                             <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
                                 <button
                                     onClick={handleOpenNotifyModal}
+                                    disabled={isPaid}
                                     className={`bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full  ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     Enviar mensaje
