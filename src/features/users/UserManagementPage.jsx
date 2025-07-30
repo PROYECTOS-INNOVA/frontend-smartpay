@@ -23,7 +23,7 @@ const UserManagementPage = () => {
         setLoading(true);
         setError(null);
         try {
-            const data = await getUsers({ search: searchTerm });
+            const data = await getUsers({ search: searchTerm, role_name: 'Store Admin' });
             setUsers(data);
         } catch (err) {
             const errorMessage = err.response?.data?.detail || err.message || "Error desconocido al cargar usuarios.";
@@ -232,14 +232,14 @@ const UserManagementPage = () => {
             <div className="flex justify-between items-center mb-6 border-b pb-4">
                 <h1 className="text-3xl font-bold text-gray-900 flex items-center">
                     <UserGroupIcon className="h-8 w-8 mr-2 text-blue-600" />
-                    Gestión de Usuarios
+                    Gestión de Administradores
                 </h1>
                 <button
                     onClick={() => handleOpenModal()}
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                 >
                     <PlusIcon className="-ml-0.5 mr-2 h-5 w-5" />
-                    Añadir Nuevo Usuario
+                    Añadir Nuevo
                 </button>
             </div>
 

@@ -10,6 +10,12 @@ const axiosInstance = axios.create({
     },
 });
 
+const getCurrentStoreId = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user?.store?.id || null;
+};
+
+
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -25,6 +31,8 @@ axiosInstance.interceptors.request.use(
 
 export const getUsers = async (params = {}) => {
     try {
+        const storeId = getCurrentStoreId();
+        if (storeId) params.store = storeId;
         const response = await axiosInstance.get('/users', { params });
         return response.data;
     } catch (error) {
@@ -35,6 +43,8 @@ export const getUsers = async (params = {}) => {
 
 export const createUser = async (userData) => {
     try {
+        const storeId = getCurrentStoreId();
+        if (storeId) userData.store_id = storeId;
         const response = await axiosInstance.post('/users', userData);
         return response.data;
     } catch (error) {

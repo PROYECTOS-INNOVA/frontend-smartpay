@@ -115,7 +115,7 @@ const AppRoutes = () => {
                         <Route path="/" element={<Navigate to="/landing" replace />} />
 
 
-                        <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Admin', 'Vendedor']} />}>
+                        <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Admin', 'Vendedor', 'Store Admin']} />}>
 
                             <Route path="/" element={<Layout />}>
 

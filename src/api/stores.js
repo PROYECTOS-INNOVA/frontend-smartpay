@@ -35,7 +35,7 @@ export const getStores = async (params = {}) => {
 
 export const createStore = async (data) => {
     try {
-        const response = await axiosInstance.post('/stores', data);
+        const response = await axiosInstance.post('/stores/', data);
         return response.data;
     } catch (error) {
         console.error('Error creating user:', error);

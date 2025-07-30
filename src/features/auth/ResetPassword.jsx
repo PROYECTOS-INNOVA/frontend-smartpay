@@ -30,7 +30,7 @@ const ResetPassword = () => {
         try {
             const data = { new_password: password, token: token };
             await resetPassword(data);
-            // navigate('/login');
+            navigate('/login');
         } catch (err) {
             // Errors from AuthProvider's login function are caught here.
             // AuthProvider already logs errors, but you can display a user-friendly message.

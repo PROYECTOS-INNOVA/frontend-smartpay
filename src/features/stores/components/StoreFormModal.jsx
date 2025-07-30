@@ -18,6 +18,8 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
         admin_input_name: '',
 
     });
+    const [hasSearchedAdmins, setHasSearchedAdmins] = useState(false);
+    const [hasSearchedCountries, setHasSearchedCountries] = useState(false);
     const [isNewRegister, setIsNewRegister] = useState(false);
     const [countrySuggestion, setCountrySuggestion] = useState([]);
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -44,7 +46,7 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                     db_link: initialData.db_link || '',
                     country_input_name: initialData.country.name || '',
                     admin_id: initialData.admin_id || '',
-                    admin_input_name: initialData.user.first_name + initialData.user.last_name || '',
+                    admin_input_name: initialData.admin?.first_name + initialData.admin?.last_name || '',
                 });
             } else {
                 // Modo creación de nuevo vendedor
@@ -74,45 +76,57 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
     const debouncedFetchAdmins = useCallback(
         debounce(async (searchTerm) => {
             if (searchTerm.length >= 0) {
+                setHasSearchedAdmins(false); // empieza nueva búsqueda
                 try {
-                    const fetchedCities = await getAdminsApis({role_name: 'Store Admin', name: searchTerm });
-                    
-                    // Filtrar ciudades por nombre único
-                    const uniqueCities = Array.from(new Map(fetchedCities.map(city => [city.dni, city])).values());
-                    console.log("Fetched USERS:", uniqueCities); // Añadido para depuración
-                    setAdminSuggestions(uniqueCities);
+                    const fetchedAdmins = await getAdminsApis({ role_name: 'Store Admin', name: searchTerm });
+
+                    const unassignedAdmins = fetchedAdmins.filter(admin => admin.store === null);
+                    const uniqueAdmins = Array.from(new Map(unassignedAdmins.map(admin => [admin.dni, admin])).values());
+
+                    setAdminSuggestions(uniqueAdmins);
                     setShowSuggestionsAdmin(true);
                 } catch (error) {
-                    console.error("Error fetching cities:", error); // Añadido para depuración
+                    console.error("Error fetching admins:", error);
                     setAdminSuggestions([]);
                     setShowSuggestionsAdmin(false);
+                } finally {
+                    setHasSearchedAdmins(true); // búsqueda completada
                 }
             } else {
                 setAdminSuggestions([]);
                 setShowSuggestionsAdmin(false);
+                setHasSearchedAdmins(false);
             }
         }, 300),
-        [getCountriesApi]
+        [getAdminsApis]
     );
-
 
     //Funcion para debounced PAIS
     const debouncedFetchCountries = useCallback(
         debounce(async (searchTerm) => {
             if (searchTerm.length >= 0) {
+                setHasSearchedCountries(false); // empieza la búsqueda
+
                 try {
                     const fetchedCities = await getCountriesApi({ name: searchTerm });
-                    const uniqueCities = Array.from(new Map(fetchedCities.map(city => [city.name, city])).values());
+
+                    const uniqueCities = Array.from(
+                        new Map(fetchedCities.map(city => [city.name, city])).values()
+                    );
+
                     setCountrySuggestion(uniqueCities);
                     setShowSuggestions(true);
                 } catch (error) {
                     console.error("Error fetching countries:", error);
                     setCountrySuggestion([]);
                     setShowSuggestions(false);
+                } finally {
+                    setHasSearchedCountries(true); // termina la búsqueda
                 }
             } else {
                 setCountrySuggestion([]);
                 setShowSuggestions(false);
+                setHasSearchedCountries(false);
             }
         }, 300),
         [getCountriesApi]
@@ -141,11 +155,11 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
      */
     const handleAdminInputChange = (e) => {
         const { value } = e.target;
-        
+
         setFormData((prev) => ({
             ...prev,
             admin_input_name: value,
-            admin_id: '', 
+            admin_id: '',
         }));
         debouncedFetchAdmins(value);
     };
@@ -284,21 +298,27 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                                     }
                                                 }}
                                                 autoComplete='off'
-                                                placeholder="Busca y selecciona un país"
+                                                placeholder="Busca y selecciona"
 
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blueo-500 sm:text-sm"
                                             />
-                                            {showSuggestionsAdmin && adminSuggestions.length > 0 && (
+                                            {showSuggestionsAdmin && (
                                                 <ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                    {adminSuggestions.map((item) => (
-                                                        <li
-                                                            key={item.user_id}
-                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                            onClick={() => handleAdminSelect(item)}
-                                                        >
-                                                            {`${item.first_name} ${item.last_name} (${item.dni})`}
+                                                    {adminSuggestions.length === 0 ? (
+                                                        <li className="px-4 py-2 text-gray-500 italic">
+                                                            {!hasSearchedAdmins ? 'Buscando...' : 'No se encontraron resultados'}
                                                         </li>
-                                                    ))}
+                                                    ) : (
+                                                        adminSuggestions.map((item) => (
+                                                            <li
+                                                                key={item.user_id}
+                                                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                                onClick={() => handleAdminSelect(item)}
+                                                            >
+                                                                {`${item.first_name} ${item.last_name} (${item.dni})`}
+                                                            </li>
+                                                        ))
+                                                    )}
                                                 </ul>
                                             )}
                                             {formErrors.admin_id && (
@@ -315,26 +335,32 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                                 value={formData.country_input_name}
                                                 onChange={handleCityInputChange}
                                                 onFocus={() => {
-                                                    if (formData.country_input_name.length >= 2 && countrySuggestion.length > 0) {
+                                                    if (formData.country_input_name.length >= 0 && countrySuggestion.length > 0) {
                                                         setShowSuggestions(true);
                                                     }
                                                 }}
                                                 autoComplete='off'
-                                                placeholder="Busca y selecciona un país"
+                                                placeholder="Busca y selecciona"
 
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blueo-500 focus:ring-blueo-500 sm:text-sm"
                                             />
-                                            {showSuggestions && countrySuggestion.length > 0 && (
+                                            {showSuggestions && (
                                                 <ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
-                                                    {countrySuggestion.map((item) => (
-                                                        <li
-                                                            key={item.country_id}
-                                                            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                                                            onClick={() => handleCountrySelect(item)}
-                                                        >
-                                                            {item.name}
+                                                    {countrySuggestion.length > 0 ? (
+                                                        countrySuggestion.map((item) => (
+                                                            <li
+                                                                key={item.country_id}
+                                                                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                                                                onClick={() => handleCountrySelect(item)}
+                                                            >
+                                                                {item.name}
+                                                            </li>
+                                                        ))
+                                                    ) : (
+                                                        <li className="px-4 py-2 text-gray-500 italic">
+                                                            {!hasSearchedCountries ? 'Buscando...' : 'No se encontraron resultados'}
                                                         </li>
-                                                    ))}
+                                                    )}
                                                 </ul>
                                             )}
                                             {formErrors.country_id && (
@@ -363,7 +389,7 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                             )}
                                         </div> */}
 
-{/* <div>
+                                        {/* <div>
                                             <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
                                             <select
                                                 name="state"
@@ -378,21 +404,21 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                             </select>
                                         </div> */}
 
-<div className="mt-6 col-span-full flex justify-end gap-3">
-    <button
-        type="button"
-        className="inline-flex justify-center rounded-md border border-transparent bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
-        onClick={onClose}
-    >
-        Cancelar
-    </button>
-    <button
-        type="submit"
-        className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
-    >
-        {isNewRegister ? 'Crear Tienda' : 'Guardar Cambios'}
-    </button>
-</div>
+                                        <div className="mt-6 col-span-full flex justify-end gap-3">
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+                                                onClick={onClose}
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2"
+                                            >
+                                                {isNewRegister ? 'Crear Tienda' : 'Guardar Cambios'}
+                                            </button>
+                                        </div>
                                     </form >
                                 </div >
                             </Dialog.Panel >

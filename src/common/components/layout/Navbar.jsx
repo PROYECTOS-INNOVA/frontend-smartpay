@@ -1,18 +1,27 @@
 // src/components/Navbar.jsx
 
-import React, { useState } from 'react'; // Necesitamos useState para el dropdown del usuario
+import { useState, useEffect } from 'react'; // Necesitamos useState para el dropdown del usuario
 import { MagnifyingGlassIcon, BellIcon, Bars3Icon } from '@heroicons/react/24/outline';
-import { UserCircleIcon } from '@heroicons/react/24/solid'; // Si quieres un icono de usuario sólido
+// import { UserCircleIcon } from '@heroicons/react/24/solid'; // Si quieres un icono de usuario sólido
 // import { User } from 'lucide-react'; // Si prefieres este icono de usuario
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider'; // Asegúrate de que la ruta sea correcta
 
 const Navbar = ({ setSidebarOpen }) => {
+    const [isStore, setIsStore] = useState(null);
+
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user') || null)
+        console.log('STOREE: ', user);
+        
+        setIsStore(user.store);
+    }, [])
+
     const { user, logout } = useAuth();
     const [userDropdownOpen, setUserDropdownOpen] = useState(false); // Estado para el dropdown del usuario
 
     const displayName = user?.name || 'Invitado'; // Uso de encadenamiento opcional para más seguridad
-    const displayRole = user?.role || 'N/A'; // Uso de encadenamiento opcional
+    const displayRole = isStore ? `${isStore?.nombre} - ${user?.role}` : user?.role || 'N/A'; // Uso de encadenamiento opcional
 
     // Definición de colores primarios para consistencia
     const primaryBlueText = 'text-blue-600 hover:text-blue-700 focus:text-blue-700'; // Azul para iconos y texto interactivo

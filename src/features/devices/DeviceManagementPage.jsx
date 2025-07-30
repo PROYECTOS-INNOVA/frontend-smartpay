@@ -48,12 +48,39 @@ const DeviceManagementPage = () => {
         }
     }, []);
 
+    /**
+     * Metodo para mapear el esatdo en el que se encuentra el dispositivo
+     */
+    function mapPlansWithLatestAction(plans, actions) {
+        return plans.map(plan => {
+            // Filtrar acciones con mismo device_id
+            const matchingActions = actions.filter(action => action.device_id === plan.device_id);
+
+            // Obtener la acción más reciente (asumiendo que hay un campo de fecha llamado "created_at")
+            const latestAction = matchingActions.reduce((latest, current) => {
+                return !latest || new Date(current.created_at) > new Date(latest.created_at)
+                    ? current
+                    : latest;
+            }, null);
+
+            return {
+                ...plan,
+                status_actions: latestAction, // puede ser null si no hay acciones
+            };
+        });
+    }
+
+
     const fetchDevices = async () => {
         setLoading(true);
         setError(null);
         try {
             const data = await getPlans();
-            setDevices(data);
+            const actions = await getActionsHistory();
+            const enrichedPlans = mapPlansWithLatestAction(data, actions);
+            console.log('fetch data: ', enrichedPlans);
+            
+            setDevices(enrichedPlans);
         } catch (err) {
             console.error('Error al cargar dispositivos:', err);
             setError('Error al cargar dispositivos. Por favor, inténtalo de nuevo.');
@@ -356,7 +383,7 @@ const DeviceManagementPage = () => {
 
     return (
         <div className="container bg-white rounded-xl mx-auto p-4 sm:p-6 lg:p-8">
-        
+
             {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
                     <strong className="font-bold">¡Error!</strong>

@@ -100,9 +100,12 @@ export const handleChangeHelper = (e, formData, setFormData, isNewCustomer) => {
             [name]: value,
         };
         // Solo si es nuevo cliente y se está editando el DNI, actualiza también el password
+
         if (isNewCustomer && name === 'dni') {
             updated.username = value;
             updated.password = value;
+        } else {
+            updated.username = value;
         }
 
         return updated;

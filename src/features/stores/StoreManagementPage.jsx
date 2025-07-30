@@ -89,7 +89,11 @@ const StoreManagementPage = () => {
                     showConfirmButton: false
                 });
             } else {
-                await createStore(storeData);
+                const data = await createStore(storeData);
+                const body = {
+                    store_id: data?.id
+                }
+                await updateUser(data?.admin?.user_id, body);
                 Swal.close();
                 Swal.fire({
                     icon: 'success',
@@ -157,14 +161,14 @@ const StoreManagementPage = () => {
             } catch (err) {
                 Swal.close();
                 console.error("Error deleting store:", err);
-                const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al eliminar el vendedor.";
+                const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al eliminar el tienda.";
                 Swal.fire({
                     icon: 'error',
                     title: 'Error al Eliminar',
                     text: errorMessage,
                     confirmButtonText: 'Ok'
                 });
-                toast.error(`Error al eliminar vendedor: ${errorMessage}`);
+                toast.error(`Error al eliminar tienda: ${errorMessage}`);
             }
         }
     };
@@ -177,8 +181,8 @@ const StoreManagementPage = () => {
         const actionText = newStatus === 'Active' ? 'activar' : 'desactivar';
 
         const result = await Swal.fire({
-            title: `¿Estás seguro de ${actionText} este vendedor?`,
-            text: `El estado del vendedor ${storeToToggle.first_name || ''} ${storeToToggle.last_name || ''} cambiará a "${newStatus}".`,
+            title: `¿Estás seguro de ${actionText} este tienda?`,
+            text: `El estado del tienda ${storeToToggle.first_name || ''} ${storeToToggle.last_name || ''} cambiará a "${newStatus}".`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
@@ -212,7 +216,7 @@ const StoreManagementPage = () => {
             } catch (err) {
                 Swal.close();
                 console.error("Error toggling store status:", err);
-                const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al cambiar el estado del vendedor.";
+                const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al cambiar el estado del tienda.";
                 Swal.fire({
                     icon: 'error',
                     title: 'Error al Cambiar Estado',
@@ -240,7 +244,7 @@ const StoreManagementPage = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <p className="ml-3 text-lg text-gray-700">Cargando vendedores...</p>
+                <p className="ml-3 text-lg text-gray-700">Cargando tiendas...</p>
             </div>
         );
     }
@@ -287,7 +291,7 @@ const StoreManagementPage = () => {
                         name="search"
                         id="search"
                         className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500"
-                        placeholder="Buscar vendedor por nombre, usuario, email, DNI o estado..."
+                        placeholder="Buscar tienda por nombre, usuario, email, DNI o estado..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />

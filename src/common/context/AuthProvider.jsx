@@ -61,6 +61,7 @@ export const AuthProvider = ({ children }) => {
                 username: fullUserData.username || usernameFromToken,
                 first_name: fullUserData.first_name,
                 last_name: fullUserData.last_name,
+                store: fullUserData.store,
                 name: `${fullUserData.first_name || ''} ${fullUserData.last_name || ''}`.trim(), // Nombre completo para Navbar/Sidebar
                 // Asegúrate de que la propiedad 'role' del objeto `fullUserData` de /users/me
                 // tenga el nombre del rol. Puede ser `fullUserData.role.name` o `fullUserData.role` directamente.

@@ -39,7 +39,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
 
     useEffect(() => {
         if (initialData) {
-            setIsNewUser(false);
+            setIsNewUser(false);     
             setFormData({
                 first_name: initialData.first_name || '',
                 middle_name: initialData.middle_name || '',
@@ -90,7 +90,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
         setShowSuggestionsCountry(false);
         setShowSuggestionsRegion(false);
         setShowSuggestions(false);
-    }, [initialData, isOpen]);
+    }, [initialData, isOpen, isNewUser]);
 
     // Debounced function to fetch PAIS
     const debouncedFetchCountries = useCallback(
@@ -278,7 +278,15 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
+        if (roles && roles.length > 0) {
+            const storeAdminRole = roles.find((role) => role.name === 'Store Admin');
+            if (storeAdminRole) {
+                setFormData((prev) => ({
+                    ...prev,
+                    role_id: storeAdminRole.role_id
+                }));
+            }
+        }
         if (!formData.first_name || !formData.last_name || !formData.email || !formData.username || !formData.dni || !formData.city_id || !formData.role_id) {
             Swal.fire({
                 icon: 'error',
@@ -369,7 +377,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                                         {/* </div> */}
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
-                                            <DniInput handleChange={handleChangeHelper} formData={formData} setFormData={setFormData} isNewCustomer={true} />
+                                            <DniInput handleChange={handleChange} formData={formData} setFormData={setFormData} isNewCustomer={true} />
                                         </div>
                                         <div>
                                             <label htmlFor="prefix" className="block text-sm font-medium text-gray-700">Prefijo Teléfono * </label>
@@ -498,7 +506,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                                         </div>
 
 
-                                        <div>
+                                        {/* <div>
                                             <label htmlFor="role_id" className="block text-sm font-medium text-gray-700">Rol *</label>
                                             <select
                                                 name="role_id"
@@ -519,7 +527,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                                                     <option disabled>Cargando roles...</option>
                                                 )}
                                             </select>
-                                        </div>
+                                        </div> */}
 
                                         {/* {isNewUser && (
                                             <div>

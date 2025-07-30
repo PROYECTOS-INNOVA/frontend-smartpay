@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { PAGE_SIZE } from '../../../common/utils/const';
+import { Lock, LockOpenIcon } from 'lucide-react';
+
 
 const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilterChange }) => {
     const [currentPage, setCurrentPage] = useState(1);
@@ -23,6 +25,10 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
                 return 'bg-gray-100 text-gray-800';
             case 'Pending':
                 return 'bg-yellow-100 text-yellow-700';
+            case 'unblock':
+                return 'bg-emerald-100 text-emerald-700';
+            case 'block':
+                return 'bg-gray-100 text-gray-700';
             default:
                 return 'bg-gray-100 text-gray-800';
         }
@@ -50,12 +56,12 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
                 <thead className="bg-gray-50">
                     <tr>
                         {renderTh('user.first_name', 'Cliente')}
+                        {renderTh('status_actions.action', 'Estado')}
                         {renderTh('device.product_name', 'Nombre')}
                         {renderTh('device.serial_number', 'Serial')}
                         {renderTh('device.model', 'Modelo')}
                         {renderTh('device.brand', 'Marca')}
                         {renderTh('device.imei', 'IMEI 1')}
-                        {renderTh('device.state', 'Estado')}
                         <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
@@ -70,16 +76,25 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
                         paginatedDevices.map((device) => (
                             <tr key={device.device_id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{`${device.user.first_name} ${device.user.middle_name} ${device.user.last_name} ${device.user.second_last_name}` || ''}</td>
+                                <td className="px-6 py-4 whitespace-nowrap text-center">
+                                    <span className={`p-2 w-9 inline-flex text-xs leading-5 font-semibold rounded-full`}>
+                                        {device?.status_actions?.action && (
+                                            <>
+                                                {['unblock', 'unblock'].includes(device.status_actions.action.toLowerCase()) ? (
+                                                    <LockOpenIcon className="text-green-600" />
+                                                ) : ['block', 'block'].includes(device.status_actions.action.toLowerCase()) ? (
+                                                    <Lock className="text-red-600" />
+                                                ) : null}
+                                            </>
+                                        )}
+                                    </span>
+                                </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.device.product_name || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.serial_number || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.model || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.brand || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.imei || 'N/A'}</td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(device.device.state)}`}>
-                                        {device.device.state || 'N/A'}
-                                    </span>
-                                </td>
+
                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <button
                                         onClick={() => onViewDetails(device.device_id)}

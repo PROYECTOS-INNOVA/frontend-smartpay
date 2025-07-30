@@ -18,10 +18,11 @@ const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
                 <thead className="bg-gray-50">
                     <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Plan</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Limt. Dispositivos</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enlace Backend</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enalce Base Datos</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">País</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Limt. Dispositivos</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Administrador</th>
+                        {/* <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Enalce Base Datos</th> */}
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -36,8 +37,8 @@ const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.nombre || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.country.name || '-'}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-center">{item.tokens_disponibles || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.back_link || '-'}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.db_link || '-'}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{`${item.admin?.first_name || ''} ${item.admin?.last_name || ''}` || ''}</td>
+                                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{item.db_link || '-'}</td> */}
                                     {/* <td className="px-6 py-4 whitespace-nowrap">
                                         <button
                                             onClick={() => onToggleStatus(item.id)}
@@ -52,7 +53,7 @@ const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
                                             )}
                                         </button>
                                     </td> */}
-                                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                         <button
                                             onClick={() => onEdit(item)}
                                             className="text-blue-600 hover:text-blue-900 mr-3"
