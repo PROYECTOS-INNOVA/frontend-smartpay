@@ -113,8 +113,23 @@ function ConfigurationPage() {
   };
 
   const login = () => {
-    console.log("Data", REDIRECT_URI);
-    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${encodeURIComponent(SCOPE)}&access_type=offline&prompt=consent`;
+    const storedUser = localStorage.getItem("user"); // Usa la clave con la que guardaste el objeto
+    if (!storedUser) {
+        console.log("No se encontró el datos del usuario en el localStorage");
+        return;  
+    }
+
+    var storeId = null;
+    try {
+        const user = JSON.parse(storedUser); // Convertir de JSON a objeto
+        storeId = user.store?.id; // Acceder al ID del store (usa optional chaining por seguridad)
+        console.log("Store ID:", storeId);
+    } catch (error) {
+        console.error("Error al parsear el objeto del localStorage", error);
+    }
+
+    const state = encodeURIComponent(JSON.stringify({ storeId }));
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=${encodeURIComponent(SCOPE)}&access_type=offline&prompt=consent&state=${state}`;
     window.location.href = authUrl;
   };
 

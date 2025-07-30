@@ -21,7 +21,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
 
   const [simulateDummyDevice, setSimulateDummyDevice] = useState(false);
 
-const generateProvisioningJson = (enrolmentId) => ({
+const generateProvisioningJson = (enrolmentId, storeId) => ({
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "bp3bEbZOikyuHtGSLMD7d9JpUmVfCQVgdEyFNjj5Tok=",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://appincdevs.com/enterprise/smartpay-google.apk",
@@ -30,7 +30,7 @@ const generateProvisioningJson = (enrolmentId) => ({
     "android.app.extra.PROVISIONING_LOCALE": "es_ES",
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
       "ENROLLMENT_ID": enrolmentId,
-      "BASE_URL": API_GATEWAY_URL
+      "STORE_ID": storeId
     }
   });
 
@@ -97,7 +97,24 @@ const generateProvisioningJson = (enrolmentId) => ({
       console.log('Aqui EnrollmentId:', enrollmentId);
       setCurrentEnrolmentId(enrollmentId);
 
-      const provisioningJson = generateProvisioningJson(enrollmentId);
+      // Obtener el objeto del localStorage
+      const storedUser = localStorage.getItem("user"); // Usa la clave con la que guardaste el objeto
+      if (!storedUser) {
+        console.log("No se encontró el datos del usuario en el localStorage");
+        return;  
+      }
+
+      var storeId = null;
+      try {
+        const user = JSON.parse(storedUser); // Convertir de JSON a objeto
+        storeId = user.store?.id; // Acceder al ID del store (usa optional chaining por seguridad)
+        console.log("Store ID:", storeId);
+      } catch (error) {
+        console.error("Error al parsear el objeto del localStorage", error);
+      }
+
+      const provisioningJson = generateProvisioningJson(enrollmentId, storeId);
+      console.log("Store ID:", provisioningJson);
       setQrProvisioningData(provisioningJson);
 
       setQrGenerated(true);
