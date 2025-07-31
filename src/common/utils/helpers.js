@@ -1,6 +1,22 @@
 // src/utils/helpers.js
 
 /**
+ * Helper para tomar la store id del local storage
+ */
+export const getCurrentStoreId = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user?.store?.id || null;
+};
+
+/**
+ * Helper para tomar la store del local storage
+ */
+export const getCurrentStore = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user?.store || null;
+};
+
+/**
  * Capitaliza la primera letra de una cadena.
  * @param {string} string - La cadena de entrada.
  * @returns {string} La cadena con la primera letra capitalizada.

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { getCurrentStoreId } from '../common/utils/helpers';
 
 const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
@@ -22,9 +23,26 @@ axiosInstance.interceptors.request.use(
     }
 );
 
+/**
+ * Metodo para crear configuraciones por defecto
+ * @returns 
+ */
+export const createDefaultConfigurations = async (data) => {
+    try {
+        const response = await axiosInstance.post('/configurations/create-default-configurations/', data);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating default configurations:', error);
+        throw error;
+    }
+}
+
 export const getConfigurations = async () => {
     try {
-        const response = await axiosInstance.get('/configurations/');
+        let params = {};
+        const storeId = getCurrentStoreId();
+        if (storeId) params.store_id = storeId;
+        const response = await axiosInstance.get('/configurations/', {params});
         return response.data;
     } catch (error) {
         console.error('Error fetching configurations:', error);

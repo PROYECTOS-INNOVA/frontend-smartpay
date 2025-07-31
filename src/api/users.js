@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { use } from 'react';
+import { getCurrentStoreId } from '../common/utils/helpers';
 
 const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
@@ -9,12 +10,6 @@ const axiosInstance = axios.create({
         'Content-Type': 'application/json',
     },
 });
-
-const getCurrentStoreId = () => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    return user?.store?.id || null;
-};
-
 
 axiosInstance.interceptors.request.use(
     (config) => {

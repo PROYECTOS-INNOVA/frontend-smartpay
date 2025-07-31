@@ -123,8 +123,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
             >
                 {/* Sidebar Header/Logo */}
                 <div className="flex items-center justify-center h-16 px-4 border-b border-gray-200">
-                    <Link to={user ? '/dashboard' : '/'} className="flex-shrink-0 flex items-center space-x-2">
-                        <div className="w-auto h-8 bg-white-600 p-1 rounded-lg flex items-center justify-center shadow-md">
+                    <Link to={user ? '/dashboard' : '/'} className="flex-shrink-0 flex items-center space-x-2 hover:bg-blue-50 rounded-sm px-6 py-1">
+                        <div className="w-40  p-1 rounded-lg flex items-center justify-center ">
                             {/* Ajustado a w-8 h-8 para un logo más pequeño */}
                             <img src="/assets/logo1.png" alt="Logo SmartPay" className="w-full h-full object-contain" />
                         </div>

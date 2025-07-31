@@ -1,21 +1,26 @@
-import { useEffect, useMemo, useState } from 'react';
+import { use, useEffect, useMemo, useState } from 'react';
 import Cards from '../../common/components/ui/Cards';
 import { PieChart, BarChart } from '../../common/components/ui/Charts';
 import { useAuth } from '../../common/context/AuthProvider';
 import { showNewUserAlert } from '../../common/utils/auth';
 import { useNavigate } from 'react-router-dom';
 import ReportsPage from '../reports/ReportsPage.jsx';
+import { getCurrentStore } from '../../common/utils/helpers.js';
+import { set } from 'lodash';
 
 const Dashboard = () => {
     const { user, logout } = useAuth();
     const [isNew, setIsNew] = useState(false);
     const navigate = useNavigate();
+    const [nameStore, setNameStore] = useState(null);
 
     const fetchUserData = async () => {
         await showNewUserAlert(user, setIsNew, logout, navigate);
     }
 
     useEffect(() => {
+        const data = getCurrentStore()
+        setNameStore(data?.nombre)
         fetchUserData();
     }, [])
 
@@ -71,7 +76,9 @@ const Dashboard = () => {
             <main className="bg-white rounded-lg shadow-md p-4 sm:p-6 lg:p-8">
                 {/* Card tipo Hero para el mensaje de bienvenida */}
                 <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 sm:p-8 rounded-lg shadow-lg mb-6 sm:mb-8 text-center">
-                    <h2 className="text-3xl sm:text-4xl font-bold mb-2">¡Bienvenido de nuevo!</h2>
+                    <h2 className="text-3xl sm:text-4xl font-bold mb-2">
+                        ¡Bienvenido {nameStore ? `a ${nameStore}` : 'de nuevo'}!
+                    </h2>
                     <p className="text-lg sm:text-xl opacity-90">Gestión eficiente de tus dispositivos con SmartPay.</p>
                 </div>
 

@@ -53,11 +53,14 @@ const DeviceManagementPage = () => {
      */
     function mapPlansWithLatestAction(plans, actions) {
         return plans.map(plan => {
-            // Filtrar acciones con mismo device_id
-            const matchingActions = actions.filter(action => action.device_id === plan.device_id);
+            // Filtrar solo acciones de tipo 'block' o 'unblock' con mismo device_id
+            const relevantActions = actions.filter(action =>
+                action.device_id === plan.device_id &&
+                (action.action === 'block' || action.action === 'unblock')
+            );
 
-            // Obtener la acción más reciente (asumiendo que hay un campo de fecha llamado "created_at")
-            const latestAction = matchingActions.reduce((latest, current) => {
+            // Buscar la más reciente por created_at
+            const latestAction = relevantActions.reduce((latest, current) => {
                 return !latest || new Date(current.created_at) > new Date(latest.created_at)
                     ? current
                     : latest;
@@ -65,11 +68,10 @@ const DeviceManagementPage = () => {
 
             return {
                 ...plan,
-                status_actions: latestAction, // puede ser null si no hay acciones
+                status_actions: latestAction, // puede ser null si no hay 'block'/'unblock'
             };
         });
     }
-
 
     const fetchDevices = async () => {
         setLoading(true);
@@ -79,7 +81,7 @@ const DeviceManagementPage = () => {
             const actions = await getActionsHistory();
             const enrichedPlans = mapPlansWithLatestAction(data, actions);
             console.log('fetch data: ', enrichedPlans);
-            
+
             setDevices(enrichedPlans);
         } catch (err) {
             console.error('Error al cargar dispositivos:', err);

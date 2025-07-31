@@ -115,49 +115,35 @@ const AppRoutes = () => {
                         <Route path="/" element={<Navigate to="/landing" replace />} />
 
 
-                        <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Admin', 'Vendedor', 'Store Admin']} />}>
+                        <Route path="/" element={<Layout />}>
+                            {/* Ruta index → si quieres redirigir según el rol, deberías hacerlo con lógica en el componente */}
+                            <Route index element={<Navigate to="user-management" replace />} />
 
-                            <Route path="/" element={<Layout />}>
-
-                                {/* Ruta index para / que redirige a /dashboard dentro del layout */}
-
-                                <Route index element={<Navigate to="dashboard" replace />} />
-
-
-
-                                {/* Rutas con el Layout */}
-
+                            {/* Dashboard: solo para Superadmin y Store Admin */}
+                            <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin']} />}>
                                 <Route path="dashboard" element={<DashboardPage />} />
-
-                                <Route path="user-management" element={<UserManagementPage />} />
-
-                                <Route path="customers-management" element={<CustomerManagementPage />} />
-
-                                <Route path="customer-registration" element={<CustomerRegisterFlowPage />} />
-
                                 <Route path="vendors-management" element={<VendorManagementPage />} />
-
-                                <Route path="devices-management" element={<DeviceManagementPage />} />
-
-                                <Route path="payments-management" element={<PaymentManagementPage />} />
-
                                 <Route path="reports" element={<ReportsPage />} />
-
-                                <Route path="profile" element={<UserProfilePage />} />
-
                                 <Route path="store-management" element={<StoreManagementPage />} />
-
-
                                 <Route path="configuration" element={<ConfigurationPage />} />
-
-
-
-                                {/* Catch-all para rutas no encontradas dentro del Layout (Admin) */}
-
-                                <Route path="*" element={<div className="p-8 text-white">404 - Página no encontrada (Dentro del Layout de Admin)</div>} />
-
                             </Route>
 
+                            {/* user-management: permitido a todos los roles mencionados */}
+                            <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin', 'Admin', 'Vendedor']} />}>
+                                <Route path="user-management" element={<UserManagementPage />} />
+                            </Route>
+
+                            {/* Rutas compartidas entre todos los roles */}
+                            <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin', 'Admin', 'Vendedor']} />}>
+                                <Route path="customers-management" element={<CustomerManagementPage />} />
+                                <Route path="customer-registration" element={<CustomerRegisterFlowPage />} />
+                                <Route path="devices-management" element={<DeviceManagementPage />} />
+                                <Route path="payments-management" element={<PaymentManagementPage />} />
+                                <Route path="profile" element={<UserProfilePage />} />
+                            </Route>
+
+                            {/* Catch-all para rutas no encontradas */}
+                            <Route path="*" element={<div className="p-8 text-white">404 - Página no encontrada</div>} />
                         </Route>
 
 

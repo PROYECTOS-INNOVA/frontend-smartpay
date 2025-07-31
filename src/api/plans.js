@@ -1,5 +1,6 @@
 // src/api/plans.js
 import axios from 'axios';
+import { getCurrentStoreId } from '../common/utils/helpers';
 
 // La URL base de tu API, tomada de las variables de entorno de Vite
 const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
@@ -51,6 +52,9 @@ export const createPlan = async (planData) => {
  */
 export const getPlans = async (params = {}) => {
     try {
+        const storeId = getCurrentStoreId();
+        if (storeId) params.store_id = storeId;
+
         const response = await axiosInstance.get('/plans/', { params });
         return response.data;
     } catch (error) {

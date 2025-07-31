@@ -12,8 +12,6 @@ const Navbar = ({ setSidebarOpen }) => {
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user') || null)
-        console.log('STOREE: ', user);
-        
         setIsStore(user.store);
     }, [])
 

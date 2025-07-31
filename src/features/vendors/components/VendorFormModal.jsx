@@ -437,7 +437,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCou
                                                     }
                                                 }}
                                                 autoComplete='off'
-                                                placeholder="Busca y selecciona una ciudad"
+                                                placeholder="Busca y selecciona una opción"
                                                 required
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                             />
@@ -474,7 +474,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCou
                                                     }
                                                 }}
                                                 autoComplete='off'
-                                                placeholder="Busca y selecciona una ciudad"
+                                                placeholder="Busca y selecciona una opción"
                                                 required
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
                                             />
@@ -512,7 +512,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCou
                                                     }
                                                 }}
                                                 autoComplete='off'
-                                                placeholder="Busca y selecciona una ciudad"
+                                                placeholder="Busca y selecciona una opción"
                                                 required
                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                                             />
