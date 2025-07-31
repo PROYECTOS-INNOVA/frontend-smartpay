@@ -85,7 +85,7 @@ const DeviceDetailsView = ({
             action.action === 'block' || action.action === 'unblock'
         );
 
-        if (filtered.length === 0) return 'block';
+        if (filtered.length === 0) return 'unblock';
 
         const sorted = filtered.sort(
             (a, b) => new Date(b.created_at) - new Date(a.created_at)
