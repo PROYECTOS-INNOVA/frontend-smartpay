@@ -60,7 +60,7 @@ export const getDevices = async (params = {}) => {
 export const getActionsHistory = async (deviceId) => {
     try {
         const params = {
-            deviceId: deviceId,
+            device_id: deviceId,
         };
 
         const response = await axiosInstance.get(`/actions/`, {params});
