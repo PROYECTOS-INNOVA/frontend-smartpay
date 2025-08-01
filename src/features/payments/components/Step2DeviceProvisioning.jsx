@@ -1,6 +1,6 @@
 // src/pages/payments/components/Step2DeviceProvisioning.jsx
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { QrCodeIcon, WifiIcon, DevicePhoneMobileIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { QrCodeIcon, WifiIcon, CheckCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,15 +17,14 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
   const [qrProvisioningData, setQrProvisioningData] = useState(null);
   const [currentEnrolmentId, setCurrentEnrolmentId] = useState(null);
   const hasStartedProvisioning = useRef(false);
-  const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
   const [simulateDummyDevice, setSimulateDummyDevice] = useState(false);
 
 const generateProvisioningJson = (enrolmentId, storeId) => ({
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "-XK7AW3aaLWufk8yhcdxUSGpBxxZKP6Eom2e1Ng-gYw=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "5eeVrqOL-gRJUXwonXtf2kJCY6DUv0O2BNe7_ocRUcE=",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://appincdevs.com/enterprise/smartpay-google.apk",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "-XK7AW3aaLWufk8yhcdxUSGpBxxZKP6Eom2e1Ng-gYw=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "5eeVrqOL-gRJUXwonXtf2kJCY6DUv0O2BNe7_ocRUcE=",
     "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
     "android.app.extra.PROVISIONING_LOCALE": "es_ES",
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
