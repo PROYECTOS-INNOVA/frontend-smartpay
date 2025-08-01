@@ -23,9 +23,9 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
 
 const generateProvisioningJson = (enrolmentId, storeId) => ({
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_COMPONENT_NAME": "com.olimpo.smartpay/com.olimpo.smartpay.receivers.SmartPayDeviceAdminReceiver",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "AAkxc09Oqm70dRoBzhnIxOhuwE2dwfPXPSs5gb2H6gY=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_SIGNATURE_CHECKSUM": "-XK7AW3aaLWufk8yhcdxUSGpBxxZKP6Eom2e1Ng-gYw=",
     "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_DOWNLOAD_LOCATION": "https://appincdevs.com/enterprise/smartpay-google.apk",
-    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "AAkxc09Oqm70dRoBzhnIxOhuwE2dwfPXPSs5gb2H6gY=",
+    "android.app.extra.PROVISIONING_DEVICE_ADMIN_PACKAGE_CHECKSUM": "-XK7AW3aaLWufk8yhcdxUSGpBxxZKP6Eom2e1Ng-gYw=",
     "android.app.extra.PROVISIONING_LEAVE_ALL_SYSTEM_APPS_ENABLED": true,
     "android.app.extra.PROVISIONING_LOCALE": "es_ES",
     "android.app.extra.PROVISIONING_ADMIN_EXTRAS_BUNDLE": {
