@@ -47,31 +47,6 @@ const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, plan, payments }) => 
         onClose();
     };
 
-    function getPaymentDates(startDateStr, periodDays) {
-        const startDate = new Date(startDateStr)
-        const today = new Date()
-
-        if (isNaN(startDate)) return null
-        if (today < startDate) return null
-
-        const diffTime = today.getTime() - startDate.getTime()
-        const daysElapsed = Math.floor(diffTime / (1000 * 60 * 60 * 24))
-        const cyclesPassed = Math.floor(daysElapsed / periodDays)
-
-        // Fecha del último pago
-        const lastPaymentDate = new Date(startDate)
-        lastPaymentDate.setDate(startDate.getDate() + cyclesPassed * periodDays)
-
-        // Fecha del siguiente pago
-        const nextPaymentDate = new Date(lastPaymentDate)
-        nextPaymentDate.setDate(lastPaymentDate.getDate() + periodDays)
-
-        return {
-            lastPaymentDate: lastPaymentDate.toISOString().split('T')[0],
-            nextPaymentDate: nextPaymentDate.toISOString().split('T')[0]
-        }
-    }
-
     function getEffectivePaymentDate(payments, startDateStr, periodDays) {
         const paidDates = payments
             .filter(p => p.state === 'Approved')
@@ -81,31 +56,22 @@ const RegisterPaymentModal = ({ isOpen, onClose, onSubmit, plan, payments }) => 
         let currentDate = new Date(startDate);
         const todayStr = new Date().toISOString().split('T')[0];
 
+        // 🚨 Avanzamos al primer período antes de empezar
+        currentDate.setDate(currentDate.getDate() + periodDays);
+
         // Iterar hasta encontrar la primera fecha no pagada
         while (true) {
             const currentDateStr = currentDate.toISOString().split('T')[0];
             if (!paidDates.includes(currentDateStr)) {
                 return currentDateStr;
             }
-            // Sumar periodo
             currentDate.setDate(currentDate.getDate() + periodDays);
 
-            // Si llegamos muy lejos en el futuro, cortamos (evita loops infinitos)
             if (currentDateStr > todayStr && (currentDate - startDate) / (1000 * 60 * 60 * 24) > 365) {
                 throw new Error("No se encontró una fecha válida en el rango esperado.");
             }
         }
     }
-
-
-    function hasPaymentForDate(payments, targetDateStr) {
-        return payments.some(payment => {
-            const paymentDate = new Date(payment.date)
-            const formattedPaymentDate = paymentDate.toISOString().split('T')[0] // 'yyyy-MM-dd'
-            return formattedPaymentDate === targetDateStr
-        })
-    }
-
 
     function getQuotaValue(payments, plan) {
         var initialPayment = 0;
