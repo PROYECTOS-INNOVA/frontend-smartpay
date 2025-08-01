@@ -10,6 +10,7 @@ import { getCountries } from '../../api/cities';
 import StoreTable from './components/StoreTable';
 import StoreFormModal from './components/StoreFormModal';
 import { createStore, deleteStore, getStores, updateStore } from '../../api/stores';
+import { createDefaultConfigurations } from '../../api/configuration';
 
 const StoreManagementPage = () => {
     const [stores, setStores] = useState([]);
@@ -93,7 +94,8 @@ const StoreManagementPage = () => {
                 const body = {
                     store_id: data?.id
                 }
-                await updateUser(data?.admin?.user_id, body);
+                await createDefaultConfigurations(data?.id); //Crea configuraciones por defecto
+                await updateUser(data?.admin?.user_id, body); //Actualiza el usuario con l id de la tienda
                 Swal.close();
                 Swal.fire({
                     icon: 'success',

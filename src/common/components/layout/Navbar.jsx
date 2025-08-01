@@ -4,18 +4,29 @@ import { useState, useEffect } from 'react'; // Necesitamos useState para el dro
 import { MagnifyingGlassIcon, BellIcon, Bars3Icon } from '@heroicons/react/24/outline';
 // import { UserCircleIcon } from '@heroicons/react/24/solid'; // Si quieres un icono de usuario sólido
 // import { User } from 'lucide-react'; // Si prefieres este icono de usuario
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider'; // Asegúrate de que la ruta sea correcta
+import { showNewUserAlert, userNotStore } from '../../utils/auth';
 
 const Navbar = ({ setSidebarOpen }) => {
     const [isStore, setIsStore] = useState(null);
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+
+    const fetchUserData = async () => {
+        console.log('Fetching user data...');
+        
+        await showNewUserAlert(user, null, logout, navigate);
+        await userNotStore(user, logout, navigate);
+    }
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user') || null)
         setIsStore(user.store);
+        fetchUserData()
     }, [])
 
-    const { user, logout } = useAuth();
+
     const [userDropdownOpen, setUserDropdownOpen] = useState(false); // Estado para el dropdown del usuario
 
     const displayName = user?.name || 'Invitado'; // Uso de encadenamiento opcional para más seguridad

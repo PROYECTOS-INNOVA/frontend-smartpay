@@ -25,9 +25,9 @@ export const getUserRoleFromToken = () => {
  * @param {*} logout 
  * @param {*} navigate 
  */
-export const showNewUserAlert = async (user, setIsNew, logout,  navigate) => {
+export const showNewUserAlert = async (user, setIsNew = null, logout, navigate) => {
     if (user.state === 'I' || user.state.toLowerCase() === 'initial') {
-        setIsNew(true);
+        if (setIsNew) setIsNew(true);
         const result = await MySwal.fire({
             icon: 'warning',
             title: '¡Cambia tu contraseña!',
@@ -93,3 +93,23 @@ export const handlePasswordReset = async (user, setIsNew, logout, navigate) => {
         });
     }
 };
+
+/**
+ * Funcion para alerta cuando un cliente no tiene tienda asociada
+ */
+export const userNotStore = async (user, logout, navigate) => {
+    const role = user?.role?.toLowerCase();
+    const noStore = !user?.store || !user?.store?.id;
+
+    if ((role === 'vendedor' || role === 'store admin') && noStore) {
+        MySwal.fire({
+            icon: 'warning',
+            title: '!Falta un paso!',
+            text: 'Aún no tiene una tienda asignada. Contacte a su proveedor.',
+            confirmButtonText: 'Cerrar',
+            allowOutsideClick: false,
+        });
+        await logout();
+        navigate('/login');
+    }
+}

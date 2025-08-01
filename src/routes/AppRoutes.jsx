@@ -117,20 +117,20 @@ const AppRoutes = () => {
 
                         <Route path="/" element={<Layout />}>
                             {/* Ruta index → si quieres redirigir según el rol, deberías hacerlo con lógica en el componente */}
-                            <Route index element={<Navigate to="user-management" replace />} />
+                            <Route index element={<Navigate to="customers-management" replace />} />
 
                             {/* Dashboard: solo para Superadmin y Store Admin */}
                             <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin']} />}>
                                 <Route path="dashboard" element={<DashboardPage />} />
                                 <Route path="vendors-management" element={<VendorManagementPage />} />
                                 <Route path="reports" element={<ReportsPage />} />
-                                <Route path="store-management" element={<StoreManagementPage />} />
                                 <Route path="configuration" element={<ConfigurationPage />} />
                             </Route>
 
                             {/* user-management: permitido a todos los roles mencionados */}
-                            <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin', 'Admin', 'Vendedor']} />}>
+                            <Route element={<PrivateRoute allowedRoles={['Superadmin']} />}>
                                 <Route path="user-management" element={<UserManagementPage />} />
+                                <Route path="store-management" element={<StoreManagementPage />} />
                             </Route>
 
                             {/* Rutas compartidas entre todos los roles */}

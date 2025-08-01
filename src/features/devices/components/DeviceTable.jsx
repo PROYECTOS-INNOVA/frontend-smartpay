@@ -77,17 +77,19 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
                             <tr key={device.device_id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{`${device.user.first_name} ${device.user.middle_name} ${device.user.last_name} ${device.user.second_last_name}` || ''}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-center">
-                                    <span className={`p-2 w-9 inline-flex text-xs leading-5 font-semibold rounded-full`}>
-                                        {device?.status_actions?.action && (
-                                            <>
-                                                {['unblock', 'unblock'].includes(device.status_actions.action.toLowerCase()) ? (
-                                                    <LockOpenIcon className="text-green-600" />
-                                                ) : ['block', 'block'].includes(device.status_actions.action.toLowerCase()) ? (
-                                                    <Lock className="text-red-600" />
-                                                ) : null}
-                                            </>
-                                        )}
+                                    <span className="p-2 w-9 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                        {(() => {
+                                            const action = device?.status_actions?.action?.toLowerCase();
+
+                                            if (action === 'block') {
+                                                return <Lock className="text-red-600" />;
+                                            }
+
+                                            // Mostrar LockOpenIcon por defecto o si es 'unblock'
+                                            return <LockOpenIcon className="text-green-600" />;
+                                        })()}
                                     </span>
+
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{device.device.product_name || 'N/A'}</td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{device.device.serial_number || 'N/A'}</td>

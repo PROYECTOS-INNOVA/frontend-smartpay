@@ -1,30 +1,31 @@
 // src/api/plans.js
 import axios from 'axios';
+import axiosInstance from '../common/utils/interceptor-store';
 
 // La URL base de tu API, tomada de las variables de entorno de Vite
 const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
 // Crear una instancia de Axios con la URL base de tu API Gateway
-const axiosInstance = axios.create({
-    baseURL: `${API_GATEWAY_URL}/api/v1`, // Asume que los endpoints de planes están bajo /api/v1
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+// const axiosInstance = axios.create({
+//     baseURL: `${API_GATEWAY_URL}/api/v1`, // Asume que los endpoints de planes están bajo /api/v1
+//     headers: {
+//         'Content-Type': 'application/json',
+//     },
+// });
 
-// Interceptor para agregar el token de autorización
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+// // Interceptor para agregar el token de autorización
+// axiosInstance.interceptors.request.use(
+//     (config) => {
+//         const token = localStorage.getItem('token');
+//         if (token) {
+//             config.headers.Authorization = `Bearer ${token}`;
+//         }
+//         return config;
+//     },
+//     (error) => {
+//         return Promise.reject(error);
+//     }
+// );
 
 
 /**

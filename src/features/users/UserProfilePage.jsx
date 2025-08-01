@@ -4,12 +4,19 @@ import { User, IdCard, Mail, Key, Bell, Monitor, Save, Smartphone } from 'lucide
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { requestPasswordReset } from '../../api/auth';
+import { getUserId, updateUser } from '../../api/users';
 
 // URL base de tu API Gateway
-const API_GATEWAY_URL = 'import.meta.env.VITE_REACT_APP_API_BASE_URL';
+const API_GATEWAY_URL = import.meta.env.VITE_REACT_APP_API_BASE_URL;
 
 const UserProfilePage = () => {
-    const { user, updateUserProfile, token } = useAuth();
+    const { user: userData, updateUserProfile, token } = useAuth();
+    const [user, setUser] = useState(null);
+
+    const fetchUserData = async () => {
+        const user = await getUserId(userData.user_id);
+        setUser(user);
+    }
 
     // Estados para la información del perfil
     const [firstName, setFirstName] = useState('');
@@ -30,6 +37,11 @@ const UserProfilePage = () => {
     const [isProfileUpdating, setIsProfileUpdating] = useState(false);
     const [isPasswordChanging, setIsPasswordChanging] = useState(false);
 
+    useEffect(() => {
+        fetchUserData();
+    }, []);
+
+    //Efect para user
     useEffect(() => {
         if (user) {
             setFirstName(user.first_name || '');
@@ -53,7 +65,7 @@ const UserProfilePage = () => {
             setIsPasswordChanging(false);
         })
         setIsPasswordChanging(false);
-        toast.success('Correo enviado exitosamente! ' + user.email, { })
+        toast.success('Correo enviado exitosamente! ' + user.email, {})
     }
 
     const handleProfileUpdate = async (e) => {
@@ -64,41 +76,48 @@ const UserProfilePage = () => {
             const dataToUpdate = {
                 first_name: firstName,
                 last_name: lastName,
-                username: username,
+                // username: username,
                 email: email,
                 phone: phone,
                 address: address,
             };
+            await updateUser(user.user_id, dataToUpdate)
+                .then(async result => {
+                    toast.success('Perfil actualizado exitosamente!')
+                })
+                .catch(err => {
+                    toast.error('Error actualizando el perfil. Intente de nuevo')
+                });
 
-            const response = await fetch(`${API_GATEWAY_URL}/users/${user.user_id}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(dataToUpdate)
-            });
+            // const response = await fetch(`${API_GATEWAY_URL}/users/${user.user_id}`, {
+            //     method: 'PATCH',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': `Bearer ${token}`
+            //     },
+            //     body: JSON.stringify(dataToUpdate)
+            // });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Error al actualizar el perfil.');
-            }
-            const updatedUserResponse = await fetch(`${API_GATEWAY_URL}/users/me`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            // if (!response.ok) {
+            //     const errorData = await response.json();
+            //     throw new Error(errorData.detail || 'Error al actualizar el perfil.');
+            // }
+            // const updatedUserResponse = await fetch(`${API_GATEWAY_URL}/users/me`, {
+            //     headers: {
+            //         'Authorization': `Bearer ${token}`
+            //     }
+            // });
 
-            if (!updatedUserResponse.ok) {
-                throw new Error('Error al recargar el perfil después de la actualización.');
-            }
-            const updatedUserFromApi = await updatedUserResponse.json();
-            updateUserProfile(updatedUserFromApi);
+            // if (!updatedUserResponse.ok) {
+            //     throw new Error('Error al recargar el perfil después de la actualización.');
+            // }
+            // const updatedUserFromApi = await updatedUserResponse.json();
+            // updateUserProfile(updatedUserFromApi);
 
-            toast.success('Perfil actualizado exitosamente!', {
-                position: "top-right", autoClose: 3000, hideProgressBar: false,
-                closeOnClick: true, pauseOnHover: true, draggable: true, progress: undefined,
-            });
+            // toast.success('Perfil actualizado exitosamente!', {
+            //     position: "top-right", autoClose: 3000, hideProgressBar: false,
+            //     closeOnClick: true, pauseOnHover: true, draggable: true, progress: undefined,
+            // });
 
         } catch (error) {
             console.error('Error al actualizar el perfil:', error);

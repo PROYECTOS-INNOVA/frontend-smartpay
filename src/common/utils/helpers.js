@@ -17,6 +17,14 @@ export const getCurrentStore = () => {
 };
 
 /**
+ * Helper para tomar la store del local storage
+ */
+export const getCurrentUser = () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    return user || null;
+};
+
+/**
  * Capitaliza la primera letra de una cadena.
  * @param {string} string - La cadena de entrada.
  * @returns {string} La cadena con la primera letra capitalizada.
@@ -120,10 +128,9 @@ export const handleChangeHelper = (e, formData, setFormData, isNewCustomer) => {
         if (isNewCustomer && name === 'dni') {
             updated.username = value;
             updated.password = value;
-        } else {
+        } else if (name === 'dni'){
             updated.username = value;
         }
-
         return updated;
     });
 };

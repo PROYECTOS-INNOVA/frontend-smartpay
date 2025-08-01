@@ -544,7 +544,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCou
                                                 />
                                             </div>
                                         )} */}
-                                        {!isNewVendor && (
+                                        {/* {!isNewVendor && (
                                             <div>
                                                 <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
                                                 <select
@@ -560,7 +560,7 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCou
                                                     <option value="Initial">Nuevo</option>
                                                 </select>
                                             </div>
-                                        )}
+                                        )} */}
                                         <div className="mt-6 col-span-full flex justify-end gap-3">
                                             <button
                                                 type="button"

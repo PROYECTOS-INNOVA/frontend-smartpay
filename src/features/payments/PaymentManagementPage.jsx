@@ -91,6 +91,8 @@ const PaymentManagementPage = () => {
             console.log('Sending Plan Payload:', JSON.stringify(planPayload, null, 2)); // <-- AGREGAR ESTO
 
             const planResponse = await createPlan(planPayload);
+            console.log('Plan created:', planResponse);
+            
             const planId = planResponse.plan_id;
             if (planResponse && planId) {
                 const formData = new FormData();

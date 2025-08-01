@@ -12,11 +12,11 @@ const PrivateRoute = ({ allowedRoles }) => {
 
     if (allowedRoles && !allowedRoles.includes(user.role)) {
         console.warn(`Acceso denegado: Usuario ${user.username} con rol ${user.role} intentó acceder a una ruta para roles: ${allowedRoles.join(', ')}`);
-
+        console.log('ROLE : ', user)
         if (user.role === 'Cliente') {
             return <Navigate to="/client/dashboard" replace />;
         } else if (user.role.toLowerCase() === 'vendedor') {
-            return <Navigate to="/user-management" replace />;
+            return <Navigate to="/customers-management" replace />;
         } else {
             return <Navigate to="/dashboard" replace />;
         }

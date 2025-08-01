@@ -71,9 +71,9 @@ const CustomerTable = ({ customers, onEdit, onDelete, onToggleStatus }) => {
                                         <button onClick={() => onEdit(customer)} className="text-indigo-600 hover:text-indigo-900 mr-3">
                                             <PencilIcon className="h-5 w-5" />
                                         </button>
-                                        <button onClick={() => onDelete(customer.user_id)} className="text-red-600 hover:text-red-900">
+                                        {/* <button onClick={() => onDelete(customer.user_id)} className="text-red-600 hover:text-red-900">
                                             <TrashIcon className="h-5 w-5" />
-                                        </button>
+                                        </button> */}
                                     </td>
                                 </tr>
                             );

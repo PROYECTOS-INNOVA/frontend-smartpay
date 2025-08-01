@@ -39,7 +39,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
 
     useEffect(() => {
         if (initialData) {
-            setIsNewUser(false);     
+            setIsNewUser(false);
             setFormData({
                 first_name: initialData.first_name || '',
                 middle_name: initialData.middle_name || '',
@@ -83,6 +83,16 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                 country_name_input: '',
                 region_name_input: '',
             });
+
+            if (roles && roles.length > 0) {
+                const storeAdminRole = roles.find((role) => role.name === 'Store Admin');
+                if (storeAdminRole) {
+                    setFormData((prev) => ({
+                        ...prev,
+                        role_id: storeAdminRole.role_id
+                    }));
+                }
+            }
         }
         setCountrySuggestions([]);
         setRegionSuggestions([]);
@@ -278,16 +288,9 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (roles && roles.length > 0) {
-            const storeAdminRole = roles.find((role) => role.name === 'Store Admin');
-            if (storeAdminRole) {
-                setFormData((prev) => ({
-                    ...prev,
-                    role_id: storeAdminRole.role_id
-                }));
-            }
-        }
-        if (!formData.first_name || !formData.last_name || !formData.email || !formData.username || !formData.dni || !formData.city_id || !formData.role_id) {
+
+        console.log('FORMDATA; ', formData)
+        if (!formData.first_name || !formData.last_name || !formData.email || !formData.username || !formData.dni || !formData.city_id) {
             Swal.fire({
                 icon: 'error',
                 title: 'Campos requeridos',
@@ -543,7 +546,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                                                 />
                                             </div>
                                         )} */}
-                                        {!isNewUser && (
+                                        {/* {!isNewUser && (
                                             <div>
                                                 <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
                                                 <select
@@ -559,7 +562,7 @@ const UserFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCount
                                                     <option value="Initial">Nuevo</option>
                                                 </select>
                                             </div>
-                                        )}
+                                        )} */}
 
                                         <div className="mt-6 col-span-full flex justify-end gap-3">
                                             <button

@@ -419,7 +419,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getC
                                         {/* </div> */}
                                         <div>
                                             <label htmlFor="dni" className="block text-sm font-medium text-gray-700">DNI *</label>
-                                            <DniInput handleChange={handleChangeHelper} formData={formData} setFormData={setFormData} isNewCustomer={true} />
+                                            <DniInput handleChange={handleChange} formData={formData} setFormData={setFormData} isNewCustomer={true} />
                                         </div>
                                         <div>
                                             <label htmlFor="prefix" className="block text-sm font-medium text-gray-700">Prefijo Teléfono *</label>
@@ -570,7 +570,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getC
                                                 />
                                             </div>
                                         )} */}
-                                        {!isNewCustomer && (
+                                        {/* {!isNewCustomer && (
                                             <div>
                                                 <label htmlFor="state" className="block text-sm font-medium text-gray-700">Estado *</label>
                                                 <select
@@ -586,7 +586,7 @@ const CustomerFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getC
                                                     <option value="Initial">Nuevo</option>
                                                 </select>
                                             </div>
-                                        )}
+                                        )} */}
                                         <div className="mt-6 col-span-full flex justify-end gap-3">
                                             <button
                                                 type="button"

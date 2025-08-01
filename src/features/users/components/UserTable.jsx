@@ -66,13 +66,13 @@ const UserTable = ({ users, onEdit, onDelete, onToggleStatus }) => {
                                         >
                                             <PencilIcon className="h-5 w-5" />
                                         </button>
-                                        <button
+                                        {/* <button
                                             onClick={() => onDelete(user.user_id)}
                                             className="text-red-600 hover:text-red-900"
                                             title="Eliminar Usuario"
                                         >
                                             <TrashIcon className="h-5 w-5" />
-                                        </button>
+                                        </button> */}
                                     </td>
                                 </tr>
                             );
