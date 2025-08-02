@@ -217,14 +217,24 @@ const DeviceManagementPage = () => {
 
         try {
             await createPayment(paymentData);
-            await unblockDevice(paymentData.device_id, { duration: 0 });
             toast.success('Pago registrado.');
 
-            const params = { device_id: paymentData.device_id, state: 'Approved' };
-            const paymentsResponse = await getPayments(params);
-            setPayments(paymentsResponse);
-
             if (selectPlan && selectPlan.device_id === paymentData.device_id) {
+                const params = { device_id: paymentData.device_id, state: 'Approved' };
+                const paymentsResponse = await getPayments(params);
+                setPayments(paymentsResponse);
+
+                // Convertir y sumar los values
+                const totalValue = paymentsResponse.reduce((sum, payment) => {
+                    return sum + parseFloat(payment.value);
+                }, 0);
+
+                if (totalValue >= selectPlan.value) {
+                    handleRelease(selectPlan.device_id);
+                } else {
+                    await unblockDevice(paymentData.device_id, { duration: 0 });
+                }
+
                 handleViewDetails(paymentData.device_id);
             }
         } catch (err) {
