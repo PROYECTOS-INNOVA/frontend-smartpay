@@ -247,7 +247,7 @@ const ClientDashboardPage = () => {
                                     <DeviceTabletIcon className="h-5 w-5 mr-2" />
                                     Ver Detalles
                                 </Link>
-                                {device.value > 0 && (
+                                {/* {device.value > 0 && (
                                     <Link
                                         to={`/client/make-payment/${device.plan_id}`}
                                         state={{ plan: device }}
@@ -256,7 +256,7 @@ const ClientDashboardPage = () => {
                                         <CreditCardIcon className="h-5 w-5 mr-2" />
                                         Realizar Pago
                                     </Link>
-                                )}
+                                )} */}
                             </div>
                         </div>
                     ))}

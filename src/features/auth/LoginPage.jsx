@@ -76,7 +76,7 @@ const LoginPage = () => {
                 icon: 'error',
                 title: 'Error en el Login',
                 text: errorMessage,
-                footer: debugDetails ? `<h5>Detalles de Depuración:</h5><pre><code>${debugDetails}</code></pre>` : '',
+                // footer: debugDetails ? `<h5>Detalles de Depuración:</h5><pre><code>${debugDetails}</code></pre>` : '',
                 confirmButtonText: 'Cerrar'
             });
             // setError(errorMessage); // If you still want to display error below form

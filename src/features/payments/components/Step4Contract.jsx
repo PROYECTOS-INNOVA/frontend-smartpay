@@ -7,7 +7,7 @@ import { PDF_SIZE_CONTRACT } from '../../../common/utils/const';
 
 const Step4Contract = ({ onNext, onBack, initialData }) => {
     const [contractFile, setContractFile] = useState(initialData.signedContractFile || null);
-    console.log("INITAL DATA USER 4: ", initialData)
+    // console.log("INITAL DATA USER 4: ", initialData)
     // Ya no necesitamos isLoadingContract ni contractUrl aquí, porque ContractPDFGenerator los manejará internamente.
     // Aunque, si quieres mostrar un loader o un link de descarga ANTES de que el usuario haga click en generar,
     // podríamos mantener un estado de URL aquí y pasar una prop para el link de descarga.
@@ -27,21 +27,21 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
     // ya que el botón de generar estará en el ContractPDFGenerator.
 
     const handleFileChange = (event) => {
-        console.log('SIS PDDF');
+        // console.log('SIS PDDF');
         const file = event.target.files[0];
         if (file && file.type === "application/pdf") {
-            console.log('MUCHO PESOS');
+            // console.log('MUCHO PESOS');
             if (file.size > PDF_SIZE_CONTRACT) { // Límite de 10MB
                 toast.error("El archivo excede el tamaño máximo de 10MB.");
                 setContractFile(null);
             } else {
-                console.log('SELECCIONA CARGADP');
+                // console.log('SELECCIONA CARGADP');
 
                 setContractFile(file);
                 toast.success(`Archivo "${file.name}" cargado correctamente.`);
             }
         } else {
-            console.log('ERROR PDF');
+            // console.log('ERROR PDF');
             setContractFile(null);
             toast.error("Por favor, selecciona un archivo PDF válido.");
         }
@@ -71,7 +71,7 @@ const Step4Contract = ({ onNext, onBack, initialData }) => {
                 <ContractPDFGenerator
                     // Datos de la compañía (pueden ser props o importar de una constante global si son fijos)
                     // ruc={companyInfo.ruc} // Si los tienes en initialData.company, úsalos
-                    // companyName={companyInfo.name}
+                    companyName={authenticatedUser?.store?.nombre.toUpperCase() || '' }
                     // ...etc.
 
                     // Datos del cliente (borrower)

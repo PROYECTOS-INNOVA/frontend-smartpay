@@ -22,7 +22,7 @@ const Navbar = ({ setSidebarOpen }) => {
 
     useEffect(() => {
         const user = JSON.parse(localStorage.getItem('user') || null)
-        setIsStore(user.store);
+        setIsStore(user?.store || null);
         fetchUserData()
     }, [])
 

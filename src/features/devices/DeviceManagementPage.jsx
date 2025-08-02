@@ -56,7 +56,7 @@ const DeviceManagementPage = () => {
             // Filtrar solo acciones de tipo 'block' o 'unblock' con mismo device_id
             const relevantActions = actions.filter(action =>
                 action.device_id === plan.device_id &&
-                (action.action === 'block' || action.action === 'unblock')
+                (action.action === 'block' || action.action === 'unblock' || action.action === 'unenroll')
             );
 
             // Buscar la más reciente por created_at
@@ -252,6 +252,15 @@ const DeviceManagementPage = () => {
             showCancelButton: true,
             confirmButtonText: 'Desbloquear',
             cancelButtonText: 'Cancelar',
+            inputValidator: (value) => {
+                if (value === '' || value === null) {
+                    return 'Debes ingresar una cantidad de minutos';
+                }
+                if (parseInt(value) < 1) {
+                    return 'El tiempo debe ser al menos 1 minuto';
+                }
+                return null;
+            }
         });
 
         if (minutos === undefined) return; // cancelado

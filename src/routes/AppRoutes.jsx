@@ -112,12 +112,12 @@ const AppRoutes = () => {
 
                         {/* Redirección de la raíz a /login por defecto */}
 
-                        <Route path="/" element={<Navigate to="/landing" replace />} />
+                        {/* <Route path="/" element={<Navigate to="/landing" replace />} /> */}
 
 
                         <Route path="/" element={<Layout />}>
                             {/* Ruta index → si quieres redirigir según el rol, deberías hacerlo con lógica en el componente */}
-                            <Route index element={<Navigate to="customers-management" replace />} />
+                            <Route index element={<Navigate to="/landing" replace />} />
 
                             {/* Dashboard: solo para Superadmin y Store Admin */}
                             <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin']} />}>

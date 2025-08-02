@@ -264,7 +264,7 @@ const DeviceDetailsView = ({
         { key: 'period', label: 'Periodo (días)', type: 'number' },
         { key: 'user', label: 'Cliente' },
         { key: 'location', label: 'Ubicación' },
-        { key: 'created_at', label: 'Creado el' }, { key: 'updated_at', label: 'Última Actualización' },
+        // { key: 'created_at', label: 'Creado el' }, { key: 'updated_at', label: 'Última Actualización' },
     ];
 
     const fieldsToExcludeFromDirectEdit = [

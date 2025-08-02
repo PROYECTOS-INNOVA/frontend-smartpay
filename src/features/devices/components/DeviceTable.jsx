@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { PAGE_SIZE } from '../../../common/utils/const';
-import { Lock, LockOpenIcon } from 'lucide-react';
+import { BadgeCheck, Lock, LockOpenIcon } from 'lucide-react';
 
 
 const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilterChange }) => {
@@ -83,6 +83,9 @@ const DeviceTable = ({ devices = [], onViewDetails, columnFilters, onColumnFilte
 
                                             if (action === 'block') {
                                                 return <Lock className="text-red-600" />;
+                                            }
+                                            if (action === 'unenroll') {
+                                                    return <BadgeCheck className="text-blue-600"/>
                                             }
 
                                             // Mostrar LockOpenIcon por defecto o si es 'unblock'
