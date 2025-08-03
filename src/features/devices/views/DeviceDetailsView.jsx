@@ -10,6 +10,7 @@ import { approveDeviceSim, removeDeviceSim, getSims } from '../../../api/devices
 import NotifyModal from '../components/NotifyModal';
 import { downloadContract } from '../../../api/plans';
 import { formatDisplayDate } from '../../../common/utils/helpers';
+import ReEnrollmentModal from '../components/ReEnrollmentModal';
 
 const DeviceDetailsView = ({
     plan,
@@ -34,6 +35,7 @@ const DeviceDetailsView = ({
     const [localSims, setLocalSims] = useState([]);
 
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
+    const [isReEnrollmentOpen, setIsReEnrollmentOpen] = useState(false);
     const [isContractModalOpen, setIsContractModalOpen] = useState(false);
     const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -146,6 +148,17 @@ const DeviceDetailsView = ({
 
     const handleCloseSimModal = () => {
         setIsSimModalOpen(false);
+        if (onDeviceUpdate) {
+            onDeviceUpdate();
+        }
+    };
+
+     const handleReEnrollmentOpen = async () => {
+        setIsReEnrollmentOpen(true);
+    };
+
+    const handleReEnrollmentClose = () => {
+        setIsReEnrollmentOpen(false);
         if (onDeviceUpdate) {
             onDeviceUpdate();
         }
@@ -293,7 +306,9 @@ const DeviceDetailsView = ({
         unblock: "Desbloqueo",
         locate: "Ubicación",
         notify: "Notificación",
-        unenroll: "Liberado"
+        unenroll: "Liberado",
+        block_sim: "Bloqueo de Sim",
+        unblock_sim: "Desbloqueo de Sim"
     };
 
     const stateLabels = {
@@ -425,10 +440,21 @@ const DeviceDetailsView = ({
                             <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
                                 <button
                                     onClick={handleOpenNotifyModal}
-                                    disabled={isPaid}
-                                    className={`bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full  ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full`}
                                 >
                                     Enviar mensaje
+                                </button>
+                            </div>
+                        )}
+
+                        {/* New: Mensaje button */}
+                        {!isEditing && isSuperAdmin && (
+                            <div className="col-span-full sm:col-span-1 lg:col-span-1 flex justify-center items-center">
+                                <button
+                                    onClick={handleReEnrollmentOpen}
+                                    className={`bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-200 ease-in-out w-full`}
+                                >
+                                    ReEnrolar
                                 </button>
                             </div>
                         )}
@@ -489,8 +515,7 @@ const DeviceDetailsView = ({
                         {isSuperAdmin && (
                             <button
                                 onClick={() => onLocate(plan.device.device_id)}
-                                disabled={isPaid}
-                                className={`mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${isPolling || isPaid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`mt-4 bg-purple-500 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${isPolling ? 'opacity-50 cursor-not-allowed' : ''}`}
                             >
                                 Notificar Ubicación
                             </button>
@@ -504,8 +529,7 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && getLastBlockState() == 'unblock' && (
                                 <button
                                     onClick={() => onBlock(plan.device.device_id)}
-                                    disabled={isPaid}
-                                    className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
                                 >
                                     Bloquear
                                 </button>
@@ -513,8 +537,7 @@ const DeviceDetailsView = ({
                             {isSuperAdmin && getLastBlockState() == 'block' && (
                                 <button
                                     onClick={() => onUnblock(plan.device.device_id)}
-                                    disabled={isPaid}
-                                    className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-200 ease-in-out w-full`}
                                 >
                                     Desbloquear
                                 </button>
@@ -657,7 +680,6 @@ const DeviceDetailsView = ({
             {isSimModalOpen && (
                 <SimManagementModal
                     sims={localSims}
-                    isPaid={isPaid}
                     isOpen={isSimModalOpen}
                     onClose={handleCloseSimModal}
                     device={plan.device}
@@ -693,6 +715,16 @@ const DeviceDetailsView = ({
                     onSubmit={onSubmitPayment}
                     plan={plan}
                     payments={payments}
+                />
+            )}
+
+             {/* Modal para ReEnrolar */}
+            {isReEnrollmentOpen && (
+                <ReEnrollmentModal
+                    isOpen={isReEnrollmentOpen}
+                      onClose={handleReEnrollmentClose}
+                    enrollmentId={plan.device.enrolment_id}
+                    deviceId={plan.device.device_id}
                 />
             )}
         </div>

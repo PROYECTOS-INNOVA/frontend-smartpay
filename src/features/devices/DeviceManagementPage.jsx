@@ -229,9 +229,7 @@ const DeviceManagementPage = () => {
                     return sum + parseFloat(payment.value);
                 }, 0);
 
-                if (totalValue >= selectPlan.value) {
-                    handleRelease(selectPlan.device_id);
-                } else {
+                if (totalValue < selectPlan.value) {
                     await unblockDevice(paymentData.device_id, { duration: 0 });
                 }
 

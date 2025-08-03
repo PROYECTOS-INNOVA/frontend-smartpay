@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 
-const SimManagementModal = ({ sims, isPaid, isOpen, onClose, device, onApproveSim, onRemoveSim }) => {
+const SimManagementModal = ({ sims, isOpen, onClose, device, onApproveSim, onRemoveSim }) => {
     const [loadingAction, setLoadingAction] = useState(false);
 
     const approvedSims = Array.isArray(sims) ? sims.filter(sim => sim.state === 'Active') : [];
@@ -94,8 +94,8 @@ const SimManagementModal = ({ sims, isPaid, isOpen, onClose, device, onApproveSi
                                         <p className="text-gray-600">Número de Teléfono: <span className="font-normal">{sim.number || 'N/A'}</span></p>
                                         <button
                                             onClick={() => handleApprove(sim)}
-                                            className={`mt-2 px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            disabled={isPaid || loadingAction}
+                                            className={`mt-2 px-3 py-1 bg-green-600 text-white text-xs font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50`}
+                                            disabled={loadingAction}
                                         >
                                             {loadingAction ? 'Aprobando...' : 'Aprobar'}
                                         </button>
@@ -122,8 +122,8 @@ const SimManagementModal = ({ sims, isPaid, isOpen, onClose, device, onApproveSi
                                         <p className="text-gray-600">Número de Teléfono: <span className="font-normal">{sim.number || 'N/A'}</span></p>
                                         <button
                                             onClick={() => handleRemove(sim)}
-                                            disabled={isPaid || loadingAction}
-                                            className={`mt-2 px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50  ${(isPaid) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                            disabled={loadingAction}
+                                            className={`mt-2 px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:opacity-50`}
                                         >
                                             {loadingAction ? 'Inactivando...' : 'Inactivar'}
                                         </button>

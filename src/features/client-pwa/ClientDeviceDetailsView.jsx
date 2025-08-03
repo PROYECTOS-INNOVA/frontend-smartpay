@@ -40,6 +40,96 @@ const ClientDeviceDetailsView = () => {
         fetchData();
     }, [planId, location.state?.plan]);
 
+    const getStatusClass = () => {
+        const pendingValue = getPendingValue()
+        if (pendingValue <= 0) {
+            return 'bg-green-100 text-blue-800';
+        }
+        switch (plan.device.state) {
+            case 'Active': return 'bg-green-100 text-green-800';
+            case 'Inactive': return 'bg-gray-100 text-gray-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getStateName = () => {
+        const pendingValue = getPendingValue()
+        if (pendingValue <= 0) {
+            return 'Pagado';
+        }
+        switch (plan.device.state) {
+            case 'Active': return 'Activo';
+            case 'Inactive': return 'Inactivo';
+            default: return '';
+        }
+    };
+
+    const getPaymentQuotas = () => {
+        if (!Array.isArray(plan.paymentHistory) || plan.paymentHistory.length == 0) {
+            return 0;
+        }
+        return plan.paymentHistory.length;
+    }
+
+    function getEffectivePaymentDate() {
+        const pendingValue = getPendingValue()
+        if (pendingValue <= 0) {
+            return null;
+        }
+
+         if (!Array.isArray(plan.paymentHistory) || plan.paymentHistory.length == 0) {
+          let currentDate = new Date(startDate);
+          currentDate.setDate(currentDate.getDate() + plan.period);
+          return new Date(currentDate);
+        }
+
+        const paidDates = plan.paymentHistory
+            .map(p => new Date(p.date).toISOString().split('T')[0]);
+
+        const startDate = new Date(plan.initial_date);
+        let currentDate = new Date(startDate);
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // 🚨 Avanzamos al primer período antes de empezar
+        currentDate.setDate(currentDate.getDate() + plan.period);
+
+        // Iterar hasta encontrar la primera fecha no pagada
+        while (true) {
+            const currentDateStr = currentDate.toISOString().split('T')[0];
+            if (!paidDates.includes(currentDateStr)) {
+                return currentDateStr;
+            }
+            currentDate.setDate(currentDate.getDate() + periodDays);
+
+            if (currentDateStr > todayStr && (currentDate - startDate) / (1000 * 60 * 60 * 24) > 365) {
+                throw new Error("No se encontró una fecha válida en el rango esperado.");
+            }
+        }
+    }
+
+    const getPendingValue = () => {
+         if (!Array.isArray(plan.paymentHistory) || plan.paymentHistory.length == 0) {
+            return 0;
+        }
+
+        const result = plan.paymentHistory.filter((payment) => payment.state == 'Approved');
+
+        const total = result.reduce((sum, payment) => {
+            return sum + parseFloat(payment.value);
+        }, 0);
+        return plan.value - total;
+    }
+
+     const getPaymentName = (state) => {
+        switch (state) {
+            case 'Approved': return 'Aprovado';
+            case 'Pending': return 'Pendiente';
+            case 'Rejected': return 'Rechazado';
+            case 'Failed': return 'Fallido';
+            case 'Returned': return 'Devuelto';
+            default: return state;
+        }
+    };
 
     if (loading) {
         return (
@@ -128,26 +218,26 @@ const ClientDeviceDetailsView = () => {
         </div>
         <div>
           <p className="text-gray-500 font-medium">Estado MDM</p>
-          <span className={`mt-1 inline-block px-3 py-1 text-xs font-semibold rounded-full ${getMdmStatusClass(plan.device.state)}`}>
-            {plan.device.state}
+          <span className={`mt-1 inline-block px-3 py-1 text-xs font-semibold rounded-full ${getStatusClass()}`}>
+            {getStateName()}
           </span>
         </div>
         {plan.period && (
           <div>
             <p className="text-gray-500 font-medium">Cuotas</p>
-            <p className="font-semibold">{plan.quotas} de {plan.period}</p>
+            <p className="font-semibold">{getPaymentQuotas()} de {plan.quotas}</p>
           </div>
         )}
         <div>
           <p className="text-gray-500 font-medium">Próximo Pago</p>
-          <p className={`font-semibold ${new Date(plan.initial_date) < new Date() ? 'text-red-600' : 'text-gray-800'}`}>
-            {plan.initial_date || 'No aplica'}
+          <p className={`font-semibold ${getEffectivePaymentDate() < new Date() ? 'text-red-600' : 'text-gray-800'}`}>
+            {getEffectivePaymentDate() || 'No aplica'}
           </p>
         </div>
         <div>
           <p className="text-gray-500 font-medium">Monto Pendiente</p>
           <p className="text-red-600 font-bold text-xl">
-            ${plan?.value ? Number(plan.value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
+            ${plan?.value ? Number(getPendingValue()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00'}
           </p>
         </div>
       </div>
@@ -196,7 +286,7 @@ const ClientDeviceDetailsView = () => {
                           ? 'bg-red-100 text-red-800'
                           : 'bg-gray-100 text-gray-800'
                         }`}>
-                        {payment.state}
+                        {getPaymentName(payment.state)}
                       </span>
                     </td>
                   </tr>

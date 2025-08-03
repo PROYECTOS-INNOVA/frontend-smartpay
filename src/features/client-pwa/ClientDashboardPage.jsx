@@ -8,12 +8,14 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import { requestPasswordReset } from '../../api/auth';
 import { handlePasswordReset, showNewUserAlert } from '../../common/utils/auth';
+import { getPayments} from '../../api/payments';
 
 const MySwal = withReactContent(Swal);
 
 const ClientDashboardPage = () => {
     const { user, logout } = useAuth();
     const [customerDevices, setCustomerDevices] = useState([]);
+    const [paymentsDevices, setPaymentsDevices] = useState([]);
     const [isNew, setIsNew] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -89,6 +91,7 @@ const ClientDashboardPage = () => {
             } else {
                 setError("No se pudo obtener el ID del cliente. Asegúrate de estar logueado.");
                 setCustomerDevices([]);
+                setPaymentsDevices([]);
             }
         }, 500);
     }, []);
@@ -97,10 +100,105 @@ const ClientDashboardPage = () => {
      * Función para obtener planes y sus dispositivos asociados.
      */
     const getPlantsInit = async () => {
-        const data = await getPlans({ user_id: user.user_id })
+        const data = await getPlans({ user_id: user.user_id });
+        const resultados = [];
+
+        if (Array.isArray(data) && data.length > 0) {
+             for (const plan of data) {
+                const params = { device_id: plan.device_id, state: 'Approved' };
+                const paymentsResponse = await getPayments(params);        
+                resultados.push(paymentsResponse);
+             };
+             
+        }
+
+        console.log("data", resultados);
+        setPaymentsDevices(resultados.flat());
         setCustomerDevices(data);
         setLoading(false);
     }
+
+    const getPaymentQuotas = (deviceId) => {
+        if (!Array.isArray(paymentsDevices) || paymentsDevices.length == 0) {
+            return 0;
+        }
+
+        const result = paymentsDevices.filter(payment => payment.device_id == deviceId);
+        return result.length;
+    }
+
+    function getEffectivePaymentDate(plan, deviceId, startDateStr, periodDays) {
+        const pendingValue = getPendingValue(plan.device_id, plan.value)
+        if (pendingValue <= 0) {
+            return null;
+        }
+
+         if (!Array.isArray(paymentsDevices) || paymentsDevices.length == 0) {
+            return 0;
+        }
+
+        const payments = paymentsDevices.filter(payment => payment.device_id == deviceId);
+
+        const paidDates = payments
+            .map(p => new Date(p.date).toISOString().split('T')[0]);
+
+        const startDate = new Date(startDateStr);
+        let currentDate = new Date(startDate);
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        // 🚨 Avanzamos al primer período antes de empezar
+        currentDate.setDate(currentDate.getDate() + periodDays);
+
+        // Iterar hasta encontrar la primera fecha no pagada
+        while (true) {
+            const currentDateStr = currentDate.toISOString().split('T')[0];
+            if (!paidDates.includes(currentDateStr)) {
+                return currentDateStr;
+            }
+            currentDate.setDate(currentDate.getDate() + periodDays);
+
+            if (currentDateStr > todayStr && (currentDate - startDate) / (1000 * 60 * 60 * 24) > 365) {
+                throw new Error("No se encontró una fecha válida en el rango esperado.");
+            }
+        }
+    }
+
+    const getPendingValue = (deviceId, value) => {
+         if (!Array.isArray(paymentsDevices) || paymentsDevices.length == 0) {
+            return 0;
+        }
+
+        const result = paymentsDevices.filter(payment => payment.device_id == deviceId);
+
+        const total = result.reduce((sum, payment) => {
+            return sum + parseFloat(payment.value);
+        }, 0);
+        return value - total;
+    }
+
+    const getStatusClass = (plan) => {
+        const pendingValue = getPendingValue(plan.device_id, plan.value)
+        if (pendingValue <= 0) {
+            return 'bg-green-100 text-blue-800';
+        }
+        switch (plan.device.state) {
+            case 'Active': return 'bg-green-100 text-green-800';
+            case 'Inactive': return 'bg-gray-100 text-gray-800';
+            default: return 'bg-gray-100 text-gray-800';
+        }
+    };
+
+    const getStateName = (plan) => {
+        const pendingValue = getPendingValue(plan.device_id, plan.value)
+        if (pendingValue <= 0) {
+            return 'Pagado';
+        }
+        switch (plan.device.state) {
+            case 'Active': return 'Activo';
+            case 'Inactive': return 'Inactivo';
+            default: return '';
+        }
+    };
 
     if (loading) {
         return (
@@ -187,11 +285,9 @@ const ClientDashboardPage = () => {
                             <div className="flex items-center justify-between mb-4">
                                 <h2 className="text-xl font-semibold text-gray-800">{device.device.model}</h2>
                                 <span
-                                    className={`px-3 py-1 text-xs font-bold uppercase rounded-full tracking-wide ${getMdmStatusClass(
-                                        device.device.state
-                                    )}`}
+                                    className={`px-3 py-1 text-xs font-bold uppercase rounded-full tracking-wide ${getStatusClass(device)}`}
                                 >
-                                    {device.device.state}
+                                    {getStateName(device)}
                                 </span>
                             </div>
 
@@ -204,7 +300,7 @@ const ClientDashboardPage = () => {
                                     <div className="flex justify-between">
                                         <span className="font-medium">Cuotas:</span>
                                         <span>
-                                            {device.quotas}/{device.period}
+                                            {getPaymentQuotas(device.device_id)}/{device.quotas}
                                         </span>
                                     </div>
                                 )}
@@ -212,21 +308,34 @@ const ClientDashboardPage = () => {
                                     <span className="font-medium">Próximo Pago:</span>
                                     {device.initial_date ? (
                                         <span
-                                            className={`font-semibold ${new Date(device.initial_date) < new Date()
+                                            className={`font-semibold ${getEffectivePaymentDate(device, device.device_id, device.initial_date, device.period) < new Date()
                                                 ? 'text-red-600'
                                                 : 'text-green-600'
                                                 }`}
                                         >
-                                            {device.initial_date}
+                                            {getEffectivePaymentDate(device, device.device_id, device.initial_date, device.period) || 'No aplica'}
                                         </span>
                                     ) : (
                                         <span>No aplica</span>
                                     )}
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="font-medium">Monto Adeudado:</span>
+                                    <span className="font-medium">Valor pendiente:</span>
                                     {Number(device.value) > 0 ? (
                                         <span className="text-red-600 font-bold">
+                                            {Number(getPendingValue(device.device_id, device.value)).toLocaleString('en-US', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2,
+                                            })}
+                                        </span>
+                                    ) : (
+                                        <span>0.00</span>
+                                    )}
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="font-medium">Valor dispositivo:</span>
+                                    {Number(device.value) > 0 ? (
+                                        <span className="text-green-600 font-bold">
                                             {Number(device.value).toLocaleString('en-US', {
                                                 minimumFractionDigits: 2,
                                                 maximumFractionDigits: 2,
