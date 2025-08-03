@@ -122,7 +122,7 @@ const ClientDeviceDetailsView = () => {
 
      const getPaymentName = (state) => {
         switch (state) {
-            case 'Approved': return 'Aprovado';
+            case 'Approved': return 'Aprobado';
             case 'Pending': return 'Pendiente';
             case 'Rejected': return 'Rechazado';
             case 'Failed': return 'Fallido';
