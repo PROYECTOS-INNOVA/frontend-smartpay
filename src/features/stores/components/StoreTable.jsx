@@ -61,13 +61,13 @@ const StoreTable = ({ data = [], onEdit, onDelete, onToggleStatus }) => {
                                         >
                                             <PencilIcon className="h-5 w-5" />
                                         </button>
-                                        <button
+                                        {/* <button
                                             onClick={() => onDelete(item.id)}
                                             className="text-red-600 hover:text-red-900"
                                             title="Eliminar Vendedor"
                                         >
                                             <TrashIcon className="h-5 w-5" />
-                                        </button>
+                                        </button> */}
                                     </td>
                                 </tr>
                             );

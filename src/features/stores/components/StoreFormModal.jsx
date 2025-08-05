@@ -287,6 +287,7 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                         <div className="relative" ref={cityInputRef}>
                                             <label htmlFor="admin_input_name" className="block text-sm font-medium text-gray-700">Administradores *</label>
                                             <input
+                                                disabled={!isNewRegister}
                                                 type="text"
                                                 name="admin_input_name"
                                                 id="admin_input_name"
@@ -300,7 +301,8 @@ const StoreFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCoun
                                                 autoComplete='off'
                                                 placeholder="Busca y selecciona"
 
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blueo-500 sm:text-sm"
+                                                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm ${!isNewRegister ? 'opacity-50 cursor-not-allowed' : ''
+                                                    }`}
                                             />
                                             {showSuggestionsAdmin && (
                                                 <ul className="absolute z-30 w-full bg-white border border-gray-300 mt-1 rounded-md shadow-lg max-h-60 overflow-y-auto">
