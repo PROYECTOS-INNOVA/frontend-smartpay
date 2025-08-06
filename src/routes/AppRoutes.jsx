@@ -118,27 +118,35 @@ const AppRoutes = () => {
                         <Route path="/" element={<Layout />}>
                             {/* Ruta index → si quieres redirigir según el rol, deberías hacerlo con lógica en el componente */}
                             <Route index element={<Navigate to="/landing" replace />} />
+                            
+                            <Route element={<PrivateRoute allowedRoles={['Superadmin','Store Admin']} />}>
+                                <Route path="dashboard" element={<DashboardPage />} />
+
+                            </Route>
 
                             {/* Dashboard: solo para Superadmin y Store Admin */}
-                            <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin']} />}>
-                                <Route path="dashboard" element={<DashboardPage />} />
+                            <Route element={<PrivateRoute allowedRoles={['Store Admin']} />}>
                                 <Route path="vendors-management" element={<VendorManagementPage />} />
+                                <Route path="devices-management" element={<DeviceManagementPage />} />
                                 <Route path="reports" element={<ReportsPage />} />
                                 <Route path="configuration" element={<ConfigurationPage />} />
                             </Route>
 
                             {/* user-management: permitido a todos los roles mencionados */}
                             <Route element={<PrivateRoute allowedRoles={['Superadmin']} />}>
+                                {/* <Route path="dashboard" element={<DashboardPage />} /> */}
                                 <Route path="user-management" element={<UserManagementPage />} />
                                 <Route path="store-management" element={<StoreManagementPage />} />
+                            </Route>
+                    
+                            <Route element={<PrivateRoute allowedRoles={['Store Admin','Vendedor']} />}>
+                                <Route path="customers-management" element={<CustomerManagementPage />} />
+                                <Route path="customer-registration" element={<CustomerRegisterFlowPage />} />
+                                <Route path="payments-management" element={<PaymentManagementPage />} />
                             </Route>
 
                             {/* Rutas compartidas entre todos los roles */}
                             <Route element={<PrivateRoute allowedRoles={['Superadmin', 'Store Admin', 'Admin', 'Vendedor']} />}>
-                                <Route path="customers-management" element={<CustomerManagementPage />} />
-                                <Route path="customer-registration" element={<CustomerRegisterFlowPage />} />
-                                <Route path="devices-management" element={<DeviceManagementPage />} />
-                                <Route path="payments-management" element={<PaymentManagementPage />} />
                                 <Route path="profile" element={<UserProfilePage />} />
                             </Route>
 

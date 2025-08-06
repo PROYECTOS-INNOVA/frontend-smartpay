@@ -68,7 +68,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
     const vendedorNavItems = [
         // { name: 'Dashboard', icon: Squares2X2Icon, href: '/dashboard' },
         { name: 'Gestión de Clientes', icon: UserGroupIcon, href: '/customers-management' },
-        { name: 'Gestión de Dispositivos', icon: DevicePhoneMobileIcon, href: '/devices-management' },
+        // { name: 'Gestión de Dispositivos', icon: DevicePhoneMobileIcon, href: '/devices-management' },
         { name: 'Pagos y Facturación', icon: CreditCardIcon, href: '/payments-management' },
     ];
 
