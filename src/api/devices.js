@@ -95,7 +95,7 @@ export const getDeviceById = async (deviceId) => {
 export const getLastLocation = async (deviceId) => {
     try {
         const params = {
-            deviceId: deviceId,
+            device_id: deviceId,
         };
 
         const response = await axiosInstance.get(`/devices/locations/`, { params });
