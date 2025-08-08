@@ -5,9 +5,8 @@ import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/24/solid';
 import { toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
 import QRCode from 'react-qr-code';
-import { generateProvisioningJson } from '../../../common/utils/provisioning';
 
-import { createEnrolment, getDeviceByEnrolmentId } from '../../../api/enrolments';
+import { createEnrolment, getDeviceByEnrolmentId, getProvisioningJson } from '../../../api/enrolments';
 
 const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
   const [qrGenerated, setQrGenerated] = useState(false);
@@ -100,7 +99,7 @@ const Step2DeviceProvisioning = ({ onNext, onBack, initialData = {} }) => {
         console.error("Error al parsear el objeto del localStorage", error);
       }
 
-      const provisioningJson = generateProvisioningJson(enrollmentId, storeId, false);
+      const provisioningJson =  await getProvisioningJson(enrollmentId, storeId, false);
       console.log("Store ID:", provisioningJson);
       setQrProvisioningData(provisioningJson);
 

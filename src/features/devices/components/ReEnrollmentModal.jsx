@@ -2,33 +2,15 @@ import React, { useState, Fragment, useEffect } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import QRCode from 'react-qr-code';
-import { generateProvisioningJson } from '../../../common/utils/provisioning';
 
-const ReEnrollmentModal = ({ enrollmentId, deviceId, isOpen, onClose }) => {
+const ReEnrollmentModal = ({ qrCode, isOpen, enrollmentId, onClose }) => {
 
     const [qrProvisioningData, setQrProvisioningData] = useState(null);
     
     useEffect(() => {
-      // Obtener el objeto del localStorage
-      const storedUser = localStorage.getItem("user"); // Usa la clave con la que guardaste el objeto
-      if (!storedUser) {
-        console.log("No se encontró el datos del usuario en el localStorage");
-        return;  
-      }
-
-      var storeId = null;
-      try {
-        const user = JSON.parse(storedUser); // Convertir de JSON a objeto
-        storeId = user.store?.id; // Acceder al ID del store (usa optional chaining por seguridad)
-        console.log("Store ID:", storeId);
-      } catch (error) {
-        console.error("Error al parsear el objeto del localStorage", error);
-      }
-
-        const provisioningJson = generateProvisioningJson(enrollmentId, storeId, true);
-        console.log("Store ID:", provisioningJson);
-        setQrProvisioningData(provisioningJson);
-      }, [enrollmentId, deviceId]);
+        console.log("Store ID:", qrCode);
+        setQrProvisioningData(qrCode);
+      }, [qrCode]);
     
     return (
         <Transition appear show={isOpen} as={Fragment}>

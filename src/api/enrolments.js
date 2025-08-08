@@ -61,6 +61,29 @@ export const getDeviceByEnrolmentId = async (enrollmentId) => {
     }
 };
 
+export const getProvisioningJson = async (enrollmentId, storeId, reEnrollment) => {
+    try {
+        const params = { 
+            enrollment_id: enrollmentId,
+            store_id: storeId,
+            re_enrollment: reEnrollment
+        };
+
+        const response = await axiosInstance.get('/qrEnrollment/', { params });
+        const data = response.data;
+        return data;
+    } catch (error) {
+        
+        if (error.response && error.response.status === 404) {
+            // console.warn(`Enrolamiento ${enrolmentId} no encontrado (esperado durante polling).`);
+            // No hacemos nada, la excepción se propaga silenciosamente para un 404 esperado
+        } else {
+            console.error(`Error al obtener el QR de Enrolamiento ID ${enrollmentId}:`, error.response?.data || error.message);
+        }
+        throw error;
+    }
+};
+
 /**
  * Crea un nuevo enrolamiento.
  * @param {object} enrolmentData - Datos del enrolamiento (e.g., { user_id: '...', vendor_id: '...' }).

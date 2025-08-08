@@ -12,6 +12,8 @@ import { downloadContract } from '../../../api/plans';
 import { formatDisplayDate } from '../../../common/utils/helpers';
 import ReEnrollmentModal from '../components/ReEnrollmentModal';
 
+import { getProvisioningJson } from '../../../api/enrolments';
+
 const DeviceDetailsView = ({
     plan,
     location,
@@ -36,6 +38,7 @@ const DeviceDetailsView = ({
 
     const [isSimModalOpen, setIsSimModalOpen] = useState(false);
     const [isReEnrollmentOpen, setIsReEnrollmentOpen] = useState(false);
+    const [qrCode, setQrCode] = useState(null);
     const [isContractModalOpen, setIsContractModalOpen] = useState(false);
     const [isNotifyModalOpen, setIsNotifyModalOpen] = useState(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -154,7 +157,30 @@ const DeviceDetailsView = ({
     };
 
      const handleReEnrollmentOpen = async () => {
-        setIsReEnrollmentOpen(true);
+        toast.success('Obteniendo QR...')
+        try {
+            // Obtener el objeto del localStorage
+            const storedUser = localStorage.getItem("user"); // Usa la clave con la que guardaste el objeto
+            if (!storedUser) {
+                console.log("No se encontró el datos del usuario en el localStorage");
+                return;  
+            }
+            
+            var storeId = null;
+            try {
+                const user = JSON.parse(storedUser); // Convertir de JSON a objeto
+                storeId = user.store?.id; // Acceder al ID del store (usa optional chaining por seguridad)
+                console.log("Store ID:", storeId);
+            } catch (error) {
+                console.error("Error al parsear el objeto del localStorage", error);
+            }
+
+            const qrCode = await getProvisioningJson(plan.device.enrolment_id, storeId, true);
+            setQrCode(qrCode);
+            setIsReEnrollmentOpen(true);   
+        } catch (error) {
+            toast.error('Error cargando Qr...')
+        }
     };
 
     const handleReEnrollmentClose = () => {
@@ -722,9 +748,9 @@ const DeviceDetailsView = ({
             {isReEnrollmentOpen && (
                 <ReEnrollmentModal
                     isOpen={isReEnrollmentOpen}
-                      onClose={handleReEnrollmentClose}
+                    onClose={handleReEnrollmentClose}
                     enrollmentId={plan.device.enrolment_id}
-                    deviceId={plan.device.device_id}
+                    qrCode={qrCode}
                 />
             )}
         </div>
