@@ -1,0 +1,32 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+
+#Versiones Node
+.nvmrc
+public/pwa-512x512.png:Zone.Identifier
+public/assets/undraw_male-avatar_zkzx.svg
+public/assets/undraw_male-avatar_zkzx.svg:Zone.Identifier
+public/screenshots/wide-image.png:Zone.Identifier
