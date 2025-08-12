@@ -530,7 +530,6 @@ const VendorFormModal = ({ isOpen, onClose, initialData, onSubmit, roles, getCou
                                                 </ul>
                                             )}
                                         </div>
-
                                         <div className="mt-6 col-span-full flex justify-end gap-3">
                                             <button
                                                 type="button"
