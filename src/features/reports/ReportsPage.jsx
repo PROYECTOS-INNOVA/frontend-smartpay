@@ -6,6 +6,7 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { ArrowDownTrayIcon, FunnelIcon, CalendarDaysIcon, ChartBarIcon } from '@heroicons/react/24/outline';
 import { downloadReport, getAnalytics } from '../../api/reports';
+import { getCurrentStoreId } from '../../common/utils/helpers';
 
 
 ChartJS.register(
@@ -24,9 +25,11 @@ const ReportsPage = () => {
     const [endDate, setEndDate] = useState('');
     const [data, setData] = useState([]);
     const [filteredData, setFilteredDataData] = useState([]);
+    const [storeId, setStoreId] = useState(getCurrentStoreId());
     let queryFilters = {
         start_date: startDate,
         end_date: endDate,
+        store_id: storeId,
     }
 
     /**
