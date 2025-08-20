@@ -59,27 +59,35 @@ const DeviceMapComponent = ({ latitude, longitude, deviceSerial }) => {
                 scrollWheelZoom={true}
                 className="h-full w-full"
             >
-                <LayersControl position="topright" collapsed={false}>
-                    <TileLayer
-                        checked // Mantener 'checked' para el mapa predeterminado
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        name="Calles (OpenStreetMap)" // El 'name' ahora va en el TileLayer
-                    />
-
-                    <Marker position={position} icon={deviceIcon}>
-                        <Popup>
-                            Ubicación de **{deviceSerial || 'Dispositivo'}**
-                            <br /> Lat: {position[0]}, Lon: {position[1]}
-                            {(isNaN(currentLatitude) || isNaN(currentLongitude)) &&
-                                <span className="text-red-500 block text-xs mt-1">
-                                    (Ubicación por defecto: datos reales no disponibles)
-                                </span>
-                            }
-                        </Popup>
-                    </Marker>
-
+                <LayersControl position="topright" collapsed={true}>
+                    <LayersControl.BaseLayer checked name="Calles (OSM)">
+                        <TileLayer
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            maxZoom={19}
+                        />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer name="Satélite (Híbrido)">
+                        <TileLayer
+                            url="https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}"
+                            attribution='&copy; <a href="https://www.google.com/maps">Google</a>'
+                            maxZoom={20}
+                            subdomains={['mt0', 'mt1', 'mt2', 'mt3']}
+                        />
+                    </LayersControl.BaseLayer>
                 </LayersControl>
+
+                <Marker position={position} icon={deviceIcon}>
+                    <Popup>
+                        Ubicación de **{deviceSerial || 'Dispositivo'}**
+                        <br /> Lat: {position[0]}, Lon: {position[1]}
+                        {(isNaN(currentLatitude) || isNaN(currentLongitude)) &&
+                            <span className="text-red-500 block text-xs mt-1">
+                                (Ubicación por defecto: datos reales no disponibles)
+                            </span>
+                        }
+                    </Popup>
+                </Marker>
 
                 <SetViewOnChange center={position} />
             </MapContainer>

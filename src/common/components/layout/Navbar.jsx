@@ -14,7 +14,7 @@ const Navbar = ({ setSidebarOpen }) => {
     const { user, logout } = useAuth();
 
     const fetchUserData = async () => {
-        console.log('Fetching user data...');
+        // console.log('Fetching user data...');
         
         await showNewUserAlert(user, null, logout, navigate);
         await userNotStore(user, logout, navigate);

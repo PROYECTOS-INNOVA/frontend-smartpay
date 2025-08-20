@@ -80,11 +80,11 @@ const DeviceManagementPage = () => {
             const data = await getPlans();
             const actions = await getActionsHistory();
             const enrichedPlans = mapPlansWithLatestAction(data, actions);
-            console.log('fetch data: ', enrichedPlans);
+            // console.log('fetch data: ', enrichedPlans);
 
             setDevices(enrichedPlans);
         } catch (err) {
-            console.error('Error al cargar dispositivos:', err);
+            // console.error('Error al cargar dispositivos:', err);
             setError('Error al cargar dispositivos. Por favor, inténtalo de nuevo.');
             toast.error('Error al cargar dispositivos.');
         } finally {
@@ -116,7 +116,7 @@ const DeviceManagementPage = () => {
             setSelectedPlan(planDevice);
             setLastLocation(lastLocation);
         } catch (err) {
-            console.error('Error al cargar detalles del dispositivo:', err);
+            // console.error('Error al cargar detalles del dispositivo:', err);
             setError('Error al cargar los detalles del dispositivo.');
             toast.error('Error al cargar los detalles del dispositivo.');
         } finally {
@@ -141,7 +141,7 @@ const DeviceManagementPage = () => {
 
             toast.success('Dispositivo actualizado correctamente.');
         } catch (err) {
-            console.error('Error al actualizar dispositivo:', err);
+            // console.error('Error al actualizar dispositivo:', err);
             const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
             toast.error(`Error al actualizar dispositivo: ${errorMessage}`);
             throw err;
@@ -175,7 +175,7 @@ const DeviceManagementPage = () => {
                 handleViewDetails(deviceId);
             }
         } catch (err) {
-            console.error('Error al bloquear dispositivo:', err);
+            // console.error('Error al bloquear dispositivo:', err);
             const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
             toast.error(`Error al bloquear dispositivo: ${errorMessage}`);
         }
@@ -190,7 +190,7 @@ const DeviceManagementPage = () => {
                 handleViewDetails(deviceId);
             }
         } catch (err) {
-            console.error("Error send notificacion:", err);
+            // console.error("Error send notificacion:", err);
             const errorMessage = err.response?.data?.detail || err.message || "Hubo un error al enviar la notificacion.";
             toast.error(`Error al enviar notificación: ${errorMessage}`);
         }
@@ -236,54 +236,28 @@ const DeviceManagementPage = () => {
                 handleViewDetails(paymentData.device_id);
             }
         } catch (err) {
-            console.error('Error al registrar pago del dispositivo:', err);
+            // console.error('Error al registrar pago del dispositivo:', err);
             const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
             toast.error(`Error al registrar pago del dispositivo: ${errorMessage}`);
         }
     };
 
     /**
-     * Metodo para desbloquear dispositivo alerta con input para ingresar minutos
+     * Metodo para desbloquear dispositivo. La acción se ejecuta directamente.
      * @param {*} deviceId 
      * @returns 
      */
     const handleUnblock = async (deviceId) => {
-        const { value: minutos } = await Swal.fire({
-            title: 'Desbloquear dispositivo',
-            input: 'number',
-            inputLabel: '¿Por cuántos minutos deseas desbloquear el dispositivo?',
-            inputPlaceholder: 'Ingresa el tiempo en minutos',
-            inputAttributes: {
-                min: 0,
-                step: 1
-            },
-            showCancelButton: true,
-            confirmButtonText: 'Desbloquear',
-            cancelButtonText: 'Cancelar',
-            inputValidator: (value) => {
-                if (value === '' || value === null) {
-                    return 'Debes ingresar una cantidad de minutos';
-                }
-                if (parseInt(value) < 1) {
-                    return 'El tiempo debe ser al menos 1 minuto';
-                }
-                return null;
-            }
-        });
-
-        if (minutos === undefined) return; // cancelado
-
-        const minutes = parseInt(minutos, 10);
-
         try {
-            await unblockDevice(deviceId, { duration: minutes * 60 });
+            // Se asume que un desbloqueo manual es indefinido (duration: 0).
+            await unblockDevice(deviceId, { duration: 0 });
             toast.success('Dispositivo desbloqueado con éxito.');
 
             if (selectPlan && selectPlan.device_id === deviceId) {
                 handleViewDetails(deviceId);
             }
         } catch (err) {
-            console.error('Error al desbloquear dispositivo:', err);
+            // console.error('Error al desbloquear dispositivo:', err);
             const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
             toast.error(`Error al desbloquear dispositivo: ${errorMessage}`);
         }
@@ -314,7 +288,7 @@ const DeviceManagementPage = () => {
                 }
             } catch (error) {
                 if (error.response?.status !== 404) {
-                    console.error(`Error en polling:`, error);
+                    // console.error(`Error en polling:`, error);
                 }
             }
 
@@ -338,7 +312,7 @@ const DeviceManagementPage = () => {
                 setTimeout(() => checkDeviceConnection(deviceId), 1000);
             }
         } catch (err) {
-            console.error('Error al localizar dispositivo:', err);
+            // console.error('Error al localizar dispositivo:', err);
             const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
             toast.error(`Error al localizar dispositivo: ${errorMessage}`);
         }
@@ -365,7 +339,7 @@ const DeviceManagementPage = () => {
                 handleViewDetails(deviceId);
             }
         } catch (err) {
-            console.error('Error al liberar dispositivo:', err);
+            // console.error('Error al liberar dispositivo:', err);
             const errorMessage = err.response?.data?.detail || err.message || 'Error desconocido';
             toast.error(`Error al liberar dispositivo: ${errorMessage}`);
         }
@@ -391,7 +365,7 @@ const DeviceManagementPage = () => {
 
 
     const handleColumnFilterChange = (columnKey, value) => {
-        console.log("Colum keuy; ", columnKey, value);
+        // console.log("Colum keuy; ", columnKey, value);
 
         setColumnFilters(prevFilters => ({
             ...prevFilters,

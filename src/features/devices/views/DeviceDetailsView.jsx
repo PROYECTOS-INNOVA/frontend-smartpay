@@ -62,7 +62,7 @@ const DeviceDetailsView = ({
                 state: plan.device.state || 'Active'
             };
             setFormData(newFormData);
-            console.log('AAA')
+            // console.log('AAA')
             getLastBlockState();
         }
     }, [plan.device]);
@@ -96,7 +96,7 @@ const DeviceDetailsView = ({
             (a, b) => new Date(b.created_at) - new Date(a.created_at)
         );
 
-        console.log('ESTADO: ', sorted[0].action);
+        // console.log('ESTADO: ', sorted[0].action);
 
         return sorted[0].action; // devuelve "block" o "unblock"
     };
@@ -129,7 +129,7 @@ const DeviceDetailsView = ({
                 onDeviceUpdate();
             }
         } catch (error) {
-            console.error("Failed to save device:", error);
+            // console.error("Failed to save device:", error);
         } finally {
             setIsSaving(false);
         }
@@ -144,7 +144,7 @@ const DeviceDetailsView = ({
             toast.dismiss(toasId);
             setIsSimModalOpen(true);
         } catch (err) {
-            console.error('Error al cargar detalles de la sim:', err);
+            // console.error('Error al cargar detalles de la sim:', err);
             setError('Error al cargar los detalles de la sim.');
         }
     };
@@ -162,7 +162,7 @@ const DeviceDetailsView = ({
             // Obtener el objeto del localStorage
             const storedUser = localStorage.getItem("user"); // Usa la clave con la que guardaste el objeto
             if (!storedUser) {
-                console.log("No se encontró el datos del usuario en el localStorage");
+                // console.log("No se encontró el datos del usuario en el localStorage");
                 return;  
             }
             
@@ -170,9 +170,9 @@ const DeviceDetailsView = ({
             try {
                 const user = JSON.parse(storedUser); // Convertir de JSON a objeto
                 storeId = user.store?.id; // Acceder al ID del store (usa optional chaining por seguridad)
-                console.log("Store ID:", storeId);
+                // console.log("Store ID:", storeId);
             } catch (error) {
-                console.error("Error al parsear el objeto del localStorage", error);
+                // console.error("Error al parsear el objeto del localStorage", error);
             }
 
             const qrCode = await getProvisioningJson(plan.device.enrolment_id, storeId, true);
@@ -236,7 +236,7 @@ const DeviceDetailsView = ({
         } catch (error) {
             const errorMessage = error.response?.data?.detail || error.message || 'Error desconocido al aprobar SIM';
             Swal.fire('Error', `Error al aprobar SIM ${iccId}: ${errorMessage}`, 'error');
-            console.error('Error al aprobar SIM:', error);
+            // console.error('Error al aprobar SIM:', error);
             return false;
         }
     };
@@ -252,7 +252,7 @@ const DeviceDetailsView = ({
         } catch (error) {
             const errorMessage = error.response?.data?.detail || error.message || 'Error desconocido al desvincular SIM';
             Swal.fire('Error', `Error al desvincular SIM ${iccId}: ${errorMessage}`, 'error');
-            console.error('Error al desvincular SIM:', error);
+            // console.error('Error al desvincular SIM:', error);
             return false;
         }
     };
