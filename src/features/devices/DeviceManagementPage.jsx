@@ -249,8 +249,29 @@ const DeviceManagementPage = () => {
      */
     const handleUnblock = async (deviceId) => {
         try {
-            // Se asume que un desbloqueo manual es indefinido (duration: 0).
-            await unblockDevice(deviceId, { duration: 0 });
+           const { value: minutos } = await Swal.fire({
+                title: 'Desbloquear dispositivo',
+                input: 'number',
+                inputLabel: '¿Por cuántos minutos deseas desbloquear el dispositivo?',
+                inputPlaceholder: 'Ingresa el tiempo en minutos',
+                inputAttributes: {
+                    min: 0,
+                    step: 1
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Desbloquear',
+                cancelButtonText: 'Cancelar'
+            });
+
+            console.log("Minutes", minutos);
+            // Si canceló, salimos
+            if (minutos === undefined) return;
+
+            // Normalizamos el valor: si está vacío, nulo o NaN → 0
+            const minutosFinal = minutos === "" || minutos == null ? 0 : Number(minutos);
+
+            const minutes = parseInt(minutosFinal, 10);
+            await unblockDevice(deviceId, { duration: minutes * 60 });
             toast.success('Dispositivo desbloqueado con éxito.');
 
             if (selectPlan && selectPlan.device_id === deviceId) {
